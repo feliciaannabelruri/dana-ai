@@ -40,6 +40,22 @@ def parse_rate(val):
     try: return int(re.sub(r'[^0-9]','',str(val)))
     except: return 0
 
+def parse_contact(val):
+    """
+    Safely parse pic_contact — could be a phone number (int/float) or
+    a plain string like 'loveforworkingmom'. Always return a string.
+    """
+    if val is None or (isinstance(val, float) and np.isnan(val)):
+        return ''
+    # Already a plain integer stored as float (e.g. 6281234567890.0)
+    if isinstance(val, (int, float)):
+        try:
+            return str(int(val)).strip()
+        except:
+            return ''
+    # String — keep as-is (might be a username or WA number written as text)
+    return str(val).strip()
+
 def normalize_location(loc):
     if not loc: return "unknown"
     loc_lower = str(loc).lower().strip()
@@ -92,7 +108,8 @@ def parse_kol():
                 'followers_raw':row.get('followers'),
                 'category':     str(row.get('category','')).strip() if pd.notna(row.get('category')) else '',
                 'pic_name':     str(row.get('pic_name','')).strip() if pd.notna(row.get('pic_name')) else '',
-                'pic_contact':  str(int(float(row['pic_contact']))).strip() if pd.notna(row.get('pic_contact')) else '',
+                # ← Fixed: use parse_contact() instead of str(int(float(...)))
+                'pic_contact':  parse_contact(row.get('pic_contact')),
                 'rate_tiktok':0, 'rate_ig':0, 'rate_bundling':0,
             }
             if pd.notna(row.get('rate_platform')) and pd.notna(row.get('rate_value')):

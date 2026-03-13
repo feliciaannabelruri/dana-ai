@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { checkStatus, uploadKOL, uploadInsight, trainModel, getRecommendations } from './services/apiService';
+import { checkStatus, uploadKOL, uploadInsight, uploadHomelessMedia, trainModel, getRecommendations } from './services/apiService';
 
-const BG = '#07070f', ACCENT = '#4f8ef7', GOLD = '#f5a623', GREEN = '#22c55e', RED = '#ef4444', PURPLE = '#a78bfa';
+const BG = '#07070f', ACCENT = '#4f8ef7', GOLD = '#f5a623', GREEN = '#22c55e', RED = '#ef4444', PURPLE = '#a78bfa', TEAL = '#2dd4bf';
 
 function fmt(n) {
   if (!n||isNaN(n)) return 'Rp -';
@@ -76,6 +76,18 @@ const Icon = {
   target: (s=13) => (
     <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
+    </svg>
+  ),
+  newspaper: (s=14) => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 22h16a2 2 0 002-2V4a2 2 0 00-2-2H8a2 2 0 00-2 2v16a2 2 0 01-2 2zm0 0a2 2 0 01-2-2v-9c0-1.1.9-2 2-2h2"/>
+      <path d="M18 14h-8M15 18h-5M10 6h8v4h-8z"/>
+    </svg>
+  ),
+  users: (s=14) => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
+      <path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
     </svg>
   ),
   chevronDown: (s=12) => (
@@ -157,6 +169,7 @@ function Bar({ score, color }) {
   );
 }
 
+// ── KOL Card (unchanged) ─────────────────────────────────────
 function KOLCard({ kol, rank }) {
   const c = rank===1?GOLD:rank===2?'#a0c4ff':rank===3?'#cd7f32':ACCENT;
   const [open, setOpen] = useState(false);
@@ -176,10 +189,8 @@ function KOLCard({ kol, rank }) {
       onMouseEnter={e=>{e.currentTarget.style.borderColor=c+'88';e.currentTarget.style.transform='translateY(-2px)';}}
       onMouseLeave={e=>{e.currentTarget.style.borderColor=c+'33';e.currentTarget.style.transform='translateY(0)';}}
     >
-      {/* rank */}
       <div style={{ position:'absolute', top:14, right:14, background:c, color:'#000', width:24, height:24, borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, fontWeight:900 }}>#{rank}</div>
 
-      {/* header */}
       <div style={{ display:'flex', gap:10, alignItems:'flex-start', marginBottom:12 }}>
         <div style={{ width:40, height:40, borderRadius:10, background:c+'22', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, color:c }}>
           {isTiktok ? Icon.tiktok(18) : Icon.instagram(18)}
@@ -190,14 +201,12 @@ function KOLCard({ kol, rank }) {
         </div>
       </div>
 
-      {/* match score */}
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
         <span style={{ color:'#555', fontSize:10, letterSpacing:'.5px' }}>MATCH SCORE</span>
         <span style={{ color:c, fontWeight:800, fontSize:15, fontFamily:'Syne,sans-serif' }}>{kol.match_score}%</span>
       </div>
       <Bar score={kol.match_score} color={c} />
 
-      {/* real ER */}
       {kol.has_real_er && kol.avg_er_pct && (
         <div style={{ marginBottom:10, display:'flex', alignItems:'center', gap:6, background:GREEN+'11', border:`1px solid ${GREEN}33`, borderRadius:8, padding:'6px 10px' }}>
           <span style={{ color:GREEN, display:'flex' }}>{Icon.chart(13)}</span>
@@ -206,7 +215,6 @@ function KOLCard({ kol, rank }) {
         </div>
       )}
 
-      {/* stats */}
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginTop:6 }}>
         <Stat label="Followers" value={fmtF(kol.followers_num)||kol.followers} color={PURPLE} />
         <Stat label="Type" value={kol.type||'-'} color={ACCENT} />
@@ -214,14 +222,12 @@ function KOLCard({ kol, rank }) {
         <Stat label="Lokasi" value={kol.location||'-'} color={GREEN} />
       </div>
 
-      {/* badges */}
       <div style={{ marginTop:10, display:'flex', gap:6, flexWrap:'wrap' }}>
         <Badge label={kol.social_media||'-'} color={c} />
         {kol.tier && <Badge label={`Tier ${kol.tier}`} color={PURPLE} />}
         {kol.has_real_er && <Badge label="Real ER" color={GREEN} icon={Icon.checkCircle(10)} />}
       </div>
 
-      {/* score detail */}
       {kol.score_detail && (
         <>
           <button
@@ -249,7 +255,6 @@ function KOLCard({ kol, rank }) {
         </>
       )}
 
-      {/* rate card */}
       {kol.rate_card && Object.keys(kol.rate_card).length > 0 && (
         <div style={{ marginTop:10, background:'rgba(0,0,0,.3)', borderRadius:8, padding:'10px 12px' }}>
           <div style={{ color:'#444', fontSize:9, letterSpacing:'1px', marginBottom:6, fontWeight:700 }}>RATE CARD</div>
@@ -262,7 +267,6 @@ function KOLCard({ kol, rank }) {
         </div>
       )}
 
-      {/* reasoning */}
       {kol.reasoning && (
         <div style={{ marginTop:10, background:c+'0e', border:`1px solid ${c}22`, borderRadius:8, padding:'8px 10px', display:'flex', gap:6, alignItems:'flex-start' }}>
           <span style={{ color:c, flexShrink:0, marginTop:1 }}>{Icon.lightbulb(12)}</span>
@@ -270,7 +274,6 @@ function KOLCard({ kol, rank }) {
         </div>
       )}
 
-      {/* contact */}
       <div style={{ marginTop:12, paddingTop:10, borderTop:'1px solid rgba(255,255,255,.05)' }}>
         {kol.pic_name && (
           <div style={{ display:'flex', alignItems:'center', gap:5, color:'#555', fontSize:10, marginBottom:8 }}>
@@ -307,6 +310,143 @@ function KOLCard({ kol, rank }) {
   );
 }
 
+// ── Homeless Media Card ────────────────────────────────────────
+function HomelessMediaCard({ media, rank }) {
+  const c = rank===1?TEAL:rank===2?'#67e8f9':rank===3?'#a5f3fc':TEAL;
+  const [open, setOpen] = useState(false);
+
+  const contactColors = {
+    whatsapp:  { bg:'rgba(37,211,102,.12)',  border:'rgba(37,211,102,.35)', text:'#25d366' },
+    instagram: { bg:'rgba(193,53,132,.10)', border:'rgba(193,53,132,.3)', text:'#c13584' },
+    profile:   { bg:'rgba(193,53,132,.10)', border:'rgba(193,53,132,.3)', text:'#c13584' },
+  };
+  const cc = media.contact_action ? (contactColors[media.contact_action.type] || contactColors.instagram) : null;
+
+  return (
+    <div
+      style={{ background:`linear-gradient(135deg,rgba(45,212,191,.05),rgba(45,212,191,.01))`, border:`1px solid ${c}33`, borderRadius:14, padding:18, position:'relative', transition:'all .25s' }}
+      onMouseEnter={e=>{e.currentTarget.style.borderColor=c+'88';e.currentTarget.style.transform='translateY(-2px)';}}
+      onMouseLeave={e=>{e.currentTarget.style.borderColor=c+'33';e.currentTarget.style.transform='translateY(0)';}}
+    >
+      <div style={{ position:'absolute', top:14, right:14, background:c, color:'#000', width:24, height:24, borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, fontWeight:900 }}>#{rank}</div>
+
+      {/* Media type badge */}
+      <div style={{ position:'absolute', top:14, left:14 }}>
+        <Badge label="MEDIA" color={TEAL} icon={Icon.newspaper(10)} />
+      </div>
+
+      <div style={{ display:'flex', gap:10, alignItems:'flex-start', marginBottom:12, marginTop:28 }}>
+        <div style={{ width:40, height:40, borderRadius:10, background:c+'22', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, color:c }}>
+          {Icon.newspaper(18)}
+        </div>
+        <div>
+          <div style={{ fontWeight:700, color:'#fff', fontSize:14 }}>@{media.username}</div>
+          <div style={{ color:'#666', fontSize:11, marginTop:2 }}>{media.category}</div>
+        </div>
+      </div>
+
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+        <span style={{ color:'#555', fontSize:10, letterSpacing:'.5px' }}>MATCH SCORE</span>
+        <span style={{ color:c, fontWeight:800, fontSize:15, fontFamily:'Syne,sans-serif' }}>{media.match_score}%</span>
+      </div>
+      <Bar score={media.match_score} color={c} />
+
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginTop:6 }}>
+        <Stat label="Followers" value={media.followers||'-'} color={TEAL} />
+        <Stat label="Platform" value={media.social_media||'-'} color={PURPLE} />
+        <Stat label="Rate Min" value={fmt(media.rate_min)} color={GOLD} />
+        <Stat label="Lokasi" value={media.location||'-'} color={GREEN} />
+      </div>
+
+      <div style={{ marginTop:10, display:'flex', gap:6, flexWrap:'wrap' }}>
+        <Badge label={media.category} color={TEAL} />
+        <Badge label={media.location} color={media.location_norm==='nasional'?GREEN:GOLD} icon={Icon.pin(10)} />
+      </div>
+
+      {/* Score detail */}
+      {media.score_detail && (
+        <>
+          <button
+            onClick={()=>setOpen(o=>!o)}
+            style={{ marginTop:10, background:'transparent', border:'1px solid rgba(255,255,255,.08)', color:'#555', borderRadius:6, padding:'5px 10px', cursor:'pointer', fontSize:11, fontFamily:'inherit', width:'100%', display:'flex', alignItems:'center', justifyContent:'center', gap:6 }}
+          >
+            {open ? Icon.chevronUp(12) : Icon.chevronDown(12)}
+            {open ? 'Sembunyikan detail' : 'Detail scoring'}
+          </button>
+          {open && (
+            <div style={{ marginTop:10, background:'rgba(0,0,0,.3)', borderRadius:8, padding:'10px 12px' }}>
+              {Object.entries(media.score_detail).map(([k,v])=>(
+                <div key={k} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:6 }}>
+                  <span style={{ color:'#666', fontSize:11 }}>{k}</span>
+                  <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                    <div style={{ width:60, height:4, background:'#1a1a2a', borderRadius:2, overflow:'hidden' }}>
+                      <div style={{ width:`${v}%`, height:'100%', background:v>=70?GREEN:v>=40?GOLD:RED, borderRadius:2 }} />
+                    </div>
+                    <span style={{ color:'#aaa', fontSize:11, minWidth:32, textAlign:'right' }}>{v}%</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Rate Card */}
+      {media.rate_card && Object.keys(media.rate_card).length > 0 && (
+        <div style={{ marginTop:10, background:'rgba(0,0,0,.3)', borderRadius:8, padding:'10px 12px' }}>
+          <div style={{ color:'#444', fontSize:9, letterSpacing:'1px', marginBottom:6, fontWeight:700 }}>RATE CARD</div>
+          {Object.entries(media.rate_card).map(([p,r])=>(
+            <div key={p} style={{ display:'flex', justifyContent:'space-between', marginBottom:3 }}>
+              <span style={{ color:'#777', fontSize:11 }}>{p}</span>
+              <span style={{ color:GOLD, fontWeight:700, fontSize:11 }}>{fmt(r)}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {media.reasoning && (
+        <div style={{ marginTop:10, background:TEAL+'0e', border:`1px solid ${TEAL}22`, borderRadius:8, padding:'8px 10px', display:'flex', gap:6, alignItems:'flex-start' }}>
+          <span style={{ color:TEAL, flexShrink:0, marginTop:1 }}>{Icon.lightbulb(12)}</span>
+          <span style={{ color:'#bbb', fontSize:11, lineHeight:1.55 }}>{media.reasoning}</span>
+        </div>
+      )}
+
+      {/* Contact */}
+      <div style={{ marginTop:12, paddingTop:10, borderTop:'1px solid rgba(255,255,255,.05)' }}>
+        {media.pic_name && (
+          <div style={{ display:'flex', alignItems:'center', gap:5, color:'#555', fontSize:10, marginBottom:8 }}>
+            {Icon.user(11)}
+            <span>PIC:</span>
+            <span style={{ color:'#777' }}>{media.pic_name}</span>
+          </div>
+        )}
+        {media.contact_action && cc ? (
+          <a
+            href={media.contact_action.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display:'flex', alignItems:'center', justifyContent:'center', gap:8,
+              background: cc.bg, border:`1px solid ${cc.border}`, color:cc.text,
+              borderRadius:8, padding:'9px 14px', fontSize:12, fontWeight:700,
+              textDecoration:'none', fontFamily:'inherit', transition:'opacity .2s',
+            }}
+            onMouseEnter={e=>e.currentTarget.style.opacity='.75'}
+            onMouseLeave={e=>e.currentTarget.style.opacity='1'}
+          >
+            {media.contact_action.type === 'whatsapp' && Icon.whatsapp(14)}
+            {Icon.instagram(14)}
+            <span>{media.contact_action.label}</span>
+            {Icon.externalLink(10)}
+          </a>
+        ) : (
+          <div style={{ color:'#2a2a3a', fontSize:11, textAlign:'center', padding:'4px 0' }}>Tidak ada kontak</div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function Spinner({ msg }) {
   return (
     <div style={{ minHeight:'100vh', background:BG, display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column', gap:20, fontFamily:"'Plus Jakarta Sans',sans-serif" }}>
@@ -326,7 +466,7 @@ const MSGS = [
   'Memproses kebutuhan campaign...',
   'HuggingFace encoding query...',
   'Semantic matching KOL vs campaign...',
-  'Menghitung engagement & budget fit...',
+  'Mencari Homeless Media yang relevan...',
   'Menyusun rekomendasi final...',
 ];
 
@@ -337,15 +477,17 @@ export default function App() {
   const [msg, setMsg]       = useState(MSGS[0]);
   const [kolMsg, setKolMsg] = useState('');
   const [insightMsg, setInsightMsg] = useState('');
+  const [homelessMsg, setHomelessMsg] = useState('');
   const [training, setTraining]     = useState(false);
   const [form, setForm] = useState({
     campaign_name:'', campaign_description:'', goals:'',
     target_audience:'', topics:'', location:'',
-    budget:'', num_kol:5, content_type:'semua', preferred_tier:'semua',
+    budget:'', num_kol:5, num_media:3, content_type:'semua', preferred_tier:'semua',
   });
-  const kolRef     = useRef();
-  const insightRef = useRef();
-  const msgIdx     = useRef(0);
+  const kolRef      = useRef();
+  const insightRef  = useRef();
+  const homelessRef = useRef();
+  const msgIdx      = useRef(0);
 
   useEffect(() => {
     checkStatus().then(setStatus).catch(()=>setStatus({error:true}));
@@ -374,6 +516,21 @@ export default function App() {
       const r = await uploadInsight(file);
       setInsightMsg(r.er_extracted ? 'insight.xlsx uploaded. ER data diekstrak.' : 'Uploaded tapi ER extract gagal.');
     } catch(err) { setInsightMsg('Error: ' + err.message); }
+  };
+
+  const handleHomelessUpload = async (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    setHomelessMsg('Uploading & parsing...');
+    try {
+      const r = await uploadHomelessMedia(file);
+      if (r.parsed) {
+        setHomelessMsg(`✓ ${r.homeless_media_count} Homeless Media berhasil diload.`);
+        const s = await checkStatus();
+        setStatus(s);
+      } else {
+        setHomelessMsg('Uploaded tapi parsing gagal. Cek format Sheet2.');
+      }
+    } catch(err) { setHomelessMsg('Error: ' + err.message); }
   };
 
   const handleTrain = async () => {
@@ -411,94 +568,170 @@ export default function App() {
   if (page==='loading') return <Spinner msg={msg} />;
 
   /* ── RESULT PAGE ── */
-  if (page==='result' && result) return (
-    <div style={{ minHeight:'100vh', background:BG, fontFamily:"'Plus Jakarta Sans',sans-serif", color:'#fff' }}>
-      <style>{`
-        @keyframes spin{to{transform:rotate(360deg)}}
-        ::-webkit-scrollbar{width:5px}
-        ::-webkit-scrollbar-thumb{background:#2a2a3a;border-radius:3px}
-        @keyframes fu{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
-        .fu{animation:fu .5s ease forwards}
-      `}</style>
+  if (page==='result' && result) {
+    const homelessData = result.homeless_media;
+    const hasHomeless  = homelessData && homelessData.recommended_media && homelessData.recommended_media.length > 0;
 
-      {/* topbar */}
-      <div style={{ background:'rgba(7,7,15,.92)', backdropFilter:'blur(20px)', borderBottom:'1px solid rgba(255,255,255,.06)', padding:'14px 24px', display:'flex', alignItems:'center', justifyContent:'space-between', position:'sticky', top:0, zIndex:100 }}>
-        <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-          <div style={{ width:28, height:28, borderRadius:7, background:`linear-gradient(135deg,${ACCENT},${PURPLE})`, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff' }}>
-            {Icon.bolt(14)}
+    return (
+      <div style={{ minHeight:'100vh', background:BG, fontFamily:"'Plus Jakarta Sans',sans-serif", color:'#fff' }}>
+        <style>{`
+          @keyframes spin{to{transform:rotate(360deg)}}
+          ::-webkit-scrollbar{width:5px}
+          ::-webkit-scrollbar-thumb{background:#2a2a3a;border-radius:3px}
+          @keyframes fu{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+          .fu{animation:fu .5s ease forwards}
+        `}</style>
+
+        {/* topbar */}
+        <div style={{ background:'rgba(7,7,15,.92)', backdropFilter:'blur(20px)', borderBottom:'1px solid rgba(255,255,255,.06)', padding:'14px 24px', display:'flex', alignItems:'center', justifyContent:'space-between', position:'sticky', top:0, zIndex:100 }}>
+          <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+            <div style={{ width:28, height:28, borderRadius:7, background:`linear-gradient(135deg,${ACCENT},${PURPLE})`, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff' }}>
+              {Icon.bolt(14)}
+            </div>
+            <span style={{ fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:14 }}>DANA AI</span>
+            <Badge label="HuggingFace NLP" color={PURPLE} icon={Icon.cpu(10)} />
+            {hasHomeless && <Badge label={`${homelessData.total_media} Homeless Media`} color={TEAL} icon={Icon.newspaper(10)} />}
           </div>
-          <span style={{ fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:14 }}>DANA AI</span>
-          <Badge label="HuggingFace NLP" color={PURPLE} icon={Icon.cpu(10)} />
+          <div style={{ display:'flex', gap:8, alignItems:'center' }}>
+            <Badge label={`KOL AVG ${result.avg_match_score}%`} color={GREEN} />
+            <button
+              onClick={()=>setPage('form')}
+              style={{ background:'rgba(255,255,255,.07)', border:'1px solid rgba(255,255,255,.1)', color:'#ccc', borderRadius:8, padding:'6px 14px', cursor:'pointer', fontSize:12, fontFamily:'inherit' }}
+            >
+              Baru
+            </button>
+          </div>
         </div>
-        <div style={{ display:'flex', gap:8, alignItems:'center' }}>
-          <Badge label={`AVG ${result.avg_match_score}%`} color={GREEN} />
-          <button
-            onClick={()=>setPage('form')}
-            style={{ background:'rgba(255,255,255,.07)', border:'1px solid rgba(255,255,255,.1)', color:'#ccc', borderRadius:8, padding:'6px 14px', cursor:'pointer', fontSize:12, fontFamily:'inherit' }}
-          >
-            Baru
-          </button>
-        </div>
-      </div>
 
-      <div style={{ maxWidth:1100, margin:'0 auto', padding:'24px 20px' }}>
+        <div style={{ maxWidth:1100, margin:'0 auto', padding:'24px 20px' }}>
 
-        {/* summary */}
-        <div className="fu" style={{ marginBottom:20 }}>
-          <div style={{ background:ACCENT+'12', border:`1px solid ${ACCENT}30`, borderRadius:16, padding:'20px 22px' }}>
-            <div style={{ display:'flex', flexWrap:'wrap', gap:20, justifyContent:'space-between', alignItems:'flex-start' }}>
-              <div>
-                <div style={{ color:ACCENT, fontSize:10, letterSpacing:'1.5px', fontWeight:700, marginBottom:6 }}>HASIL ANALISIS — SEMANTIC ML</div>
-                <div style={{ fontFamily:'Syne,sans-serif', fontSize:'clamp(18px,3vw,26px)', fontWeight:800, marginBottom:10 }}>{result.campaign_name}</div>
-                <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
-                  <Badge label={result.target_location} color={ACCENT} icon={Icon.pin(11)} />
-                  <Badge label={fmt(parseFloat(form.budget))} color={GOLD} icon={Icon.wallet(11)} />
-                  <Badge label={`${result.total_kol} KOL`} color={GREEN} icon={Icon.target(11)} />
-                  {result.hf_model_used && <Badge label={result.hf_model_used.split('/')[1]} color={PURPLE} icon={Icon.cpu(10)} />}
+          {/* summary */}
+          <div className="fu" style={{ marginBottom:20 }}>
+            <div style={{ background:ACCENT+'12', border:`1px solid ${ACCENT}30`, borderRadius:16, padding:'20px 22px' }}>
+              <div style={{ display:'flex', flexWrap:'wrap', gap:20, justifyContent:'space-between', alignItems:'flex-start' }}>
+                <div>
+                  <div style={{ color:ACCENT, fontSize:10, letterSpacing:'1.5px', fontWeight:700, marginBottom:6 }}>HASIL ANALISIS — SEMANTIC ML + HOMELESS MEDIA</div>
+                  <div style={{ fontFamily:'Syne,sans-serif', fontSize:'clamp(18px,3vw,26px)', fontWeight:800, marginBottom:10 }}>{result.campaign_name}</div>
+                  <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
+                    <Badge label={result.target_location} color={ACCENT} icon={Icon.pin(11)} />
+                    <Badge label={fmt(parseFloat(form.budget))} color={GOLD} icon={Icon.wallet(11)} />
+                    <Badge label={`${result.total_kol} KOL`} color={GREEN} icon={Icon.users(11)} />
+                    {hasHomeless && <Badge label={`${homelessData.total_media} Media`} color={TEAL} icon={Icon.newspaper(11)} />}
+                    {result.hf_model_used && <Badge label={result.hf_model_used.split('/')[1]} color={PURPLE} icon={Icon.cpu(10)} />}
+                  </div>
                 </div>
-              </div>
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, minWidth:200 }}>
-                <Stat label="Avg Match" value={`${result.avg_match_score}%`} color={ACCENT} />
-                <Stat label="KOL Dipilih" value={result.total_kol} color={GOLD} />
-                <Stat label="Est. Min Cost" value={fmt(result.estimated_cost_min)} color={GREEN} />
-                <Stat label="Sisa Budget" value={fmt(result.budget_remaining)} color={PURPLE} />
+                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, minWidth:220 }}>
+                  <Stat label="KOL Avg Match" value={`${result.avg_match_score}%`} color={ACCENT} />
+                  <Stat label="Total KOL" value={result.total_kol} color={GOLD} />
+                  <Stat label="Est. KOL Min" value={fmt(result.estimated_cost_min)} color={GREEN} />
+                  {hasHomeless
+                    ? <Stat label="Est. Media Min" value={fmt(homelessData.estimated_cost_media_min)} color={TEAL} />
+                    : <Stat label="Sisa Budget" value={fmt(result.budget_remaining)} color={PURPLE} />
+                  }
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* HF info */}
-        <div className="fu" style={{ marginBottom:20, animationDelay:'.05s' }}>
-          <div style={{ background:PURPLE+'0d', border:`1px solid ${PURPLE}22`, borderRadius:10, padding:'10px 16px', display:'flex', alignItems:'center', gap:10 }}>
-            <span style={{ color:PURPLE }}>{Icon.cpu(14)}</span>
-            <span style={{ color:PURPLE, fontSize:12, fontWeight:600 }}>Semantic matching powered by HuggingFace</span>
-            <span style={{ color:'#444', fontSize:11 }}>memahami konteks Bahasa Indonesia & English</span>
+          {/* HF info */}
+          <div className="fu" style={{ marginBottom:20, animationDelay:'.05s' }}>
+            <div style={{ background:PURPLE+'0d', border:`1px solid ${PURPLE}22`, borderRadius:10, padding:'10px 16px', display:'flex', alignItems:'center', gap:10 }}>
+              <span style={{ color:PURPLE }}>{Icon.cpu(14)}</span>
+              <span style={{ color:PURPLE, fontSize:12, fontWeight:600 }}>Semantic matching powered by HuggingFace</span>
+              <span style={{ color:'#444', fontSize:11 }}>memahami konteks Bahasa Indonesia & English</span>
+            </div>
           </div>
-        </div>
 
-        {/* KOL grid */}
-        <div className="fu" style={{ animationDelay:'.1s' }}>
-          <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:14 }}>
-            <div style={{ width:4, height:20, background:GOLD, borderRadius:2 }} />
-            <span style={{ fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:17, display:'flex', alignItems:'center', gap:8 }}>
-              <span style={{ color:GOLD }}>{Icon.star(16)}</span>
-              Rekomendasi KOL
-            </span>
-            <Badge label={`${result.total_kol} KOL`} color={GOLD} />
+          {/* KOL section */}
+          <div className="fu" style={{ animationDelay:'.1s', marginBottom:32 }}>
+            <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:14 }}>
+              <div style={{ width:4, height:20, background:GOLD, borderRadius:2 }} />
+              <span style={{ fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:17, display:'flex', alignItems:'center', gap:8 }}>
+                <span style={{ color:GOLD }}>{Icon.star(16)}</span>
+                Rekomendasi KOL
+              </span>
+              <Badge label={`${result.total_kol} KOL`} color={GOLD} />
+            </div>
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(285px,1fr))', gap:14 }}>
+              {result.recommended_kol.map((kol,i)=><KOLCard key={kol.id} kol={kol} rank={i+1} />)}
+            </div>
           </div>
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(285px,1fr))', gap:14 }}>
-            {result.recommended_kol.map((kol,i)=><KOLCard key={kol.id} kol={kol} rank={i+1} />)}
-          </div>
+
+          {/* Homeless Media section */}
+          {hasHomeless && (
+            <div className="fu" style={{ animationDelay:'.2s' }}>
+              {/* Divider */}
+              <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:16 }}>
+                <div style={{ flex:1, height:1, background:`linear-gradient(90deg,${TEAL}44,transparent)` }} />
+                <div style={{ display:'flex', alignItems:'center', gap:8, color:TEAL }}>
+                  {Icon.newspaper(16)}
+                  <span style={{ fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:13, letterSpacing:'1px' }}>HOMELESS MEDIA</span>
+                </div>
+                <div style={{ flex:1, height:1, background:`linear-gradient(90deg,transparent,${TEAL}44)` }} />
+              </div>
+
+              {/* Info banner */}
+              <div style={{ background:TEAL+'0d', border:`1px solid ${TEAL}22`, borderRadius:10, padding:'10px 16px', display:'flex', alignItems:'flex-start', gap:10, marginBottom:14 }}>
+                <span style={{ color:TEAL, flexShrink:0, marginTop:1 }}>{Icon.newspaper(14)}</span>
+                <div>
+                  <span style={{ color:TEAL, fontSize:12, fontWeight:700 }}>Media Placement Recommendations</span>
+                  <span style={{ color:'#555', fontSize:11, marginLeft:8 }}>
+                    Akun media/berita dengan reach besar untuk amplifikasi campaign
+                  </span>
+                  {homelessData.relevant_categories && (
+                    <div style={{ display:'flex', gap:6, flexWrap:'wrap', marginTop:6 }}>
+                      {homelessData.relevant_categories.map(c=>(
+                        <Badge key={c} label={c} color={TEAL} />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:14 }}>
+                <span style={{ fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:17, display:'flex', alignItems:'center', gap:8, color:TEAL }}>
+                  {Icon.newspaper(16)}
+                  Homeless Media Terpilih
+                </span>
+                <Badge label={`${homelessData.total_media} Media`} color={TEAL} />
+                <Badge label={`Est. ${fmt(homelessData.estimated_cost_media_min)} – ${fmt(homelessData.estimated_cost_media_max)}`} color={GOLD} />
+              </div>
+
+              <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(285px,1fr))', gap:14 }}>
+                {homelessData.recommended_media.map((media,i)=>(
+                  <HomelessMediaCard key={media.id} media={media} rank={i+1} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* No homeless media available notice */}
+          {!hasHomeless && (
+            <div className="fu" style={{ animationDelay:'.2s' }}>
+              <div style={{ background:'rgba(45,212,191,.04)', border:`1px solid ${TEAL}20`, borderRadius:12, padding:'16px 20px', display:'flex', alignItems:'center', gap:12 }}>
+                <span style={{ color:TEAL }}>{Icon.newspaper(18)}</span>
+                <div>
+                  <div style={{ color:TEAL, fontWeight:700, fontSize:13 }}>Homeless Media belum diload</div>
+                  <div style={{ color:'#555', fontSize:11, marginTop:3 }}>
+                    Upload HomelessMedia.xlsx di panel setup untuk mendapatkan rekomendasi media placement.
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
         </div>
       </div>
-    </div>
-  );
+    );
+  }
 
   /* ── FORM PAGE ── */
-  const modelReady = status?.model_trained;
-  const backendErr = status?.error;
-  const meta       = status?.meta || {};
-  const canSubmit  = form.campaign_name && form.budget && modelReady;
+  const modelReady     = status?.model_trained;
+  const backendErr     = status?.error;
+  const homelessLoaded = status?.homeless_media_loaded;
+  const homelessCount  = status?.homeless_media_count || 0;
+  const meta           = status?.meta || {};
+  const canSubmit      = form.campaign_name && form.budget && modelReady;
 
   const statusIcon = backendErr
     ? <span style={{ color:RED }}>{Icon.xCircle(18)}</span>
@@ -533,13 +766,13 @@ export default function App() {
             <Badge label="HuggingFace" color={PURPLE} icon={Icon.cpu(10)} />
           </div>
           <h1 style={{ fontFamily:'Syne,sans-serif', fontSize:'clamp(22px,5vw,38px)', fontWeight:800, margin:'0 0 10px', lineHeight:1.15 }}>
-            Semantic KOL Matching<br />
+            KOL + Homeless Media<br />
             <span style={{ background:`linear-gradient(90deg,${ACCENT},${PURPLE})`, WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent' }}>
-              Powered by HuggingFace
+              Semantic Matching
             </span>
           </h1>
           <p style={{ color:'#555', fontSize:13, lineHeight:1.7, maxWidth:460, marginInline:'auto', margin:0 }}>
-            Model memahami konteks campaign secara semantik. Diperkaya ER data nyata dari insight.xlsx.
+            Rekomendasi KOL & media placement secara bersamaan. Diperkaya ER data nyata dari insight.xlsx.
           </p>
         </div>
 
@@ -556,35 +789,58 @@ export default function App() {
               <span style={{ fontWeight:700, fontSize:13, color:backendErr?RED:modelReady?GREEN:'#ccc' }}>
                 {backendErr     ? 'Backend tidak bisa dihubungi — jalankan server Python dulu'
                 : status===null ? 'Menghubungi backend...'
-                : modelReady    ? `Model siap — ${meta.total_kol||0} KOL | ${meta.kol_with_er||0} dengan ER nyata`
+                : modelReady    ? `Model siap — ${meta.total_kol||0} KOL | ${meta.kol_with_er||0} ER nyata`
                 :                 'Model belum dilatih'}
               </span>
+              {homelessLoaded && (
+                <Badge label={`${homelessCount} Homeless Media`} color={TEAL} icon={Icon.newspaper(10)} />
+              )}
             </div>
 
-            {/* uploads */}
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:12 }}>
+            {/* uploads — 3 columns */}
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:10, marginBottom:12 }}>
+              {/* KOL */}
               <div style={{ background:'rgba(0,0,0,.2)', borderRadius:8, padding:'12px' }}>
                 <div style={{ color:'#555', fontSize:10, fontWeight:700, letterSpacing:'1px', marginBottom:8 }}>DATABASE KOL</div>
                 <input ref={kolRef} type="file" accept=".xlsx" style={{ display:'none' }} onChange={handleKOLUpload} />
                 <button
                   onClick={()=>kolRef.current.click()} disabled={!!backendErr}
-                  style={{ background:ACCENT+'20', border:`1px solid ${ACCENT}40`, color:ACCENT, borderRadius:8, padding:'7px 12px', cursor:'pointer', fontSize:12, fontWeight:700, fontFamily:'inherit', width:'100%', marginBottom:6, display:'flex', alignItems:'center', justifyContent:'center', gap:6, opacity:backendErr?.4:1 }}
+                  style={{ background:ACCENT+'20', border:`1px solid ${ACCENT}40`, color:ACCENT, borderRadius:8, padding:'7px 10px', cursor:'pointer', fontSize:11, fontWeight:700, fontFamily:'inherit', width:'100%', marginBottom:6, display:'flex', alignItems:'center', justifyContent:'center', gap:5, opacity:backendErr?.4:1 }}
                 >
-                  {Icon.upload(13)} Upload KOL.xlsx
+                  {Icon.upload(12)} KOL.xlsx
                 </button>
-                {kolMsg && <div style={{ fontSize:11, color:kolMsg.startsWith('Model')||kolMsg.startsWith('KOL')?GREEN:kolMsg.startsWith('Error')?RED:'#888', lineHeight:1.4 }}>{kolMsg}</div>}
+                {kolMsg && <div style={{ fontSize:10, color:kolMsg.startsWith('Model')||kolMsg.startsWith('KOL')?GREEN:kolMsg.startsWith('Error')?RED:'#888', lineHeight:1.4 }}>{kolMsg}</div>}
               </div>
 
+              {/* Insight */}
               <div style={{ background:'rgba(0,0,0,.2)', borderRadius:8, padding:'12px' }}>
                 <div style={{ color:'#555', fontSize:10, fontWeight:700, letterSpacing:'1px', marginBottom:8 }}>INSIGHT / ER DATA</div>
                 <input ref={insightRef} type="file" accept=".xlsx" style={{ display:'none' }} onChange={handleInsightUpload} />
                 <button
                   onClick={()=>insightRef.current.click()} disabled={!!backendErr}
-                  style={{ background:GREEN+'20', border:`1px solid ${GREEN}40`, color:GREEN, borderRadius:8, padding:'7px 12px', cursor:'pointer', fontSize:12, fontWeight:700, fontFamily:'inherit', width:'100%', marginBottom:6, display:'flex', alignItems:'center', justifyContent:'center', gap:6, opacity:backendErr?.4:1 }}
+                  style={{ background:GREEN+'20', border:`1px solid ${GREEN}40`, color:GREEN, borderRadius:8, padding:'7px 10px', cursor:'pointer', fontSize:11, fontWeight:700, fontFamily:'inherit', width:'100%', marginBottom:6, display:'flex', alignItems:'center', justifyContent:'center', gap:5, opacity:backendErr?.4:1 }}
                 >
-                  {Icon.chart(13)} Upload insight.xlsx
+                  {Icon.chart(12)} insight.xlsx
                 </button>
-                {insightMsg && <div style={{ fontSize:11, color:insightMsg.startsWith('insight')?GREEN:insightMsg.startsWith('Error')?RED:'#888', lineHeight:1.4 }}>{insightMsg}</div>}
+                {insightMsg && <div style={{ fontSize:10, color:insightMsg.startsWith('insight')?GREEN:insightMsg.startsWith('Error')?RED:'#888', lineHeight:1.4 }}>{insightMsg}</div>}
+              </div>
+
+              {/* Homeless Media */}
+              <div style={{ background:'rgba(45,212,191,.04)', borderRadius:8, padding:'12px', border:`1px solid ${TEAL}22` }}>
+                <div style={{ color:TEAL, fontSize:10, fontWeight:700, letterSpacing:'1px', marginBottom:8, display:'flex', alignItems:'center', gap:4 }}>
+                  {Icon.newspaper(10)} HOMELESS MEDIA
+                </div>
+                <input ref={homelessRef} type="file" accept=".xlsx" style={{ display:'none' }} onChange={handleHomelessUpload} />
+                <button
+                  onClick={()=>homelessRef.current.click()} disabled={!!backendErr}
+                  style={{ background:TEAL+'20', border:`1px solid ${TEAL}40`, color:TEAL, borderRadius:8, padding:'7px 10px', cursor:'pointer', fontSize:11, fontWeight:700, fontFamily:'inherit', width:'100%', marginBottom:6, display:'flex', alignItems:'center', justifyContent:'center', gap:5, opacity:backendErr?.4:1 }}
+                >
+                  {Icon.upload(12)} HomelessMedia.xlsx
+                </button>
+                {homelessLoaded && !homelessMsg && (
+                  <div style={{ fontSize:10, color:TEAL, lineHeight:1.4 }}>✓ {homelessCount} media loaded</div>
+                )}
+                {homelessMsg && <div style={{ fontSize:10, color:homelessMsg.startsWith('✓')||homelessMsg.includes('berhasil')?TEAL:homelessMsg.startsWith('Error')?RED:'#888', lineHeight:1.4 }}>{homelessMsg}</div>}
               </div>
             </div>
 
@@ -602,9 +858,10 @@ export default function App() {
               <div style={{ color:'#333', fontSize:10, fontWeight:700, letterSpacing:'1px', marginBottom:8 }}>CARA SETUP</div>
               {[
                 ['1', 'Upload KOL.xlsx — database KOL kamu', modelReady],
-                ['2', 'Opsional: Upload insight.xlsx untuk ER data nyata dari campaign', false],
-                ['3', 'Klik Latih Model — HuggingFace download ~100MB pertama kali', modelReady],
-                ['4', 'Isi form di bawah, lalu generate rekomendasi', false],
+                ['2', 'Upload HomelessMedia.xlsx — database media placement', homelessLoaded],
+                ['3', 'Opsional: Upload insight.xlsx untuk ER data nyata', false],
+                ['4', 'Klik Latih Model — HuggingFace ~100MB pertama kali', modelReady],
+                ['5', 'Isi form, generate rekomendasi KOL + Homeless Media', false],
               ].map(([n, txt, done]) => (
                 <div key={n} style={{ display:'flex', gap:8, marginBottom:5, alignItems:'flex-start' }}>
                   <span style={{ color:done?GREEN:ACCENT, fontWeight:800, fontSize:11, minWidth:16, marginTop:1, display:'flex' }}>
@@ -674,13 +931,28 @@ export default function App() {
                   </select>
                 </div>
               </div>
-              <div>
-                <label style={lbl}>Jumlah KOL</label>
-                <div style={{ display:'flex', alignItems:'center', gap:14 }}>
-                  <button onClick={()=>setForm(f=>({...f,num_kol:Math.max(1,f.num_kol-1)}))} style={{ width:32, height:32, borderRadius:8, background:ACCENT+'20', border:`1px solid ${ACCENT}40`, color:ACCENT, fontWeight:800, fontSize:16, cursor:'pointer' }}>−</button>
-                  <span style={{ fontFamily:'Syne,sans-serif', fontSize:22, fontWeight:800, minWidth:28, textAlign:'center' }}>{form.num_kol}</span>
-                  <button onClick={()=>setForm(f=>({...f,num_kol:Math.min(50,f.num_kol+1)}))} style={{ width:32, height:32, borderRadius:8, background:ACCENT+'20', border:`1px solid ${ACCENT}40`, color:ACCENT, fontWeight:800, fontSize:16, cursor:'pointer' }}>+</button>
-                  <span style={{ color:'#444', fontSize:12 }}>dari {meta.total_kol||0} database</span>
+
+              {/* Jumlah KOL & Media */}
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
+                <div>
+                  <label style={lbl}>Jumlah KOL</label>
+                  <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                    <button onClick={()=>setForm(f=>({...f,num_kol:Math.max(1,f.num_kol-1)}))} style={{ width:32, height:32, borderRadius:8, background:ACCENT+'20', border:`1px solid ${ACCENT}40`, color:ACCENT, fontWeight:800, fontSize:16, cursor:'pointer' }}>−</button>
+                    <span style={{ fontFamily:'Syne,sans-serif', fontSize:22, fontWeight:800, minWidth:28, textAlign:'center' }}>{form.num_kol}</span>
+                    <button onClick={()=>setForm(f=>({...f,num_kol:Math.min(50,f.num_kol+1)}))} style={{ width:32, height:32, borderRadius:8, background:ACCENT+'20', border:`1px solid ${ACCENT}40`, color:ACCENT, fontWeight:800, fontSize:16, cursor:'pointer' }}>+</button>
+                    <span style={{ color:'#444', fontSize:11 }}>dari {meta.total_kol||0}</span>
+                  </div>
+                </div>
+                <div>
+                  <label style={{ color:TEAL, fontSize:11, fontWeight:700, letterSpacing:'.7px', marginBottom:5, textTransform:'uppercase', display:'flex', alignItems:'center', gap:5 }}>
+                    {Icon.newspaper(10)} Jumlah Homeless Media
+                  </label>
+                  <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                    <button onClick={()=>setForm(f=>({...f,num_media:Math.max(1,f.num_media-1)}))} style={{ width:32, height:32, borderRadius:8, background:TEAL+'20', border:`1px solid ${TEAL}40`, color:TEAL, fontWeight:800, fontSize:16, cursor:'pointer' }}>−</button>
+                    <span style={{ fontFamily:'Syne,sans-serif', fontSize:22, fontWeight:800, minWidth:28, textAlign:'center', color:TEAL }}>{form.num_media}</span>
+                    <button onClick={()=>setForm(f=>({...f,num_media:Math.min(20,f.num_media+1)}))} style={{ width:32, height:32, borderRadius:8, background:TEAL+'20', border:`1px solid ${TEAL}40`, color:TEAL, fontWeight:800, fontSize:16, cursor:'pointer' }}>+</button>
+                    <span style={{ color:'#444', fontSize:11 }}>dari {homelessCount||0}</span>
+                  </div>
                 </div>
               </div>
 
@@ -689,7 +961,7 @@ export default function App() {
                 style={{ background:canSubmit?`linear-gradient(135deg,${ACCENT},${PURPLE})`:'rgba(255,255,255,.05)', border:'none', color:'#fff', borderRadius:12, padding:'14px 28px', fontSize:14, fontWeight:700, cursor:canSubmit?'pointer':'not-allowed', fontFamily:'Syne,sans-serif', opacity:canSubmit?1:.4, transition:'all .25s', display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}
               >
                 {Icon.bolt(15)}
-                Generate Rekomendasi
+                Generate Rekomendasi KOL {homelessLoaded && '+ Homeless Media'}
               </button>
 
               {!modelReady && (
@@ -703,7 +975,7 @@ export default function App() {
         </div>
 
         <div style={{ marginTop:16, textAlign:'center', color:'#2a2a3a', fontSize:11 }}>
-          DANA AI · HuggingFace Multilingual · No external API
+          DANA AI · HuggingFace Multilingual · KOL + Homeless Media · No external API
         </div>
       </div>
     </div>

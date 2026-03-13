@@ -1,0 +1,5800 @@
+[
+  {
+    "id": 1,
+    "username": "wkwkland_real",
+    "social_media": "Instagram",
+    "followers_raw": "513K",
+    "followers_num": 513000,
+    "category": "Media",
+    "pic_name": "admin wkwkland",
+    "pic_contact": "85156953076",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "IG Story": 300,
+      "Reels": 2000000,
+      "Feeds": 1500000
+    },
+    "rate_min": 300,
+    "rate_max": 2000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285156953076",
+      "label": "WA 6285156953076"
+    }
+  },
+  {
+    "id": 2,
+    "username": "bestie.genk",
+    "social_media": "Instagram",
+    "followers_raw": "497K",
+    "followers_num": 497000,
+    "category": "Akun Gossip",
+    "pic_name": "admin bestiegenk",
+    "pic_contact": "82186101480",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "1 IGS": 180,
+      "2 IGS": 360,
+      "3 IGS": 430
+    },
+    "rate_min": 180,
+    "rate_max": 430,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6282186101480",
+      "label": "WA 6282186101480"
+    }
+  },
+  {
+    "id": 3,
+    "username": "bestiegenk.closefriend",
+    "social_media": "Instagram",
+    "followers_raw": "359K",
+    "followers_num": 359000,
+    "category": "Akun Gossip",
+    "pic_name": "admin bestiegenk",
+    "pic_contact": "82186101480",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "1 IGS": 150,
+      "2 IGS": 340,
+      "3 IGS": 390
+    },
+    "rate_min": 150,
+    "rate_max": 390,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6282186101480",
+      "label": "WA 6282186101480"
+    }
+  },
+  {
+    "id": 4,
+    "username": "lambe_turah",
+    "social_media": "Instagram",
+    "followers_raw": "12M",
+    "followers_num": 12000000,
+    "category": "Akun Gossip",
+    "pic_name": "admin",
+    "pic_contact": "81328616092",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 15000000,
+      "Reels": 20000000,
+      "IG Story Photo": 2500000
+    },
+    "rate_min": 2500000,
+    "rate_max": 20000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6281328616092",
+      "label": "WA 6281328616092"
+    }
+  },
+  {
+    "id": 5,
+    "username": "lambeturah_official",
+    "social_media": "Instagram",
+    "followers_raw": "2M",
+    "followers_num": 2000000,
+    "category": "Akun Gossip",
+    "pic_name": "admin",
+    "pic_contact": "81328616092",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 3000000,
+      "Reels": 6000000,
+      "IG Story Photo": 1000000
+    },
+    "rate_min": 1000000,
+    "rate_max": 6000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6281328616092",
+      "label": "WA 6281328616092"
+    }
+  },
+  {
+    "id": 6,
+    "username": "ngakakkocak",
+    "social_media": "Instagram",
+    "followers_raw": "11M",
+    "followers_num": 11000000,
+    "category": "Akun Meme/Lucu",
+    "pic_name": "admin",
+    "pic_contact": "81388308870",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 6000000,
+      "Reels": 6500000,
+      "IG Story": 2000000
+    },
+    "rate_min": 2000000,
+    "rate_max": 6500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6281388308870",
+      "label": "WA 6281388308870"
+    }
+  },
+  {
+    "id": 7,
+    "username": "ngakaksehat",
+    "social_media": "Instagram",
+    "followers_raw": "4,5M",
+    "followers_num": 4500000,
+    "category": "Akun Meme/Lucu",
+    "pic_name": "admin",
+    "pic_contact": "81388308870",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 3000000,
+      "Reels": 4000000,
+      "IG Story": 1500000
+    },
+    "rate_min": 1500000,
+    "rate_max": 4000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6281388308870",
+      "label": "WA 6281388308870"
+    }
+  },
+  {
+    "id": 8,
+    "username": "misterkomedi",
+    "social_media": "Instagram",
+    "followers_raw": "1M",
+    "followers_num": 1000000,
+    "category": "Akun Meme/Lucu",
+    "pic_name": "admin",
+    "pic_contact": "81388308870",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 600,
+      "Reels": 600,
+      "IG Story": 400
+    },
+    "rate_min": 400,
+    "rate_max": 600,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6281388308870",
+      "label": "WA 6281388308870"
+    }
+  },
+  {
+    "id": 9,
+    "username": "indoviral8",
+    "social_media": "Instagram",
+    "followers_raw": "629K",
+    "followers_num": 629000,
+    "category": "Akun Meme/Lucu, Viral",
+    "pic_name": "admin",
+    "pic_contact": "81388308870",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 300,
+      "Reels": 400,
+      "IG Story": 200
+    },
+    "rate_min": 200,
+    "rate_max": 400,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6281388308870",
+      "label": "WA 6281388308870"
+    }
+  },
+  {
+    "id": 10,
+    "username": "awreceh.id",
+    "social_media": "Instagram",
+    "followers_raw": "4M",
+    "followers_num": 4000000,
+    "category": "Akun Meme/Lucu, Viral",
+    "pic_name": "saragih media",
+    "pic_contact": "85892487894",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 700,
+      "Reels": 700,
+      "IG Story": 400
+    },
+    "rate_min": 400,
+    "rate_max": 700,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285892487894",
+      "label": "WA 6285892487894"
+    }
+  },
+  {
+    "id": 11,
+    "username": "kegoblogan.unfaedah",
+    "social_media": "Instagram",
+    "followers_raw": "2,1M",
+    "followers_num": 2100000,
+    "category": "Akun Meme/Lucu, Viral",
+    "pic_name": "saragih media",
+    "pic_contact": "85892487894",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 400,
+      "Reels": 400,
+      "IG Story": 200
+    },
+    "rate_min": 200,
+    "rate_max": 400,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285892487894",
+      "label": "WA 6285892487894"
+    }
+  },
+  {
+    "id": 12,
+    "username": "kegobloganunfaedah",
+    "social_media": "Instagram",
+    "followers_raw": "1,2M",
+    "followers_num": 1200000,
+    "category": "Akun Meme/Lucu, Viral",
+    "pic_name": "saragih media",
+    "pic_contact": "85892487894",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 200,
+      "Reels": 200
+    },
+    "rate_min": 200,
+    "rate_max": 200,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285892487894",
+      "label": "WA 6285892487894"
+    }
+  },
+  {
+    "id": 13,
+    "username": "kegoblogan.unfaedahh_",
+    "social_media": "Instagram",
+    "followers_raw": "1M",
+    "followers_num": 1000000,
+    "category": "Akun Meme/Lucu, Viral",
+    "pic_name": "saragih media",
+    "pic_contact": "85892487894",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 150,
+      "Reels": 150
+    },
+    "rate_min": 150,
+    "rate_max": 150,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285892487894",
+      "label": "WA 6285892487894"
+    }
+  },
+  {
+    "id": 14,
+    "username": "Unikinfold",
+    "social_media": "Instagram",
+    "followers_raw": "926K",
+    "followers_num": 926000,
+    "category": "Akun Meme/Lucu, Viral",
+    "pic_name": "admin folks media",
+    "pic_contact": "85376849515",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 2500000,
+      "Reels": 2500000,
+      "IG Story": 500
+    },
+    "rate_min": 500,
+    "rate_max": 2500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285376849515",
+      "label": "WA 6285376849515"
+    }
+  },
+  {
+    "id": 15,
+    "username": "berdialoq",
+    "social_media": "Instagram",
+    "followers_raw": "97,7K",
+    "followers_num": 97700,
+    "category": "Akun Meme/Lucu, Viral",
+    "pic_name": "admin folks media",
+    "pic_contact": "85376849515",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 300,
+      "Reels": 300,
+      "IG Story": 50
+    },
+    "rate_min": 50,
+    "rate_max": 300,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285376849515",
+      "label": "WA 6285376849515"
+    }
+  },
+  {
+    "id": 16,
+    "username": "ohmmeygatt",
+    "social_media": "Instagram",
+    "followers_raw": "2,3M",
+    "followers_num": 2300000,
+    "category": "Akun Meme/Lucu, Viral",
+    "pic_name": "admin folks media",
+    "pic_contact": "85376849515",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 2500000,
+      "Reels": 2500000,
+      "IG Story": 500
+    },
+    "rate_min": 500,
+    "rate_max": 2500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285376849515",
+      "label": "WA 6285376849515"
+    }
+  },
+  {
+    "id": 17,
+    "username": "abouthetic",
+    "social_media": "Instagram",
+    "followers_raw": "2,8M",
+    "followers_num": 2800000,
+    "category": "Akun Meme/Lucu, Viral",
+    "pic_name": "admin folks media",
+    "pic_contact": "85376849515",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 4300000,
+      "Reels": 4500000,
+      "IG Story": 750
+    },
+    "rate_min": 750,
+    "rate_max": 4500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285376849515",
+      "label": "WA 6285376849515"
+    }
+  },
+  {
+    "id": 18,
+    "username": "girlstorychat",
+    "social_media": "Instagram",
+    "followers_raw": "1,9M",
+    "followers_num": 1900000,
+    "category": "Akun Meme/Lucu, Viral",
+    "pic_name": "admin folks media",
+    "pic_contact": "85376849515",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 3000000,
+      "Reels": 3000000,
+      "IG Story": 500
+    },
+    "rate_min": 500,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285376849515",
+      "label": "WA 6285376849515"
+    }
+  },
+  {
+    "id": 19,
+    "username": "colorteutic",
+    "social_media": "Instagram",
+    "followers_raw": "921K",
+    "followers_num": 921000,
+    "category": "Akun Meme/Lucu, Viral",
+    "pic_name": "admin folks media",
+    "pic_contact": "85376849515",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 1500000,
+      "Reels": 1500000,
+      "IG Story": 350
+    },
+    "rate_min": 350,
+    "rate_max": 1500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285376849515",
+      "label": "WA 6285376849515"
+    }
+  },
+  {
+    "id": 20,
+    "username": "mood.jakarta",
+    "social_media": "Instagram",
+    "followers_raw": "1,2M",
+    "followers_num": 1200000,
+    "category": "Akun Meme/Lucu, Viral",
+    "pic_name": "admin folks media",
+    "pic_contact": "85376849515",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 3000000,
+      "Reels": 3000000,
+      "IG Story": 1000000
+    },
+    "rate_min": 1000000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285376849515",
+      "label": "WA 6285376849515"
+    }
+  },
+  {
+    "id": 21,
+    "username": "folkkonoha",
+    "social_media": "Instagram",
+    "followers_raw": "429K",
+    "followers_num": 429000,
+    "category": "Akun Meme/Lucu, Viral",
+    "pic_name": "admin folks media",
+    "pic_contact": "85376849515",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 800,
+      "Reels": 800,
+      "IG Story": 350
+    },
+    "rate_min": 350,
+    "rate_max": 800,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285376849515",
+      "label": "WA 6285376849515"
+    }
+  },
+  {
+    "id": 22,
+    "username": "abouthify",
+    "social_media": "Instagram",
+    "followers_raw": "1,2M",
+    "followers_num": 1200000,
+    "category": "Akun Meme/Lucu, Viral",
+    "pic_name": "admin folks media",
+    "pic_contact": "85376849515",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 2700000,
+      "Reels": 2700000,
+      "IG Story": 500
+    },
+    "rate_min": 500,
+    "rate_max": 2700000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285376849515",
+      "label": "WA 6285376849515"
+    }
+  },
+  {
+    "id": 23,
+    "username": "beritaindonesia_",
+    "social_media": "Instagram",
+    "followers_raw": "607K",
+    "followers_num": 607000,
+    "category": "Akun Meme/Lucu, Viral",
+    "pic_name": "admin folks media",
+    "pic_contact": "85376849515",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 750,
+      "Reels": 750,
+      "IG Story": 200
+    },
+    "rate_min": 200,
+    "rate_max": 750,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285376849515",
+      "label": "WA 6285376849515"
+    }
+  },
+  {
+    "id": 24,
+    "username": "photoshop_indonesia",
+    "social_media": "Instagram",
+    "followers_raw": "328K",
+    "followers_num": 328000,
+    "category": "Akun Meme/Lucu, Viral",
+    "pic_name": "admin folks media",
+    "pic_contact": "85376849515",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 800,
+      "Reels": 800,
+      "IG Story": 250
+    },
+    "rate_min": 250,
+    "rate_max": 800,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285376849515",
+      "label": "WA 6285376849515"
+    }
+  },
+  {
+    "id": 25,
+    "username": "duniapunyacerita",
+    "social_media": "Instagram",
+    "followers_raw": "409K",
+    "followers_num": 409000,
+    "category": "Akun Meme/Lucu, Viral",
+    "pic_name": "admin folks media",
+    "pic_contact": "85376849515",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 750,
+      "Reels": 750,
+      "IG Story": 150
+    },
+    "rate_min": 150,
+    "rate_max": 750,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285376849515",
+      "label": "WA 6285376849515"
+    }
+  },
+  {
+    "id": 26,
+    "username": "jkt.fess",
+    "social_media": "Instagram",
+    "followers_raw": "2M",
+    "followers_num": 2000000,
+    "category": "Trending News",
+    "pic_name": "admin folks media",
+    "pic_contact": "85376849515",
+    "location_raw": "Jakarta",
+    "location_norm": "jakarta",
+    "rate_card": {
+      "Feeds": 5500000,
+      "Reels": 5500000,
+      "IG Story": 1500000
+    },
+    "rate_min": 1500000,
+    "rate_max": 5500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285376849515",
+      "label": "WA 6285376849515"
+    }
+  },
+  {
+    "id": 27,
+    "username": "jkt.feed",
+    "social_media": "Instagram",
+    "followers_raw": "886K",
+    "followers_num": 886000,
+    "category": "Trending News",
+    "pic_name": "admin folks media",
+    "pic_contact": "85376849515",
+    "location_raw": "Jakarta",
+    "location_norm": "jakarta",
+    "rate_card": {
+      "Feeds": 2500000,
+      "Reels": 2500000,
+      "IG Story": 500
+    },
+    "rate_min": 500,
+    "rate_max": 2500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285376849515",
+      "label": "WA 6285376849515"
+    }
+  },
+  {
+    "id": 28,
+    "username": "jktonfeed",
+    "social_media": "Instagram",
+    "followers_raw": "262K",
+    "followers_num": 262000,
+    "category": "Trending News",
+    "pic_name": "admin folks media",
+    "pic_contact": "85376849515",
+    "location_raw": "Jakarta",
+    "location_norm": "jakarta",
+    "rate_card": {
+      "Feeds": 650,
+      "Reels": 650,
+      "IG Story": 150
+    },
+    "rate_min": 150,
+    "rate_max": 650,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285376849515",
+      "label": "WA 6285376849515"
+    }
+  },
+  {
+    "id": 29,
+    "username": "jkt.genz",
+    "social_media": "Instagram",
+    "followers_raw": "1,1M",
+    "followers_num": 1100000,
+    "category": "Trending News",
+    "pic_name": "admin folks media",
+    "pic_contact": "85376849515",
+    "location_raw": "Jakarta",
+    "location_norm": "jakarta",
+    "rate_card": {
+      "Feeds": 1500000,
+      "Reels": 1500000,
+      "IG Story": 350
+    },
+    "rate_min": 350,
+    "rate_max": 1500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285376849515",
+      "label": "WA 6285376849515"
+    }
+  },
+  {
+    "id": 30,
+    "username": "jakarta.folks",
+    "social_media": "Instagram",
+    "followers_raw": "292K",
+    "followers_num": 292000,
+    "category": "Trending News",
+    "pic_name": "admin folks media",
+    "pic_contact": "85376849515",
+    "location_raw": "Jakarta",
+    "location_norm": "jakarta",
+    "rate_card": {
+      "Feeds": 800,
+      "Reels": 800,
+      "IG Story": 250
+    },
+    "rate_min": 250,
+    "rate_max": 800,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285376849515",
+      "label": "WA 6285376849515"
+    }
+  },
+  {
+    "id": 31,
+    "username": "jkt.folks",
+    "social_media": "Instagram",
+    "followers_raw": "1,3M",
+    "followers_num": 1300000,
+    "category": "Trending News",
+    "pic_name": "admin folks media",
+    "pic_contact": "85376849515",
+    "location_raw": "Jakarta",
+    "location_norm": "jakarta",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 2000000,
+      "IG Story": 300
+    },
+    "rate_min": 300,
+    "rate_max": 2000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285376849515",
+      "label": "WA 6285376849515"
+    }
+  },
+  {
+    "id": 32,
+    "username": "sulthanreceh",
+    "social_media": "Instagram",
+    "followers_raw": "649K",
+    "followers_num": 649000,
+    "category": "Akun Meme/Lucu, Viral",
+    "pic_name": "maherrr",
+    "pic_contact": "85822241265",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 350,
+      "IG Story": 200,
+      "Bundling": 400
+    },
+    "rate_min": 200,
+    "rate_max": 400,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285822241265",
+      "label": "WA 6285822241265"
+    }
+  },
+  {
+    "id": 33,
+    "username": "wajibkeras",
+    "social_media": "Instagram",
+    "followers_raw": "123K",
+    "followers_num": 123000,
+    "category": "Akun Meme/Lucu, Viral",
+    "pic_name": "maherrr",
+    "pic_contact": "85822241265",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 100,
+      "IG Story": 50,
+      "Bundling": 120
+    },
+    "rate_min": 50,
+    "rate_max": 120,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285822241265",
+      "label": "WA 6285822241265"
+    }
+  },
+  {
+    "id": 34,
+    "username": "Skrinsit",
+    "social_media": "Instagram",
+    "followers_raw": "nan",
+    "followers_num": 0,
+    "category": "Akun Gossip",
+    "pic_name": "admin",
+    "pic_contact": "82334806095",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 250,
+      "Reels": 250,
+      "IG Story": 50
+    },
+    "rate_min": 50,
+    "rate_max": 250,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6282334806095",
+      "label": "WA 6282334806095"
+    }
+  },
+  {
+    "id": 35,
+    "username": "tekniksyit",
+    "social_media": "Instagram",
+    "followers_raw": "nan",
+    "followers_num": 0,
+    "category": "Akun Meme/Lucu, Viral",
+    "pic_name": "admin",
+    "pic_contact": "82334806095",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 100,
+      "Reels": 100,
+      "IG Story": 20
+    },
+    "rate_min": 20,
+    "rate_max": 100,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6282334806095",
+      "label": "WA 6282334806095"
+    }
+  },
+  {
+    "id": 36,
+    "username": "awshitpostid",
+    "social_media": "Instagram",
+    "followers_raw": "nan",
+    "followers_num": 0,
+    "category": "Akun Meme/Lucu, Viral",
+    "pic_name": "admin",
+    "pic_contact": "81377708364",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 250,
+      "Reels": 250,
+      "IG Story": 150
+    },
+    "rate_min": 150,
+    "rate_max": 250,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6281377708364",
+      "label": "WA 6281377708364"
+    }
+  },
+  {
+    "id": 37,
+    "username": "lambegosiip",
+    "social_media": "Instagram",
+    "followers_raw": "nan",
+    "followers_num": 0,
+    "category": "Akun Gossip",
+    "pic_name": "admin",
+    "pic_contact": "81370859276",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 710,
+      "Reels": 800,
+      "IG Story": 130
+    },
+    "rate_min": 130,
+    "rate_max": 800,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6281370859276",
+      "label": "WA 6281370859276"
+    }
+  },
+  {
+    "id": 38,
+    "username": "gosip_Danu",
+    "social_media": "Instagram",
+    "followers_raw": "241K",
+    "followers_num": 241000,
+    "category": "Trending News",
+    "pic_name": "martha jack",
+    "pic_contact": "85648135606",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 500,
+      "Reels": 500,
+      "IG Story": 500
+    },
+    "rate_min": 500,
+    "rate_max": 500,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285648135606",
+      "label": "WA 6285648135606"
+    }
+  },
+  {
+    "id": 39,
+    "username": "jatinangorbanget",
+    "social_media": "Instagram",
+    "followers_raw": "111K",
+    "followers_num": 111000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85780407911",
+    "location_raw": "Bandung",
+    "location_norm": "bandung",
+    "rate_card": {
+      "Feeds": 300,
+      "Reels": 300,
+      "IG Story": 200
+    },
+    "rate_min": 200,
+    "rate_max": 300,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285780407911",
+      "label": "WA 6285780407911"
+    }
+  },
+  {
+    "id": 40,
+    "username": "inimahsumedang",
+    "social_media": "Instagram",
+    "followers_raw": "242K",
+    "followers_num": 242000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "81283652828",
+    "location_raw": "Bandung",
+    "location_norm": "bandung",
+    "rate_card": {
+      "Feeds/Reels": 299,
+      "Tiktok": 239,
+      "IG Story": 159
+    },
+    "rate_min": 159,
+    "rate_max": 299,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6281283652828",
+      "label": "WA 6281283652828"
+    }
+  },
+  {
+    "id": 41,
+    "username": "cirebon.banget",
+    "social_media": "Instagram",
+    "followers_raw": "213K",
+    "followers_num": 213000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "81221636005",
+    "location_raw": "Cirebon",
+    "location_norm": "bandung",
+    "rate_card": {
+      "Feeds": 150,
+      "Reels": 200,
+      "IG Story": 100
+    },
+    "rate_min": 100,
+    "rate_max": 200,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6281221636005",
+      "label": "WA 6281221636005"
+    }
+  },
+  {
+    "id": 42,
+    "username": "bogorpisan",
+    "social_media": "Instagram",
+    "followers_raw": "345K",
+    "followers_num": 345000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "87718941360",
+    "location_raw": "Bogor",
+    "location_norm": "jakarta",
+    "rate_card": {
+      "Visit (reels,tiktok,3 igs)": 1200000,
+      "Paid Promote ( 1 posting video dari kita, 4 igs)": 700,
+      "Special Deal ( 2x reels,2x tiktok mirror, 10 igs , pin post 25 hari)": 3000000
+    },
+    "rate_min": 700,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6287718941360",
+      "label": "WA 6287718941360"
+    }
+  },
+  {
+    "id": 43,
+    "username": "infobandungtimur_",
+    "social_media": "Instagram",
+    "followers_raw": "195K",
+    "followers_num": 195000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85161209025",
+    "location_raw": "Bandung",
+    "location_norm": "bandung",
+    "rate_card": {
+      "Feeds": 200,
+      "Reels": 250,
+      "IG Story": 70
+    },
+    "rate_min": 70,
+    "rate_max": 250,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285161209025",
+      "label": "WA 6285161209025"
+    }
+  },
+  {
+    "id": 44,
+    "username": "bandung.banget",
+    "social_media": "Instagram",
+    "followers_raw": "1,9M",
+    "followers_num": 1900000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85798829338",
+    "location_raw": "Bandung",
+    "location_norm": "bandung",
+    "rate_card": {
+      "Feeds": 850,
+      "Threads (60K followers)": 150,
+      "IG Story": 400
+    },
+    "rate_min": 150,
+    "rate_max": 850,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285798829338",
+      "label": "WA 6285798829338"
+    }
+  },
+  {
+    "id": 45,
+    "username": "ahquote",
+    "social_media": "Instagram",
+    "followers_raw": "2,5M",
+    "followers_num": 2500000,
+    "category": "Trending News",
+    "pic_name": "ninis",
+    "pic_contact": "82193639442",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds/Reels": 2728,
+      "Tiktok": 15000000,
+      "IG Story": 15000000
+    },
+    "rate_min": 2728,
+    "rate_max": 15000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6282193639442",
+      "label": "WA 6282193639442"
+    }
+  },
+  {
+    "id": 46,
+    "username": "jakarta.terkini",
+    "social_media": "Instagram",
+    "followers_raw": "2,2M",
+    "followers_num": 2200000,
+    "category": "Trending News",
+    "pic_name": "jktn media",
+    "pic_contact": "88226365120",
+    "location_raw": "Jakarta",
+    "location_norm": "jakarta",
+    "rate_card": {
+      "Feeds": 700,
+      "Reels": 750,
+      "IG Story": 350
+    },
+    "rate_min": 350,
+    "rate_max": 750,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6288226365120",
+      "label": "WA 6288226365120"
+    }
+  },
+  {
+    "id": 47,
+    "username": "jakartazoone",
+    "social_media": "Instagram",
+    "followers_raw": "3M",
+    "followers_num": 3000000,
+    "category": "Trending News",
+    "pic_name": "jktn media",
+    "pic_contact": "88226365120",
+    "location_raw": "Jakarta",
+    "location_norm": "jakarta",
+    "rate_card": {
+      "Feeds": 500,
+      "Reels": 500,
+      "IG Story": 185
+    },
+    "rate_min": 185,
+    "rate_max": 500,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6288226365120",
+      "label": "WA 6288226365120"
+    }
+  },
+  {
+    "id": 48,
+    "username": "bekasi.terkini",
+    "social_media": "Instagram",
+    "followers_raw": "753K",
+    "followers_num": 753000,
+    "category": "Trending News",
+    "pic_name": "jktn media",
+    "pic_contact": "88226365120",
+    "location_raw": "Bekasi",
+    "location_norm": "jakarta",
+    "rate_card": {
+      "Feeds": 350,
+      "Reels": 350,
+      "IG Story": 150
+    },
+    "rate_min": 150,
+    "rate_max": 350,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6288226365120",
+      "label": "WA 6288226365120"
+    }
+  },
+  {
+    "id": 49,
+    "username": "jakartasiana",
+    "social_media": "Instagram",
+    "followers_raw": "514K",
+    "followers_num": 514000,
+    "category": "Trending News",
+    "pic_name": "jktn media",
+    "pic_contact": "88226365120",
+    "location_raw": "Jakarta",
+    "location_norm": "jakarta",
+    "rate_card": {
+      "Feeds": 250,
+      "Reels": 250,
+      "IG Story": 150
+    },
+    "rate_min": 150,
+    "rate_max": 250,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6288226365120",
+      "label": "WA 6288226365120"
+    }
+  },
+  {
+    "id": 50,
+    "username": "jabodetabek.terkini",
+    "social_media": "Instagram",
+    "followers_raw": "664K",
+    "followers_num": 664000,
+    "category": "Trending News",
+    "pic_name": "jktn media",
+    "pic_contact": "88226365120",
+    "location_raw": "Jabodetabek",
+    "location_norm": "other",
+    "rate_card": {
+      "Feeds": 250,
+      "Reels": 250,
+      "IG Story": 100
+    },
+    "rate_min": 100,
+    "rate_max": 250,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6288226365120",
+      "label": "WA 6288226365120"
+    }
+  },
+  {
+    "id": 51,
+    "username": "tangerang.terkini",
+    "social_media": "Instagram",
+    "followers_raw": "248K",
+    "followers_num": 248000,
+    "category": "Trending News",
+    "pic_name": "jktn media",
+    "pic_contact": "88226365120",
+    "location_raw": "Tangerang",
+    "location_norm": "jakarta",
+    "rate_card": {
+      "Feeds": 250,
+      "Reels": 250,
+      "IG Story": 100
+    },
+    "rate_min": 100,
+    "rate_max": 250,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6288226365120",
+      "label": "WA 6288226365120"
+    }
+  },
+  {
+    "id": 52,
+    "username": "bogor.terkini",
+    "social_media": "Instagram",
+    "followers_raw": "289K",
+    "followers_num": 289000,
+    "category": "Trending News",
+    "pic_name": "jktn media",
+    "pic_contact": "88226365120",
+    "location_raw": "Bogor",
+    "location_norm": "jakarta",
+    "rate_card": {
+      "Feeds": 200,
+      "Reels": 200,
+      "IG Story": 85
+    },
+    "rate_min": 85,
+    "rate_max": 200,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6288226365120",
+      "label": "WA 6288226365120"
+    }
+  },
+  {
+    "id": 53,
+    "username": "depokterkini",
+    "social_media": "Instagram",
+    "followers_raw": "177K",
+    "followers_num": 177000,
+    "category": "Trending News",
+    "pic_name": "jktn media",
+    "pic_contact": "88226365120",
+    "location_raw": "Depok",
+    "location_norm": "jakarta",
+    "rate_card": {
+      "Feeds": 150,
+      "Reels": 150,
+      "IG Story": 75
+    },
+    "rate_min": 75,
+    "rate_max": 150,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6288226365120",
+      "label": "WA 6288226365120"
+    }
+  },
+  {
+    "id": 54,
+    "username": "bekasi foodis",
+    "social_media": "Instagram",
+    "followers_raw": "165K",
+    "followers_num": 165000,
+    "category": "Trending News",
+    "pic_name": "jktn media",
+    "pic_contact": "88226365120",
+    "location_raw": "Bekasi",
+    "location_norm": "jakarta",
+    "rate_card": {
+      "Feeds": 125,
+      "Reels": 125,
+      "IG Story": 85
+    },
+    "rate_min": 85,
+    "rate_max": 125,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6288226365120",
+      "label": "WA 6288226365120"
+    }
+  },
+  {
+    "id": 55,
+    "username": "jakarta capture",
+    "social_media": "Instagram",
+    "followers_raw": "131K",
+    "followers_num": 131000,
+    "category": "Trending News",
+    "pic_name": "jktn media",
+    "pic_contact": "88226365120",
+    "location_raw": "Jakarta",
+    "location_norm": "jakarta",
+    "rate_card": {
+      "Feeds": 115,
+      "Reels": 115,
+      "IG Story": 50
+    },
+    "rate_min": 50,
+    "rate_max": 115,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6288226365120",
+      "label": "WA 6288226365120"
+    }
+  },
+  {
+    "id": 56,
+    "username": "surabaya.terkini",
+    "social_media": "Instagram",
+    "followers_raw": "803K",
+    "followers_num": 803000,
+    "category": "Trending News",
+    "pic_name": "jktn media",
+    "pic_contact": "88226365120",
+    "location_raw": "Surabaya",
+    "location_norm": "surabaya",
+    "rate_card": {
+      "Feeds": 350,
+      "Reels": 350,
+      "IG Story": 150
+    },
+    "rate_min": 150,
+    "rate_max": 350,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6288226365120",
+      "label": "WA 6288226365120"
+    }
+  },
+  {
+    "id": 57,
+    "username": "bandung point",
+    "social_media": "Instagram",
+    "followers_raw": "626K",
+    "followers_num": 626000,
+    "category": "Trending News",
+    "pic_name": "jktn media",
+    "pic_contact": "88226365120",
+    "location_raw": "Bandung",
+    "location_norm": "bandung",
+    "rate_card": {
+      "Feeds": 300,
+      "Reels": 300,
+      "IG Story": 150
+    },
+    "rate_min": 150,
+    "rate_max": 300,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6288226365120",
+      "label": "WA 6288226365120"
+    }
+  },
+  {
+    "id": 58,
+    "username": "jogjatrens",
+    "social_media": "Instagram",
+    "followers_raw": "482K",
+    "followers_num": 482000,
+    "category": "Trending News",
+    "pic_name": "jktn media",
+    "pic_contact": "88226365120",
+    "location_raw": "Jogja",
+    "location_norm": "yogyakarta",
+    "rate_card": {
+      "Feeds": 250,
+      "Reels": 250,
+      "IG Story": 135
+    },
+    "rate_min": 135,
+    "rate_max": 250,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6288226365120",
+      "label": "WA 6288226365120"
+    }
+  },
+  {
+    "id": 59,
+    "username": "infobandungs",
+    "social_media": "Instagram",
+    "followers_raw": "120K",
+    "followers_num": 120000,
+    "category": "Trending News",
+    "pic_name": "jktn media",
+    "pic_contact": "88226365120",
+    "location_raw": "Bandung",
+    "location_norm": "bandung",
+    "rate_card": {
+      "Feeds": 100,
+      "Reels": 100,
+      "IG Story": 50
+    },
+    "rate_min": 50,
+    "rate_max": 100,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6288226365120",
+      "label": "WA 6288226365120"
+    }
+  },
+  {
+    "id": 60,
+    "username": "denpasarinfoid",
+    "social_media": "Instagram",
+    "followers_raw": "59,2K",
+    "followers_num": 59200,
+    "category": "Trending News",
+    "pic_name": "jktn media",
+    "pic_contact": "88226365120",
+    "location_raw": "Bali",
+    "location_norm": "bali",
+    "rate_card": {
+      "Feeds": 110,
+      "Reels": 125,
+      "IG Story": 75
+    },
+    "rate_min": 75,
+    "rate_max": 125,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6288226365120",
+      "label": "WA 6288226365120"
+    }
+  },
+  {
+    "id": 61,
+    "username": "folkhype",
+    "social_media": "Instagram",
+    "followers_raw": "3,6M",
+    "followers_num": 3600000,
+    "category": "Trending News",
+    "pic_name": "jktn media",
+    "pic_contact": "88226365120",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 500,
+      "Reels": 500,
+      "IG Story": 250
+    },
+    "rate_min": 250,
+    "rate_max": 500,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6288226365120",
+      "label": "WA 6288226365120"
+    }
+  },
+  {
+    "id": 62,
+    "username": "indo todays",
+    "social_media": "Instagram",
+    "followers_raw": "1,3M",
+    "followers_num": 1300000,
+    "category": "Trending News",
+    "pic_name": "jktn media",
+    "pic_contact": "88226365120",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 300,
+      "Reels": 300,
+      "IG Story": 150
+    },
+    "rate_min": 150,
+    "rate_max": 300,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6288226365120",
+      "label": "WA 6288226365120"
+    }
+  },
+  {
+    "id": 63,
+    "username": "merindink",
+    "social_media": "Instagram",
+    "followers_raw": "1,8M",
+    "followers_num": 1800000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85646177771",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 2500000,
+      "Reels": 2500000,
+      "IG Story": 500
+    },
+    "rate_min": 500,
+    "rate_max": 2500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285646177771",
+      "label": "WA 6285646177771"
+    }
+  },
+  {
+    "id": 64,
+    "username": "fyifact",
+    "social_media": "Instagram",
+    "followers_raw": "1,4M",
+    "followers_num": 1400000,
+    "category": "Facts News",
+    "pic_name": "admin",
+    "pic_contact": "85646177771",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 2500000,
+      "Reels": 2500000,
+      "IG Story": 500
+    },
+    "rate_min": 500,
+    "rate_max": 2500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285646177771",
+      "label": "WA 6285646177771"
+    }
+  },
+  {
+    "id": 65,
+    "username": "unikinfold",
+    "social_media": "Instagram",
+    "followers_raw": "926K",
+    "followers_num": 926000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85646177771",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 2500000,
+      "Reels": 2500000,
+      "IG Story": 350
+    },
+    "rate_min": 350,
+    "rate_max": 2500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285646177771",
+      "label": "WA 6285646177771"
+    }
+  },
+  {
+    "id": 66,
+    "username": "jevuska",
+    "social_media": "Instagram",
+    "followers_raw": "681K",
+    "followers_num": 681000,
+    "category": "Mystery,Facts,Fenomena",
+    "pic_name": "admin",
+    "pic_contact": "85646177771",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 1800000,
+      "Reels": 1800000,
+      "IG Story": 450
+    },
+    "rate_min": 450,
+    "rate_max": 1800000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285646177771",
+      "label": "WA 6285646177771"
+    }
+  },
+  {
+    "id": 67,
+    "username": "yashowbiz",
+    "social_media": "Instagram",
+    "followers_raw": "541K",
+    "followers_num": 541000,
+    "category": "Internasional News",
+    "pic_name": "admin",
+    "pic_contact": "85646177771",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 1700000,
+      "Reels": 1700000,
+      "IG Story": 450
+    },
+    "rate_min": 450,
+    "rate_max": 1700000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285646177771",
+      "label": "WA 6285646177771"
+    }
+  },
+  {
+    "id": 68,
+    "username": "yafakta",
+    "social_media": "Instagram",
+    "followers_raw": "385K",
+    "followers_num": 385000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85646177771",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 1300000,
+      "Reels": 1300000,
+      "IG Story": 300
+    },
+    "rate_min": 300,
+    "rate_max": 1300000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285646177771",
+      "label": "WA 6285646177771"
+    }
+  },
+  {
+    "id": 69,
+    "username": "scaryjournal",
+    "social_media": "Instagram",
+    "followers_raw": "414K",
+    "followers_num": 414000,
+    "category": "Mystery,Facts,Fenomena",
+    "pic_name": "admin",
+    "pic_contact": "85646177771",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 1000000,
+      "Reels": 1000000,
+      "IG Story": 300
+    },
+    "rate_min": 300,
+    "rate_max": 1000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285646177771",
+      "label": "WA 6285646177771"
+    }
+  },
+  {
+    "id": 70,
+    "username": "wow.info",
+    "social_media": "Instagram",
+    "followers_raw": "239K",
+    "followers_num": 239000,
+    "category": "Facts News",
+    "pic_name": "admin",
+    "pic_contact": "85646177771",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 1000000,
+      "Reels": 1000000,
+      "IG Story": 200
+    },
+    "rate_min": 200,
+    "rate_max": 1000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285646177771",
+      "label": "WA 6285646177771"
+    }
+  },
+  {
+    "id": 71,
+    "username": "infonetizone",
+    "social_media": "Instagram",
+    "followers_raw": "192k",
+    "followers_num": 192000,
+    "category": "Akun Gossip",
+    "pic_name": "admin",
+    "pic_contact": "85646177771",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 800,
+      "Reels": 800,
+      "IG Story": 200
+    },
+    "rate_min": 200,
+    "rate_max": 800,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285646177771",
+      "label": "WA 6285646177771"
+    }
+  },
+  {
+    "id": 72,
+    "username": "z.ecosystem",
+    "social_media": "Instagram",
+    "followers_raw": "99K",
+    "followers_num": 99000,
+    "category": "Facts News",
+    "pic_name": "admin",
+    "pic_contact": "85646177771",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 500,
+      "Reels": 500,
+      "IG Story": 100
+    },
+    "rate_min": 100,
+    "rate_max": 500,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285646177771",
+      "label": "WA 6285646177771"
+    }
+  },
+  {
+    "id": 73,
+    "username": "matakelana",
+    "social_media": "Instagram",
+    "followers_raw": "57,2K",
+    "followers_num": 57200,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85646177771",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 500,
+      "Reels": 500,
+      "IG Story": 100
+    },
+    "rate_min": 100,
+    "rate_max": 500,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285646177771",
+      "label": "WA 6285646177771"
+    }
+  },
+  {
+    "id": 74,
+    "username": "duniapunyacerita_",
+    "social_media": "Tiktok",
+    "followers_raw": "3,4M",
+    "followers_num": 3400000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85646177771",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Tiktok": 2000000
+    },
+    "rate_min": 2000000,
+    "rate_max": 2000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285646177771",
+      "label": "WA 6285646177771"
+    }
+  },
+  {
+    "id": 75,
+    "username": "beritaindonesia____",
+    "social_media": "Tiktok",
+    "followers_raw": "2,5M",
+    "followers_num": 2500000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85646177771",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Tiktok": 2000000
+    },
+    "rate_min": 2000000,
+    "rate_max": 2000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285646177771",
+      "label": "WA 6285646177771"
+    }
+  },
+  {
+    "id": 76,
+    "username": "seremnyaa",
+    "social_media": "Tiktok",
+    "followers_raw": "816,7K",
+    "followers_num": 816700,
+    "category": "Mystery,Facts,Fenomena",
+    "pic_name": "admin",
+    "pic_contact": "85646177771",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Tiktok": 1500000
+    },
+    "rate_min": 1500000,
+    "rate_max": 1500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285646177771",
+      "label": "WA 6285646177771"
+    }
+  },
+  {
+    "id": 77,
+    "username": "scaryjournalmedia",
+    "social_media": "Tiktok",
+    "followers_raw": "123,2K",
+    "followers_num": 123200,
+    "category": "Mystery,Facts,Fenomena",
+    "pic_name": "admin",
+    "pic_contact": "85646177771",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Tiktok": 500
+    },
+    "rate_min": 500,
+    "rate_max": 500,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285646177771",
+      "label": "WA 6285646177771"
+    }
+  },
+  {
+    "id": 78,
+    "username": "fyifact.id",
+    "social_media": "Tiktok",
+    "followers_raw": "45,1K",
+    "followers_num": 45100,
+    "category": "Facts News",
+    "pic_name": "admin",
+    "pic_contact": "85646177771",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Tiktok": 350
+    },
+    "rate_min": 350,
+    "rate_max": 350,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285646177771",
+      "label": "WA 6285646177771"
+    }
+  },
+  {
+    "id": 79,
+    "username": "merindinkk",
+    "social_media": "Tiktok",
+    "followers_raw": "19,7K",
+    "followers_num": 19700,
+    "category": "Mystery,Facts,Fenomena",
+    "pic_name": "admin",
+    "pic_contact": "85646177771",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Tiktok": 350
+    },
+    "rate_min": 350,
+    "rate_max": 350,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285646177771",
+      "label": "WA 6285646177771"
+    }
+  },
+  {
+    "id": 80,
+    "username": "jevuska.com",
+    "social_media": "Tiktok",
+    "followers_raw": "20,6K",
+    "followers_num": 20600,
+    "category": "Mystery,Facts,Fenomena",
+    "pic_name": "admin",
+    "pic_contact": "85646177771",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Tiktok": 350
+    },
+    "rate_min": 350,
+    "rate_max": 350,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285646177771",
+      "label": "WA 6285646177771"
+    }
+  },
+  {
+    "id": 81,
+    "username": "jkt.spot",
+    "social_media": "Instagram",
+    "followers_raw": "938K",
+    "followers_num": 938000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "81212340056",
+    "location_raw": "Jakarta",
+    "location_norm": "jakarta",
+    "rate_card": {
+      "Feeds": 5000000,
+      "Reels": 5000000
+    },
+    "rate_min": 5000000,
+    "rate_max": 5000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6281212340056",
+      "label": "WA 6281212340056"
+    }
+  },
+  {
+    "id": 82,
+    "username": "moodcewekk",
+    "social_media": "Instagram",
+    "followers_raw": "5,6M",
+    "followers_num": 5600000,
+    "category": "Girls News",
+    "pic_name": "farid",
+    "pic_contact": "81908825198",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 25000000,
+      "Reels": 25000000
+    },
+    "rate_min": 25000000,
+    "rate_max": 25000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6281908825198",
+      "label": "WA 6281908825198"
+    }
+  },
+  {
+    "id": 83,
+    "username": "info_mdo",
+    "social_media": "Instagram",
+    "followers_raw": "5,4K",
+    "followers_num": 5400,
+    "category": "Trending News",
+    "pic_name": "dm ig",
+    "pic_contact": "",
+    "location_raw": "Manado",
+    "location_norm": "sulawesi",
+    "rate_card": {
+      "post feeds and story": 100
+    },
+    "rate_min": 100,
+    "rate_max": 100,
+    "contact_action": {
+      "type": "instagram",
+      "url": "https://instagram.com/info_mdo",
+      "label": "DM @info_mdo"
+    }
+  },
+  {
+    "id": 84,
+    "username": "rakyat.sulsel",
+    "social_media": "Instagram",
+    "followers_raw": "55,6K",
+    "followers_num": 55600,
+    "category": "Trending News",
+    "pic_name": "dm ig",
+    "pic_contact": "",
+    "location_raw": "Sulawesi Selatan",
+    "location_norm": "sulawesi",
+    "rate_card": {
+      "Reels": 250
+    },
+    "rate_min": 250,
+    "rate_max": 250,
+    "contact_action": {
+      "type": "instagram",
+      "url": "https://instagram.com/rakyat.sulsel",
+      "label": "DM @rakyat.sulsel"
+    }
+  },
+  {
+    "id": 85,
+    "username": "info_kubar",
+    "social_media": "Instagram",
+    "followers_raw": "154K",
+    "followers_num": 154000,
+    "category": "Trending News",
+    "pic_name": "dm ig",
+    "pic_contact": "",
+    "location_raw": "Kalimantan Timur",
+    "location_norm": "kalimantan",
+    "rate_card": {
+      "Feeds 1x": 400,
+      "Feeds 3x": 1100000,
+      "Feeds 5x": 1750000
+    },
+    "rate_min": 400,
+    "rate_max": 1750000,
+    "contact_action": {
+      "type": "instagram",
+      "url": "https://instagram.com/info_kubar",
+      "label": "DM @info_kubar"
+    }
+  },
+  {
+    "id": 86,
+    "username": "info_banjarmasin",
+    "social_media": "Instagram",
+    "followers_raw": "445K",
+    "followers_num": 445000,
+    "category": "Trending News",
+    "pic_name": "dm ig",
+    "pic_contact": "",
+    "location_raw": "Kalimantan",
+    "location_norm": "kalimantan",
+    "rate_card": {
+      "Feeds": 650,
+      "Reels": 650,
+      "IG Story": 100
+    },
+    "rate_min": 100,
+    "rate_max": 650,
+    "contact_action": {
+      "type": "instagram",
+      "url": "https://instagram.com/info_banjarmasin",
+      "label": "DM @info_banjarmasin"
+    }
+  },
+  {
+    "id": 87,
+    "username": "bushcoo",
+    "social_media": "Instagram",
+    "followers_raw": "405K",
+    "followers_num": 405000,
+    "category": "Trending News",
+    "pic_name": "dm ig",
+    "pic_contact": "",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 1500000,
+      "Reels": 1500000,
+      "IG Story": 500
+    },
+    "rate_min": 500,
+    "rate_max": 1500000,
+    "contact_action": {
+      "type": "instagram",
+      "url": "https://instagram.com/bushcoo",
+      "label": "DM @bushcoo"
+    }
+  },
+  {
+    "id": 88,
+    "username": "wakandatalks",
+    "social_media": "Instagram",
+    "followers_raw": "1,2M",
+    "followers_num": 1200000,
+    "category": "Akun Gossip",
+    "pic_name": "dm ig",
+    "pic_contact": "",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "IG Reels, Story, Tiktok, Facebook (bonus 5 akun post)": 5000000
+    },
+    "rate_min": 5000000,
+    "rate_max": 5000000,
+    "contact_action": {
+      "type": "instagram",
+      "url": "https://instagram.com/wakandatalks",
+      "label": "DM @wakandatalks"
+    }
+  },
+  {
+    "id": 89,
+    "username": "fakta.indo",
+    "social_media": "Instagram",
+    "followers_raw": "2,1M",
+    "followers_num": 2100000,
+    "category": "Trending News",
+    "pic_name": "dm ig",
+    "pic_contact": "",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "1x IG Reels/Carousel/Feeds": 7900000
+    },
+    "rate_min": 7900000,
+    "rate_max": 7900000,
+    "contact_action": {
+      "type": "instagram",
+      "url": "https://instagram.com/fakta.indo",
+      "label": "DM @fakta.indo"
+    }
+  },
+  {
+    "id": 90,
+    "username": "info_kejadian_banjarmasin",
+    "social_media": "Instagram",
+    "followers_raw": "343K",
+    "followers_num": 343000,
+    "category": "Trending News",
+    "pic_name": "dm ig",
+    "pic_contact": "",
+    "location_raw": "Kalimantan",
+    "location_norm": "kalimantan",
+    "rate_card": {
+      "1x IG Reels/Carousel/Feeds": 750
+    },
+    "rate_min": 750,
+    "rate_max": 750,
+    "contact_action": {
+      "type": "instagram",
+      "url": "https://instagram.com/info_kejadian_banjarmasin",
+      "label": "DM @info_kejadian_banjarmasin"
+    }
+  },
+  {
+    "id": 91,
+    "username": "kalbar_info",
+    "social_media": "Instagram",
+    "followers_raw": "102K",
+    "followers_num": 102000,
+    "category": "Trending News",
+    "pic_name": "dm ig",
+    "pic_contact": "",
+    "location_raw": "Kalimantan Barat",
+    "location_norm": "kalimantan",
+    "rate_card": {
+      "Feeds": 250,
+      "Reels": 300,
+      "IG Story": 100
+    },
+    "rate_min": 100,
+    "rate_max": 300,
+    "contact_action": {
+      "type": "instagram",
+      "url": "https://instagram.com/kalbar_info",
+      "label": "DM @kalbar_info"
+    }
+  },
+  {
+    "id": 92,
+    "username": "makassar_iinfo",
+    "social_media": "Instagram",
+    "followers_raw": "2,4M",
+    "followers_num": 2400000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85756410742",
+    "location_raw": "Makassar",
+    "location_norm": "sulawesi",
+    "rate_card": {
+      "Feeds": 800,
+      "Reels": 800,
+      "IG Story": 350
+    },
+    "rate_min": 350,
+    "rate_max": 800,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285756410742",
+      "label": "WA 6285756410742"
+    }
+  },
+  {
+    "id": 93,
+    "username": "info_gading_serpong",
+    "social_media": "Instagram",
+    "followers_raw": "113K",
+    "followers_num": 113000,
+    "category": "Trending News",
+    "pic_name": "dm ig",
+    "pic_contact": "",
+    "location_raw": "Tangerang",
+    "location_norm": "jakarta",
+    "rate_card": {
+      "1x IG Reels/Carousel/Feeds": 150
+    },
+    "rate_min": 150,
+    "rate_max": 150,
+    "contact_action": {
+      "type": "instagram",
+      "url": "https://instagram.com/info_gading_serpong",
+      "label": "DM @info_gading_serpong"
+    }
+  },
+  {
+    "id": 94,
+    "username": "jktgo",
+    "social_media": "Instagram",
+    "followers_raw": "1,8M",
+    "followers_num": 1800000,
+    "category": "Trending News",
+    "pic_name": "andika",
+    "pic_contact": "8158115521",
+    "location_raw": "Jakarta",
+    "location_norm": "jakarta",
+    "rate_card": {
+      "Feeds": 6500000,
+      "Reels": 8500000,
+      "IG Story": 2500000
+    },
+    "rate_min": 2500000,
+    "rate_max": 8500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/628158115521",
+      "label": "WA 628158115521"
+    }
+  },
+  {
+    "id": 95,
+    "username": "ecommurz",
+    "social_media": "Instagram",
+    "followers_raw": "423K",
+    "followers_num": 423000,
+    "category": "Trending News",
+    "pic_name": "murz",
+    "pic_contact": "81317775794",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "Feeds": 30000000,
+      "Reels": 35000000,
+      "IG Story": 7500000
+    },
+    "rate_min": 7500000,
+    "rate_max": 35000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6281317775794",
+      "label": "WA 6281317775794"
+    }
+  },
+  {
+    "id": 97,
+    "username": "explorebogor",
+    "social_media": "Instagram",
+    "followers_raw": "267K",
+    "followers_num": 267000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Bogor",
+    "location_norm": "jakarta",
+    "rate_card": {
+      "Feeds": 3000000,
+      "Reels": 3500000,
+      "IG Story": 750
+    },
+    "rate_min": 750,
+    "rate_max": 3500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 98,
+    "username": "bogor24update",
+    "social_media": "Instagram",
+    "followers_raw": "215K",
+    "followers_num": 215000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Bogor",
+    "location_norm": "jakarta",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750
+    },
+    "rate_min": 750,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 99,
+    "username": "bogor.terkini",
+    "social_media": "Instagram",
+    "followers_raw": "220K",
+    "followers_num": 220000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Bogor",
+    "location_norm": "jakarta",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750
+    },
+    "rate_min": 750,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 100,
+    "username": "magelang_raya",
+    "social_media": "Instagram",
+    "followers_raw": "228K",
+    "followers_num": 228000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Magelang",
+    "location_norm": "yogyakarta",
+    "rate_card": {
+      "Feeds": 3000000,
+      "Reels": 3500000,
+      "IG Story": 750
+    },
+    "rate_min": 750,
+    "rate_max": 3500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 101,
+    "username": "magelanghits",
+    "social_media": "Instagram",
+    "followers_raw": "22K",
+    "followers_num": 22000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Magelang",
+    "location_norm": "yogyakarta",
+    "rate_card": {
+      "Feeds": 600,
+      "Reels": 700,
+      "IG Story": 150
+    },
+    "rate_min": 150,
+    "rate_max": 700,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 102,
+    "username": "infokabarmagelang",
+    "social_media": "Instagram",
+    "followers_raw": "119K",
+    "followers_num": 119000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Magelang",
+    "location_norm": "yogyakarta",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750
+    },
+    "rate_min": 750,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 103,
+    "username": "magelangku_",
+    "social_media": "Instagram",
+    "followers_raw": "209K",
+    "followers_num": 209000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Magelang",
+    "location_norm": "yogyakarta",
+    "rate_card": {
+      "Feeds": 3000000,
+      "Reels": 3500000,
+      "IG Story": 750
+    },
+    "rate_min": 750,
+    "rate_max": 3500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 104,
+    "username": "sorot.sidoarjo_",
+    "social_media": "Instagram",
+    "followers_raw": "165K",
+    "followers_num": 165000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Sidoarjo",
+    "location_norm": "surabaya",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 105,
+    "username": "eventsidoarjo_",
+    "social_media": "Instagram",
+    "followers_raw": "33,8K",
+    "followers_num": 33800,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Sidoarjo",
+    "location_norm": "surabaya",
+    "rate_card": {
+      "Feeds": 600000,
+      "Reels": 700000,
+      "IG Story": 150000
+    },
+    "rate_min": 150000,
+    "rate_max": 700000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 106,
+    "username": "dolordarjo",
+    "social_media": "Instagram",
+    "followers_raw": "97K",
+    "followers_num": 97000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Sidoarjo",
+    "location_norm": "surabaya",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 107,
+    "username": "banggasidoarjo",
+    "social_media": "Instagram",
+    "followers_raw": "231K",
+    "followers_num": 231000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Sidoarjo",
+    "location_norm": "surabaya",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 108,
+    "username": "lampuung",
+    "social_media": "Instagram",
+    "followers_raw": "687K",
+    "followers_num": 687000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Lampung",
+    "location_norm": "sumatra",
+    "rate_card": {
+      "Feeds": 4500000,
+      "Reels": 5000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 5000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 109,
+    "username": "lampunginsta",
+    "social_media": "Instagram",
+    "followers_raw": "195K",
+    "followers_num": 195000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Lampung",
+    "location_norm": "sumatra",
+    "rate_card": {
+      "Feeds": 3000000,
+      "Reels": 35000,
+      "IG Story": 750000
+    },
+    "rate_min": 35000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 110,
+    "username": "lampunggehnews",
+    "social_media": "Instagram",
+    "followers_raw": "276K",
+    "followers_num": 276000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Lampung",
+    "location_norm": "sumatra",
+    "rate_card": {
+      "Feeds": 3000000,
+      "Reels": 3500000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 111,
+    "username": "ilovelampung",
+    "social_media": "Instagram",
+    "followers_raw": "222K",
+    "followers_num": 222000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Lampung",
+    "location_norm": "sumatra",
+    "rate_card": {
+      "Feeds": 3000000,
+      "Reels": 3500000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 112,
+    "username": "info_bandar_lampung",
+    "social_media": "Instagram",
+    "followers_raw": "63K",
+    "followers_num": 63000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Lampung",
+    "location_norm": "sumatra",
+    "rate_card": {
+      "Feeds": 3000000,
+      "Reels": 3500000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 113,
+    "username": "zetizenbanten",
+    "social_media": "Instagram",
+    "followers_raw": "23,6K",
+    "followers_num": 23600,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Banten",
+    "location_norm": "banten",
+    "rate_card": {
+      "Feeds": 500000,
+      "Reels": 500000,
+      "IG Story": 500000
+    },
+    "rate_min": 500000,
+    "rate_max": 500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 114,
+    "username": "im.banten",
+    "social_media": "Instagram",
+    "followers_raw": "142K",
+    "followers_num": 142000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Banten",
+    "location_norm": "banten",
+    "rate_card": {
+      "Feeds": 1000000,
+      "Reels": 2000000,
+      "IG Story": 2000000
+    },
+    "rate_min": 1000000,
+    "rate_max": 2000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 115,
+    "username": "wargabanten",
+    "social_media": "Instagram",
+    "followers_raw": "16,2K",
+    "followers_num": 16200,
+    "category": "Media",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Banten",
+    "location_norm": "banten",
+    "rate_card": {
+      "Feeds": 500000,
+      "Reels": 500000,
+      "IG Story": 500000
+    },
+    "rate_min": 500000,
+    "rate_max": 500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 116,
+    "username": "tangsel.life",
+    "social_media": "Instagram",
+    "followers_raw": "586K",
+    "followers_num": 586000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Banten",
+    "location_norm": "banten",
+    "rate_card": {
+      "Feeds": 3000000,
+      "Reels": 3000000,
+      "IG Story": 3000000
+    },
+    "rate_min": 3000000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 117,
+    "username": "wargatangsel",
+    "social_media": "Instagram",
+    "followers_raw": "311K",
+    "followers_num": 311000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Banten",
+    "location_norm": "banten",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 3000000
+    },
+    "rate_min": 2000000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 118,
+    "username": "tangsel.info",
+    "social_media": "Instagram",
+    "followers_raw": "252K",
+    "followers_num": 252000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Banten",
+    "location_norm": "banten",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 3000000
+    },
+    "rate_min": 2000000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 119,
+    "username": "infodepok_id",
+    "social_media": "Instagram",
+    "followers_raw": "888K",
+    "followers_num": 888000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Depok",
+    "location_norm": "jakarta",
+    "rate_card": {
+      "Feeds": 3750000,
+      "Reels": 3750000,
+      "IG Story": 1800000
+    },
+    "rate_min": 1800000,
+    "rate_max": 3750000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 120,
+    "username": "depok.update",
+    "social_media": "Instagram",
+    "followers_raw": "nan",
+    "followers_num": 0,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Depok",
+    "location_norm": "jakarta",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 2000000,
+      "IG Story": 800000
+    },
+    "rate_min": 800000,
+    "rate_max": 2000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 121,
+    "username": "depok24jam",
+    "social_media": "Instagram",
+    "followers_raw": "877K",
+    "followers_num": 877000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Depok",
+    "location_norm": "jakarta",
+    "rate_card": {
+      "Feeds": 4000000,
+      "Reels": 4500000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 4500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 122,
+    "username": "infodepok24",
+    "social_media": "Instagram",
+    "followers_raw": "178K",
+    "followers_num": 178000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Depok",
+    "location_norm": "jakarta",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 123,
+    "username": "lensa_berita_jakarta",
+    "social_media": "Instagram",
+    "followers_raw": "158K",
+    "followers_num": 158000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Jakarta",
+    "location_norm": "jakarta",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 124,
+    "username": "jktinfo24jam",
+    "social_media": "Instagram",
+    "followers_raw": "107K",
+    "followers_num": 107000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Jakarta",
+    "location_norm": "jakarta",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 125,
+    "username": "infojkt24",
+    "social_media": "Instagram",
+    "followers_raw": "454K",
+    "followers_num": 454000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Jakarta",
+    "location_norm": "jakarta",
+    "rate_card": {
+      "Feeds": 3000000,
+      "Reels": 4000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 4000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 126,
+    "username": "jktinfo",
+    "social_media": "Instagram",
+    "followers_raw": "3,9M",
+    "followers_num": 3900000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Jakarta",
+    "location_norm": "jakarta",
+    "rate_card": {
+      "Feeds": 10000000,
+      "Reels": 12000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 12000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 127,
+    "username": "jktsekarang",
+    "social_media": "Instagram",
+    "followers_raw": "nan",
+    "followers_num": 0,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Jakarta",
+    "location_norm": "jakarta",
+    "rate_card": {
+      "Feeds": 200000,
+      "Reels": 200000,
+      "IG Story": 100000
+    },
+    "rate_min": 100000,
+    "rate_max": 200000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 128,
+    "username": "infojktku",
+    "social_media": "Instagram",
+    "followers_raw": "268K",
+    "followers_num": 268000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Jakarta",
+    "location_norm": "jakarta",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 129,
+    "username": "gresik.media",
+    "social_media": "Instagram",
+    "followers_raw": "45,4K",
+    "followers_num": 45400,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Gresik",
+    "location_norm": "surabaya",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 130,
+    "username": "wonggresik",
+    "social_media": "Instagram",
+    "followers_raw": "195K",
+    "followers_num": 195000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Gresik",
+    "location_norm": "surabaya",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 131,
+    "username": "wisatagresik",
+    "social_media": "Instagram",
+    "followers_raw": "91,8K",
+    "followers_num": 91800,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Gresik",
+    "location_norm": "surabaya",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 132,
+    "username": "gresiksumpek.id",
+    "social_media": "Instagram",
+    "followers_raw": "64,4K",
+    "followers_num": 64400,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Gresik",
+    "location_norm": "surabaya",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 133,
+    "username": "kulinergresik",
+    "social_media": "Instagram",
+    "followers_raw": "298K",
+    "followers_num": 298000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Gresik",
+    "location_norm": "surabaya",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 134,
+    "username": "wartagresik",
+    "social_media": "Instagram",
+    "followers_raw": "20,3K",
+    "followers_num": 20300,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Gresik",
+    "location_norm": "surabaya",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 135,
+    "username": "inigresik",
+    "social_media": "Instagram",
+    "followers_raw": "133K",
+    "followers_num": 133000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Gresik",
+    "location_norm": "surabaya",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 136,
+    "username": "explorebandung",
+    "social_media": "Instagram",
+    "followers_raw": "982K",
+    "followers_num": 982000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Bandung",
+    "location_norm": "bandung",
+    "rate_card": {
+      "Feeds": 7000000,
+      "Reels": 10000000,
+      "IG Story": 2000000
+    },
+    "rate_min": 2000000,
+    "rate_max": 10000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 137,
+    "username": "bandung.banget",
+    "social_media": "Instagram",
+    "followers_raw": "1,9M",
+    "followers_num": 1900000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Bandung",
+    "location_norm": "bandung",
+    "rate_card": {
+      "Feeds": 5500000,
+      "Reels": 6000000,
+      "IG Story": 2250000
+    },
+    "rate_min": 2250000,
+    "rate_max": 6000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 138,
+    "username": "wisata_bandung",
+    "social_media": "Instagram",
+    "followers_raw": "168K",
+    "followers_num": 168000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Bandung",
+    "location_norm": "bandung",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 139,
+    "username": "infobdgcom",
+    "social_media": "Instagram",
+    "followers_raw": "782K",
+    "followers_num": 782000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Bandung",
+    "location_norm": "bandung",
+    "rate_card": {
+      "Feeds": 5500000,
+      "Reels": 6000000,
+      "IG Story": 2250000
+    },
+    "rate_min": 2250000,
+    "rate_max": 6000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 140,
+    "username": "infobandungkota",
+    "social_media": "Instagram",
+    "followers_raw": "2,3M",
+    "followers_num": 2300000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Bandung",
+    "location_norm": "bandung",
+    "rate_card": {
+      "Feeds": 8000000,
+      "Reels": 8000000,
+      "IG Story": 2000000
+    },
+    "rate_min": 2000000,
+    "rate_max": 8000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 141,
+    "username": "bdgsociety",
+    "social_media": "Instagram",
+    "followers_raw": "381K",
+    "followers_num": 381000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Bandung",
+    "location_norm": "bandung",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 142,
+    "username": "infobandung_",
+    "social_media": "Instagram",
+    "followers_raw": "226K",
+    "followers_num": 226000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Bandung",
+    "location_norm": "bandung",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 143,
+    "username": "jelajahbandung",
+    "social_media": "Instagram",
+    "followers_raw": "342K",
+    "followers_num": 342000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Bandung",
+    "location_norm": "bandung",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 144,
+    "username": "wisatakabupatenbandung",
+    "social_media": "Instagram",
+    "followers_raw": "141K",
+    "followers_num": 141000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Bandung",
+    "location_norm": "bandung",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 145,
+    "username": "bandung24jam",
+    "social_media": "Instagram",
+    "followers_raw": "122K",
+    "followers_num": 122000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Bandung",
+    "location_norm": "bandung",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 146,
+    "username": "bandungevents",
+    "social_media": "Instagram",
+    "followers_raw": "278K",
+    "followers_num": 278000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Bandung",
+    "location_norm": "bandung",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 147,
+    "username": "infobandungbarat",
+    "social_media": "Instagram",
+    "followers_raw": "333K",
+    "followers_num": 333000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Bandung",
+    "location_norm": "bandung",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 148,
+    "username": "cityofbdg",
+    "social_media": "Instagram",
+    "followers_raw": "156K",
+    "followers_num": 156000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Bandung",
+    "location_norm": "bandung",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 149,
+    "username": "infokabupatenbandung",
+    "social_media": "Instagram",
+    "followers_raw": "192K",
+    "followers_num": 192000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Bandung",
+    "location_norm": "bandung",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 150,
+    "username": "beritakotabandung",
+    "social_media": "Instagram",
+    "followers_raw": "356K",
+    "followers_num": 356000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Bandung",
+    "location_norm": "bandung",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 151,
+    "username": "infojawabarat",
+    "social_media": "Instagram",
+    "followers_raw": "1,1M",
+    "followers_num": 1100000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Jawa Barat",
+    "location_norm": "jawa_barat",
+    "rate_card": {
+      "Feeds": 8000000,
+      "Reels": 8000000,
+      "IG Story": 2000000
+    },
+    "rate_min": 2000000,
+    "rate_max": 8000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 152,
+    "username": "exploresemarang",
+    "social_media": "Instagram",
+    "followers_raw": "544K",
+    "followers_num": 544000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Semarang",
+    "location_norm": "yogyakarta",
+    "rate_card": {
+      "Feeds": 4500000,
+      "Reels": 5000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 5000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 153,
+    "username": "seputarsemarang",
+    "social_media": "Instagram",
+    "followers_raw": "432K",
+    "followers_num": 432000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Semarang",
+    "location_norm": "yogyakarta",
+    "rate_card": {
+      "Feeds": 4000000,
+      "Reels": 4500000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 4500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 154,
+    "username": "hangoutsemarang",
+    "social_media": "Instagram",
+    "followers_raw": "365K",
+    "followers_num": 365000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Semarang",
+    "location_norm": "yogyakarta",
+    "rate_card": {
+      "Feeds": 4000000,
+      "Reels": 4500000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 4500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 155,
+    "username": "semarangexplore",
+    "social_media": "Instagram",
+    "followers_raw": "262K",
+    "followers_num": 262000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Semarang",
+    "location_norm": "yogyakarta",
+    "rate_card": {
+      "Feeds": 3000000,
+      "Reels": 3500000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 156,
+    "username": "sudutsemarang",
+    "social_media": "Instagram",
+    "followers_raw": "65,2K",
+    "followers_num": 65200,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Semarang",
+    "location_norm": "yogyakarta",
+    "rate_card": {
+      "Feeds": 1500000,
+      "Reels": 2000000,
+      "IG Story": 500000
+    },
+    "rate_min": 500000,
+    "rate_max": 2000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 157,
+    "username": "amazingsemarang",
+    "social_media": "Instagram",
+    "followers_raw": "36,7K",
+    "followers_num": 36700,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Semarang",
+    "location_norm": "yogyakarta",
+    "rate_card": {
+      "Feeds": 600000,
+      "Reels": 700000,
+      "IG Story": 150000
+    },
+    "rate_min": 150000,
+    "rate_max": 700000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 158,
+    "username": "info_malang",
+    "social_media": "Instagram",
+    "followers_raw": "324K",
+    "followers_num": 324000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Malang",
+    "location_norm": "surabaya",
+    "rate_card": {
+      "Feeds": 3000000,
+      "Reels": 3500000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 159,
+    "username": "infomalangid",
+    "social_media": "Instagram",
+    "followers_raw": "1,1M",
+    "followers_num": 1100000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Malang",
+    "location_norm": "surabaya",
+    "rate_card": {
+      "Feeds": 6000000,
+      "Reels": 6000000,
+      "IG Story": 2000000
+    },
+    "rate_min": 2000000,
+    "rate_max": 6000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 160,
+    "username": "malangraya_info",
+    "social_media": "Instagram",
+    "followers_raw": "688K",
+    "followers_num": 688000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Malang",
+    "location_norm": "surabaya",
+    "rate_card": {
+      "Feeds": 4000000,
+      "Reels": 4500000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 4500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 161,
+    "username": "amazingmalang",
+    "social_media": "Instagram",
+    "followers_raw": "979K",
+    "followers_num": 979000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Malang",
+    "location_norm": "surabaya",
+    "rate_card": {
+      "Feeds": 5500000,
+      "Reels": 6000000,
+      "IG Story": 2250000
+    },
+    "rate_min": 2250000,
+    "rate_max": 6000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 162,
+    "username": "lingkarmalang",
+    "social_media": "Instagram",
+    "followers_raw": "392K",
+    "followers_num": 392000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Malang",
+    "location_norm": "surabaya",
+    "rate_card": {
+      "Feeds": 4000000,
+      "Reels": 4500000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 4500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 163,
+    "username": "updatemalang",
+    "social_media": "Instagram",
+    "followers_raw": "11,9K",
+    "followers_num": 11900,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Malang",
+    "location_norm": "surabaya",
+    "rate_card": {
+      "Feeds": 600000,
+      "Reels": 700000,
+      "IG Story": 150000
+    },
+    "rate_min": 150000,
+    "rate_max": 700000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 164,
+    "username": "malang_kekinian",
+    "social_media": "Instagram",
+    "followers_raw": "49,7K",
+    "followers_num": 49700,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Malang",
+    "location_norm": "surabaya",
+    "rate_card": {
+      "Feeds": 1500000,
+      "Reels": 2000000,
+      "IG Story": 500000
+    },
+    "rate_min": 500000,
+    "rate_max": 2000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 165,
+    "username": "palembang.update",
+    "social_media": "Instagram",
+    "followers_raw": "607K",
+    "followers_num": 607000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Palembang",
+    "location_norm": "sumatra",
+    "rate_card": {
+      "Feeds": 4000000,
+      "Reels": 4500000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 4500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 166,
+    "username": "palembanginfodotcom",
+    "social_media": "Instagram",
+    "followers_raw": "5.882",
+    "followers_num": 5,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Palembang",
+    "location_norm": "sumatra",
+    "rate_card": {
+      "Feeds": 3000000,
+      "Reels": 3500000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 167,
+    "username": "palembang.berejo",
+    "social_media": "Instagram",
+    "followers_raw": "86,8K",
+    "followers_num": 86800,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Palembang",
+    "location_norm": "sumatra",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 168,
+    "username": "palembang_ini",
+    "social_media": "Instagram",
+    "followers_raw": "360K",
+    "followers_num": 360000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Palembang",
+    "location_norm": "sumatra",
+    "rate_card": {
+      "Feeds": 4000000,
+      "Reels": 4500000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 4500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 169,
+    "username": "palembang.update",
+    "social_media": "Instagram",
+    "followers_raw": "607K",
+    "followers_num": 607000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Palembang",
+    "location_norm": "sumatra",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 170,
+    "username": "info_surabaya",
+    "social_media": "Instagram",
+    "followers_raw": "562K",
+    "followers_num": 562000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Surabaya",
+    "location_norm": "surabaya",
+    "rate_card": {
+      "Feeds": 3000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 171,
+    "username": "lovesuroboyo",
+    "social_media": "Instagram",
+    "followers_raw": "646K",
+    "followers_num": 646000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Surabaya",
+    "location_norm": "surabaya",
+    "rate_card": {
+      "Feeds": 4000000,
+      "Reels": 4500000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 4500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 172,
+    "username": "aslisuroboyo",
+    "social_media": "Instagram",
+    "followers_raw": "1,4M",
+    "followers_num": 1400000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Surabaya",
+    "location_norm": "surabaya",
+    "rate_card": {
+      "Feeds": 5000000,
+      "Reels": 6000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 6000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 173,
+    "username": "ini_surabaya",
+    "social_media": "Instagram",
+    "followers_raw": "528K",
+    "followers_num": 528000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Surabaya",
+    "location_norm": "surabaya",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 174,
+    "username": "surabayaview.id",
+    "social_media": "Instagram",
+    "followers_raw": "199K",
+    "followers_num": 199000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Surabaya",
+    "location_norm": "surabaya",
+    "rate_card": {
+      "Feeds": 1500000,
+      "Reels": 1500000,
+      "IG Story": 1500000
+    },
+    "rate_min": 1500000,
+    "rate_max": 1500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 175,
+    "username": "surabaya.terkini",
+    "social_media": "Instagram",
+    "followers_raw": "805K",
+    "followers_num": 805000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Surabaya",
+    "location_norm": "surabaya",
+    "rate_card": {
+      "Feeds": 3750000,
+      "Reels": 3750000,
+      "IG Story": 1800000
+    },
+    "rate_min": 1800000,
+    "rate_max": 3750000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 176,
+    "username": "lifeatsuroboyo",
+    "social_media": "Instagram",
+    "followers_raw": "89,9K",
+    "followers_num": 89900,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Surabaya",
+    "location_norm": "surabaya",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 177,
+    "username": "infojember",
+    "social_media": "Instagram",
+    "followers_raw": "366K",
+    "followers_num": 366000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Jember",
+    "location_norm": "surabaya",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 178,
+    "username": "pesonajember",
+    "social_media": "Instagram",
+    "followers_raw": "213K",
+    "followers_num": 213000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Jember",
+    "location_norm": "surabaya",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 179,
+    "username": "aslijembermat",
+    "social_media": "Instagram",
+    "followers_raw": "99,1K",
+    "followers_num": 99100,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Jember",
+    "location_norm": "surabaya",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 180,
+    "username": "jemberwonderful",
+    "social_media": "Instagram",
+    "followers_raw": "49,2K",
+    "followers_num": 49200,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Jember",
+    "location_norm": "surabaya",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 181,
+    "username": "explorejember_",
+    "social_media": "Instagram",
+    "followers_raw": "90,9K",
+    "followers_num": 90900,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Jember",
+    "location_norm": "surabaya",
+    "rate_card": {
+      "Feeds": 200000,
+      "Reels": 300000,
+      "IG Story": 150000
+    },
+    "rate_min": 150000,
+    "rate_max": 300000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 182,
+    "username": "kuliner_jember",
+    "social_media": "Instagram",
+    "followers_raw": "162K",
+    "followers_num": 162000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Jember",
+    "location_norm": "surabaya",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 183,
+    "username": "solonyaman",
+    "social_media": "Instagram",
+    "followers_raw": "144K",
+    "followers_num": 144000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Solo",
+    "location_norm": "yogyakarta",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 184,
+    "username": "event.solo",
+    "social_media": "Instagram",
+    "followers_raw": "221K",
+    "followers_num": 221000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Solo",
+    "location_norm": "yogyakarta",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 185,
+    "username": "soloinfo",
+    "social_media": "Instagram",
+    "followers_raw": "542K",
+    "followers_num": 542000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Solo",
+    "location_norm": "yogyakarta",
+    "rate_card": {
+      "Feeds": 4500000,
+      "Reels": 5000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 5000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 186,
+    "username": "kliksolo",
+    "social_media": "Instagram",
+    "followers_raw": "81,7K",
+    "followers_num": 81700,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Solo",
+    "location_norm": "yogyakarta",
+    "rate_card": {
+      "Feeds": 600000,
+      "Reels": 700000,
+      "IG Story": 150000
+    },
+    "rate_min": 150000,
+    "rate_max": 700000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 187,
+    "username": "visit.surakarta",
+    "social_media": "Instagram",
+    "followers_raw": "81,7K",
+    "followers_num": 81700,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Surakarta",
+    "location_norm": "other",
+    "rate_card": {
+      "Feeds": 600000,
+      "Reels": 700000,
+      "IG Story": 150000
+    },
+    "rate_min": 150000,
+    "rate_max": 700000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 188,
+    "username": "explore_banyuwangi",
+    "social_media": "Instagram",
+    "followers_raw": "93,6K",
+    "followers_num": 93600,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Banyuwangi",
+    "location_norm": "surabaya",
+    "rate_card": {
+      "Feeds": 600000,
+      "Reels": 700000,
+      "IG Story": 150000
+    },
+    "rate_min": 150000,
+    "rate_max": 700000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 189,
+    "username": "banyuwangi_hitsss",
+    "social_media": "Instagram",
+    "followers_raw": "nan",
+    "followers_num": 0,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Banyuwangi",
+    "location_norm": "surabaya",
+    "rate_card": {
+      "Feeds": 3000000,
+      "Reels": 3500000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 190,
+    "username": "bwi_info",
+    "social_media": "Instagram",
+    "followers_raw": "202K",
+    "followers_num": 202000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Banyuwangi",
+    "location_norm": "surabaya",
+    "rate_card": {
+      "Feeds": 3000000,
+      "Reels": 3500000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 191,
+    "username": "banyuwangi_id",
+    "social_media": "Instagram",
+    "followers_raw": "141K",
+    "followers_num": 141000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Banyuwangi",
+    "location_norm": "surabaya",
+    "rate_card": {
+      "Feeds": 600000,
+      "Reels": 700000,
+      "IG Story": 150000
+    },
+    "rate_min": 150000,
+    "rate_max": 700000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 192,
+    "username": "isunbanyuwangi",
+    "social_media": "Instagram",
+    "followers_raw": "184K",
+    "followers_num": 184000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Banyuwangi",
+    "location_norm": "surabaya",
+    "rate_card": {
+      "Feeds": 3000000,
+      "Reels": 3500000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 193,
+    "username": "pesonabwi",
+    "social_media": "Instagram",
+    "followers_raw": "66,9K",
+    "followers_num": 66900,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Banyuwangi",
+    "location_norm": "surabaya",
+    "rate_card": {
+      "Feeds": 600000,
+      "Reels": 700000,
+      "IG Story": 150000
+    },
+    "rate_min": 150000,
+    "rate_max": 700000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 194,
+    "username": "bwitoday",
+    "social_media": "Instagram",
+    "followers_raw": "28,7K",
+    "followers_num": 28700,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Banyuwangi",
+    "location_norm": "surabaya",
+    "rate_card": {
+      "Feeds": 600000,
+      "Reels": 700000,
+      "IG Story": 150000
+    },
+    "rate_min": 150000,
+    "rate_max": 700000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 195,
+    "username": "pkufolk",
+    "social_media": "Instagram",
+    "followers_raw": "279K",
+    "followers_num": 279000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Pekan Baru",
+    "location_norm": "sumatra",
+    "rate_card": {
+      "Feeds": 3000000,
+      "Reels": 3500000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 196,
+    "username": "pkucity",
+    "social_media": "Instagram",
+    "followers_raw": "483K",
+    "followers_num": 483000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Pekan Baru",
+    "location_norm": "sumatra",
+    "rate_card": {
+      "Feeds": 4000000,
+      "Reels": 4500000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 4500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 197,
+    "username": "beritapekanbaru",
+    "social_media": "Instagram",
+    "followers_raw": "207K",
+    "followers_num": 207000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Pekan Baru",
+    "location_norm": "sumatra",
+    "rate_card": {
+      "Feeds": 3000000,
+      "Reels": 3500000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 198,
+    "username": "pkukini",
+    "social_media": "Instagram",
+    "followers_raw": "108K",
+    "followers_num": 108000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Pekan Baru",
+    "location_norm": "sumatra",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 199,
+    "username": "viralpekanbaru",
+    "social_media": "Instagram",
+    "followers_raw": "208K",
+    "followers_num": 208000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Pekan Baru",
+    "location_norm": "sumatra",
+    "rate_card": {
+      "Feeds": 3000000,
+      "Reels": 3500000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 200,
+    "username": "pkuinfo",
+    "social_media": "Instagram",
+    "followers_raw": "43,2K",
+    "followers_num": 43200,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Pekan Baru",
+    "location_norm": "sumatra",
+    "rate_card": {
+      "Feeds": 600000,
+      "Reels": 700000,
+      "IG Story": 150000
+    },
+    "rate_min": 150000,
+    "rate_max": 700000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 201,
+    "username": "madiun.hitz",
+    "social_media": "Instagram",
+    "followers_raw": "179K",
+    "followers_num": 179000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Madiun",
+    "location_norm": "other",
+    "rate_card": {
+      "Feeds": 3000000,
+      "Reels": 3500000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 202,
+    "username": "madhioen.ae",
+    "social_media": "Instagram",
+    "followers_raw": "235K",
+    "followers_num": 235000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Madiun",
+    "location_norm": "other",
+    "rate_card": {
+      "Feeds": 3000000,
+      "Reels": 3500000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 203,
+    "username": "madiunviral",
+    "social_media": "Instagram",
+    "followers_raw": "26,3K",
+    "followers_num": 26300,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Madiun",
+    "location_norm": "other",
+    "rate_card": {
+      "Feeds": 600000,
+      "Reels": 700000,
+      "IG Story": 150000
+    },
+    "rate_min": 150000,
+    "rate_max": 700000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 204,
+    "username": "area.madiun",
+    "social_media": "Instagram",
+    "followers_raw": "26,6K",
+    "followers_num": 26600,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Madiun",
+    "location_norm": "other",
+    "rate_card": {
+      "Feeds": 600000,
+      "Reels": 700000,
+      "IG Story": 150000
+    },
+    "rate_min": 150000,
+    "rate_max": 700000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 205,
+    "username": "infodenpasarbali",
+    "social_media": "Instagram",
+    "followers_raw": "28,3K",
+    "followers_num": 28300,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Bali",
+    "location_norm": "bali",
+    "rate_card": {
+      "Feeds": 800000,
+      "Reels": 1000000,
+      "IG Story": 300000
+    },
+    "rate_min": 300000,
+    "rate_max": 1000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 206,
+    "username": "infobali.terbaru",
+    "social_media": "Instagram",
+    "followers_raw": "nan",
+    "followers_num": 0,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Bali",
+    "location_norm": "bali",
+    "rate_card": {
+      "Feeds": 800000,
+      "Reels": 1000000,
+      "IG Story": 300000
+    },
+    "rate_min": 300000,
+    "rate_max": 1000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 207,
+    "username": "yogyakarta.keras",
+    "social_media": "Instagram",
+    "followers_raw": "769K",
+    "followers_num": 769000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Jogja",
+    "location_norm": "yogyakarta",
+    "rate_card": {
+      "Feeds": 5500000,
+      "Reels": 6000000,
+      "IG Story": 2250000
+    },
+    "rate_min": 2250000,
+    "rate_max": 6000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 208,
+    "username": "jogjaku",
+    "social_media": "Instagram",
+    "followers_raw": "1,5M",
+    "followers_num": 1500000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Jogja",
+    "location_norm": "yogyakarta",
+    "rate_card": {
+      "Feeds": 5000000,
+      "Reels": 6000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 6000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 209,
+    "username": "dolanjogja",
+    "social_media": "Instagram",
+    "followers_raw": "279K",
+    "followers_num": 279000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Jogja",
+    "location_norm": "yogyakarta",
+    "rate_card": {
+      "Feeds": 3000000,
+      "Reels": 3500000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 210,
+    "username": "jogjaistimewa",
+    "social_media": "Instagram",
+    "followers_raw": "404K",
+    "followers_num": 404000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Jogja",
+    "location_norm": "yogyakarta",
+    "rate_card": {
+      "Feeds": 4000000,
+      "Reels": 4500000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 4500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 211,
+    "username": "yogyakarta.keras",
+    "social_media": "Instagram",
+    "followers_raw": "769K",
+    "followers_num": 769000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Jogja",
+    "location_norm": "yogyakarta",
+    "rate_card": {
+      "Feeds": 5500000,
+      "Reels": 6000000,
+      "IG Story": 2250000
+    },
+    "rate_min": 2250000,
+    "rate_max": 6000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 212,
+    "username": "jogja_today",
+    "social_media": "Instagram",
+    "followers_raw": "nan",
+    "followers_num": 0,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Jogja",
+    "location_norm": "yogyakarta",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 213,
+    "username": "aboutcirebon.id",
+    "social_media": "Instagram",
+    "followers_raw": "348K",
+    "followers_num": 348000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Cirebon",
+    "location_norm": "bandung",
+    "rate_card": {
+      "Feeds": 3000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 214,
+    "username": "radarcirebon",
+    "social_media": "Instagram",
+    "followers_raw": "680K",
+    "followers_num": 680000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Cirebon",
+    "location_norm": "bandung",
+    "rate_card": {
+      "Feeds": 3750000,
+      "Reels": 3750000,
+      "IG Story": 1800000
+    },
+    "rate_min": 1800000,
+    "rate_max": 3750000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 215,
+    "username": "explorecirebon",
+    "social_media": "Instagram",
+    "followers_raw": "26,2K",
+    "followers_num": 26200,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Cirebon",
+    "location_norm": "bandung",
+    "rate_card": {
+      "Feeds": 600000,
+      "Reels": 700000,
+      "IG Story": 150000
+    },
+    "rate_min": 150000,
+    "rate_max": 700000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 216,
+    "username": "cirebon.banget",
+    "social_media": "Instagram",
+    "followers_raw": "214K",
+    "followers_num": 214000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Cirebon",
+    "location_norm": "bandung",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 217,
+    "username": "cirebonberita",
+    "social_media": "Instagram",
+    "followers_raw": "82K",
+    "followers_num": 82000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Cirebon",
+    "location_norm": "bandung",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 218,
+    "username": "cirebonrayainfo",
+    "social_media": "Instagram",
+    "followers_raw": "49,5K",
+    "followers_num": 49500,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Cirebon",
+    "location_norm": "bandung",
+    "rate_card": {
+      "Feeds": 600000,
+      "Reels": 700000,
+      "IG Story": 150000
+    },
+    "rate_min": 150000,
+    "rate_max": 700000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 219,
+    "username": "cirebonhistory",
+    "social_media": "Instagram",
+    "followers_raw": "39,8K",
+    "followers_num": 39800,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Cirebon",
+    "location_norm": "bandung",
+    "rate_card": {
+      "Feeds": 600000,
+      "Reels": 700000,
+      "IG Story": 150000
+    },
+    "rate_min": 150000,
+    "rate_max": 700000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 220,
+    "username": "aboutcirebonfood",
+    "social_media": "Instagram",
+    "followers_raw": "90,9K",
+    "followers_num": 90900,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Cirebon",
+    "location_norm": "bandung",
+    "rate_card": {
+      "Feeds": 600000,
+      "Reels": 700000,
+      "IG Story": 150000
+    },
+    "rate_min": 150000,
+    "rate_max": 700000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 221,
+    "username": "dialogindocirebon",
+    "social_media": "Instagram",
+    "followers_raw": "186K",
+    "followers_num": 186000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Cirebon",
+    "location_norm": "bandung",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 222,
+    "username": "kuninganrepost",
+    "social_media": "Instagram",
+    "followers_raw": "283K",
+    "followers_num": 283000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Kuningan",
+    "location_norm": "other",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 223,
+    "username": "pesonakuningan",
+    "social_media": "Instagram",
+    "followers_raw": "305K",
+    "followers_num": 305000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Kuningan",
+    "location_norm": "other",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 224,
+    "username": "infokuningan",
+    "social_media": "Instagram",
+    "followers_raw": "140K",
+    "followers_num": 140000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Kuningan",
+    "location_norm": "other",
+    "rate_card": {
+      "Feeds": 2000000,
+      "Reels": 3000000,
+      "IG Story": 750000
+    },
+    "rate_min": 750000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 225,
+    "username": "infomedan",
+    "social_media": "Instagram",
+    "followers_raw": "nan",
+    "followers_num": 0,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Medan",
+    "location_norm": "sumatra",
+    "rate_card": {
+      "Feeds": 100000,
+      "Reels": 150000,
+      "IG Story": 50000
+    },
+    "rate_min": 50000,
+    "rate_max": 150000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 226,
+    "username": "infomedia_medan",
+    "social_media": "Instagram",
+    "followers_raw": "nan",
+    "followers_num": 0,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Medan",
+    "location_norm": "sumatra",
+    "rate_card": {
+      "Reels": 300000
+    },
+    "rate_min": 300000,
+    "rate_max": 300000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 227,
+    "username": "medantalk",
+    "social_media": "Instagram",
+    "followers_raw": "1,8M",
+    "followers_num": 1800000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Medan",
+    "location_norm": "sumatra",
+    "rate_card": {
+      "Feeds": 620000,
+      "Reels": 925000,
+      "IG Story": 310000
+    },
+    "rate_min": 310000,
+    "rate_max": 925000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 228,
+    "username": "buletinmedan",
+    "social_media": "Instagram",
+    "followers_raw": "128K",
+    "followers_num": 128000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Medan",
+    "location_norm": "sumatra",
+    "rate_card": {
+      "Feeds": 200000,
+      "Reels": 200000,
+      "IG Story": 100000
+    },
+    "rate_min": 100000,
+    "rate_max": 200000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 229,
+    "username": "medanviralinfo",
+    "social_media": "Instagram",
+    "followers_raw": "67,6K",
+    "followers_num": 67600,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Medan",
+    "location_norm": "sumatra",
+    "rate_card": {
+      "Feeds": 150000,
+      "Reels": 150000,
+      "IG Story": 150000
+    },
+    "rate_min": 150000,
+    "rate_max": 150000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 230,
+    "username": "makassarinfoku",
+    "social_media": "Instagram",
+    "followers_raw": "512K",
+    "followers_num": 512000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Makassar",
+    "location_norm": "sulawesi",
+    "rate_card": {
+      "Feeds": 700000,
+      "Reels": 700000,
+      "IG Story": 350000
+    },
+    "rate_min": 350000,
+    "rate_max": 700000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 231,
+    "username": "makassarfeeds",
+    "social_media": "Instagram",
+    "followers_raw": "190K",
+    "followers_num": 190000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Makassar",
+    "location_norm": "sulawesi",
+    "rate_card": {
+      "Feeds": 500000,
+      "Reels": 500000,
+      "IG Story": 300000
+    },
+    "rate_min": 300000,
+    "rate_max": 500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 232,
+    "username": "makassarterkini.id",
+    "social_media": "Instagram",
+    "followers_raw": "95,5K",
+    "followers_num": 95500,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Makassar",
+    "location_norm": "sulawesi",
+    "rate_card": {
+      "Feeds": 450000,
+      "Reels": 500000,
+      "IG Story": 200000
+    },
+    "rate_min": 200000,
+    "rate_max": 500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 233,
+    "username": "makassar_folks",
+    "social_media": "Instagram",
+    "followers_raw": "88,3K",
+    "followers_num": 88300,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Makassar",
+    "location_norm": "sulawesi",
+    "rate_card": {
+      "Feeds": 400000,
+      "Reels": 450000,
+      "IG Story": 200000
+    },
+    "rate_min": 200000,
+    "rate_max": 450000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 234,
+    "username": "makassarvirals",
+    "social_media": "Instagram",
+    "followers_raw": "85,4K",
+    "followers_num": 85400,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Makassar",
+    "location_norm": "sulawesi",
+    "rate_card": {
+      "Feeds": 450000,
+      "Reels": 450000,
+      "IG Story": 200000
+    },
+    "rate_min": 200000,
+    "rate_max": 450000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 235,
+    "username": "makassarapakabar",
+    "social_media": "Instagram",
+    "followers_raw": "36,4K",
+    "followers_num": 36400,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Makassar",
+    "location_norm": "sulawesi",
+    "rate_card": {
+      "Feeds": 300000,
+      "Reels": 350000,
+      "IG Story": 200000
+    },
+    "rate_min": 200000,
+    "rate_max": 350000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 236,
+    "username": "makassarmedsos",
+    "social_media": "Instagram",
+    "followers_raw": "65,6K",
+    "followers_num": 65600,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Makassar",
+    "location_norm": "sulawesi",
+    "rate_card": {
+      "Feeds": 350000,
+      "Reels": 400000,
+      "IG Story": 200000
+    },
+    "rate_min": 200000,
+    "rate_max": 400000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 237,
+    "username": "makassarvolix",
+    "social_media": "Instagram",
+    "followers_raw": "59,7K",
+    "followers_num": 59700,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Makassar",
+    "location_norm": "sulawesi",
+    "rate_card": {
+      "Feeds": 400000,
+      "Reels": 400000,
+      "IG Story": 250000
+    },
+    "rate_min": 250000,
+    "rate_max": 400000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 238,
+    "username": "makasar_info",
+    "social_media": "Instagram",
+    "followers_raw": "819K",
+    "followers_num": 819000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Makassar",
+    "location_norm": "sulawesi",
+    "rate_card": {
+      "Feeds": 200000,
+      "Reels": 250000,
+      "IG Story": 50000
+    },
+    "rate_min": 50000,
+    "rate_max": 250000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 239,
+    "username": "infosulawesidotcom",
+    "social_media": "Instagram",
+    "followers_raw": "38,6K",
+    "followers_num": 38600,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Sulawesi",
+    "location_norm": "sulawesi",
+    "rate_card": {
+      "Feeds": 1500000,
+      "Reels": 3000000,
+      "IG Story": 500000
+    },
+    "rate_min": 500000,
+    "rate_max": 3000000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 240,
+    "username": "sulselberita",
+    "social_media": "Instagram",
+    "followers_raw": "114K",
+    "followers_num": 114000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Sulawesi Selatan",
+    "location_norm": "sulawesi",
+    "rate_card": {
+      "Feeds": 500000,
+      "Reels": 500000,
+      "IG Story": 250000
+    },
+    "rate_min": 250000,
+    "rate_max": 500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 241,
+    "username": "kotabaruinfo",
+    "social_media": "Instagram",
+    "followers_raw": "76K",
+    "followers_num": 76000,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Kota Baru",
+    "location_norm": "other",
+    "rate_card": {
+      "Feeds": 300000,
+      "Reels": 300000,
+      "IG Story": 300000
+    },
+    "rate_min": 300000,
+    "rate_max": 300000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 242,
+    "username": "palopoinfoku",
+    "social_media": "Instagram",
+    "followers_raw": "48,9K",
+    "followers_num": 48900,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Palopo",
+    "location_norm": "other",
+    "rate_card": {
+      "Feeds": 300000,
+      "Reels": 350000,
+      "IG Story": 250000
+    },
+    "rate_min": 250000,
+    "rate_max": 350000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 243,
+    "username": "infobandaaceh",
+    "social_media": "Instagram",
+    "followers_raw": "17,8K",
+    "followers_num": 17800,
+    "category": "Trending News",
+    "pic_name": "admin",
+    "pic_contact": "85719401440",
+    "location_raw": "Aceh",
+    "location_norm": "sumatra",
+    "rate_card": {
+      "Feeds": 250000,
+      "Reels": 350000,
+      "IG Story": 100000
+    },
+    "rate_min": 100000,
+    "rate_max": 350000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/6285719401440",
+      "label": "WA 6285719401440"
+    }
+  },
+  {
+    "id": 244,
+    "username": "public says",
+    "social_media": "Tiktok",
+    "followers_raw": "2.585",
+    "followers_num": 2,
+    "category": "entertainment,News",
+    "pic_name": "admin",
+    "pic_contact": "8127381003",
+    "location_raw": "Nasional",
+    "location_norm": "nasional",
+    "rate_card": {
+      "1x Interview Content post in Tiktok,IG Reels,Youtube short,Facebook reels": 1500000
+    },
+    "rate_min": 1500000,
+    "rate_max": 1500000,
+    "contact_action": {
+      "type": "whatsapp",
+      "url": "https://wa.me/628127381003",
+      "label": "WA 628127381003"
+    }
+  }
+]
