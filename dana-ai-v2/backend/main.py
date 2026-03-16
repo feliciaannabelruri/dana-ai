@@ -53,15 +53,33 @@ def root():
 def status():
     trained = os.path.exists(os.path.join(MODELS_DIR, 'st_model.pkl'))
     homeless_loaded = os.path.exists(os.path.join(DATA_DIR, 'homeless_media.json'))
-    import json
+    layer3_kol     = os.path.exists(os.path.join(MODELS_DIR, 'rf_kol.pkl'))
+    layer3_homeless= os.path.exists(os.path.join(MODELS_DIR, 'rf_homeless.pkl'))
+
+    import json as _json
     homeless_count = 0
     if homeless_loaded:
         with open(os.path.join(DATA_DIR, 'homeless_media.json')) as f:
-            homeless_count = len(json.load(f))
+            homeless_count = len(_json.load(f))
+
+    rf_kol_mae, rf_homeless_mae = None, None
+    if layer3_kol:
+        mp = os.path.join(MODELS_DIR,'rf_kol_meta.json')
+        if os.path.exists(mp):
+            with open(mp) as f: rf_kol_mae = _json.load(f).get('rf_cv_mae')
+    if layer3_homeless:
+        mp = os.path.join(MODELS_DIR,'rf_homeless_meta.json')
+        if os.path.exists(mp):
+            with open(mp) as f: rf_homeless_mae = _json.load(f).get('rf_cv_mae')
+
     return {
-        "model_trained": trained,
+        "model_trained":        trained,
         "homeless_media_loaded": homeless_loaded,
-        "homeless_media_count": homeless_count,
+        "homeless_media_count":  homeless_count,
+        "layer3_kol":           layer3_kol,
+        "layer3_homeless":      layer3_homeless,
+        "rf_kol_mae":           rf_kol_mae,
+        "rf_homeless_mae":      rf_homeless_mae,
         "meta": get_meta() if trained else {},
     }
 
@@ -141,27 +159,55 @@ async def upload_homeless_media(file: UploadFile = File(...)):
 
 @app.post("/train")
 def train():
-    """Parse data + encode dengan HuggingFace + train KNN."""
+    """
+    Parse data + encode HuggingFace + train KNN (Layer 1+2)
+    + generate synthetic data + train Random Forest (Layer 3).
+    """
     if not os.path.exists(os.path.join(DATA_DIR, 'KOL.xlsx')):
         raise HTTPException(400, "KOL.xlsx tidak ditemukan. Upload dulu.")
     try:
         scripts = os.path.join(os.path.dirname(__file__), 'scripts')
+        steps   = []
 
+        # Step 1: Parse KOL data
         r1 = subprocess.run([sys.executable, os.path.join(scripts,'parse_data.py')],
                             capture_output=True, text=True, cwd=os.path.dirname(__file__))
         if r1.returncode != 0:
             raise HTTPException(500, f"Parse error: {r1.stderr[-400:]}")
+        steps.append("parse_data OK")
 
+        # Step 2: HuggingFace semantic embeddings + KNN (Layer 1+2)
         r2 = subprocess.run([sys.executable, os.path.join(scripts,'train_model.py')],
                             capture_output=True, text=True, cwd=os.path.dirname(__file__))
         if r2.returncode != 0:
-            raise HTTPException(500, f"Train error: {r2.stderr[-400:]}")
+            raise HTTPException(500, f"Train HF error: {r2.stderr[-400:]}")
+        steps.append("train_model (HF+KNN) OK")
 
-        import recommender
+        # Step 3: Layer 3 — Random Forest KOL
+        r3 = subprocess.run([sys.executable, os.path.join(scripts,'train_rf_kol.py')],
+                            capture_output=True, text=True, cwd=os.path.dirname(__file__))
+        rf_kol_ok = r3.returncode == 0
+        steps.append(f"train_rf_kol {'OK' if rf_kol_ok else 'SKIP (error)'}")
+
+        # Step 4: Layer 3 — Random Forest Homeless Media
+        r4 = subprocess.run([sys.executable, os.path.join(scripts,'train_rf_homeless.py')],
+                            capture_output=True, text=True, cwd=os.path.dirname(__file__))
+        rf_homeless_ok = r4.returncode == 0
+        steps.append(f"train_rf_homeless {'OK' if rf_homeless_ok else 'SKIP (error)'}")
+
+        # Reload all models
+        import recommender, homeless_recommender
         recommender._cache = {}
+        homeless_recommender._rf_cache = {}
         load_models()
 
-        return {"status": "success", "message": "Model + HuggingFace embeddings berhasil dilatih"}
+        return {
+            "status": "success",
+            "message": "Semua layer berhasil dilatih",
+            "steps": steps,
+            "layer3_kol":     rf_kol_ok,
+            "layer3_homeless": rf_homeless_ok,
+        }
     except HTTPException: raise
     except Exception as e:
         raise HTTPException(500, str(e))
