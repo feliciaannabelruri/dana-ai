@@ -1,9 +1,7 @@
 """
 homeless_recommender.py  — Layer 1 + Layer 3
 ============================================
-Layer 1: Rule-based scoring (relevance, budget, location, reach)
-Layer 3: Random Forest ensemble dari synthetic data
-Final  : 40% Layer1 + 60% Layer3 (jika RF tersedia)
+FIXED: Location normalization — setiap kota dipetakan ke grup yang benar.
 """
 import json, os
 import numpy as np
@@ -15,19 +13,41 @@ HOMELESS_MEDIA_PATH = os.path.join(DATA_DIR, 'homeless_media.json')
 
 _rf_cache = {}
 
+# ── FIXED: Location groups ───────────────────────────────────────
 LOCATION_GROUPS = {
-    "jakarta":    ["jakarta","jaksel","jakpus","jakbar","jaktim","jakut","jkt",
-                   "gading serpong","tangerang","depok","bekasi","bogor","bsd","serpong","cibubur","cikarang"],
-    "bandung":    ["bandung","cimahi","cirebon"],
-    "surabaya":   ["surabaya","sidoarjo","malang","jawa timur","jatim","pasuruan","kediri",
-                   "gresik","banyuwangi","jember"],
-    "yogyakarta": ["yogyakarta","jogja","sleman","solo","magelang","semarang","purwokerto","cilacap"],
-    "bali":       ["bali","denpasar","badung"],
-    "sumatra":    ["medan","palembang","pekanbaru","batam","lampung","padang","aceh","jambi"],
-    "kalimantan": ["kalimantan","banjarmasin","samarinda","pontianak","balikpapan"],
-    "sulawesi":   ["sulawesi","makassar","manado","gowa"],
-    "nasional":   ["nasional","national","indonesia"],
+    "jakarta":      ["jakarta","jaksel","jakpus","jakbar","jaktim","jakut","jkt",
+                     "gading serpong","tangerang","depok","bekasi","bogor","bsd",
+                     "serpong","cibubur","cikarang"],
+    "bandung":      ["bandung","cimahi"],
+    "cirebon":      ["cirebon"],
+    "surabaya":     ["surabaya","sidoarjo","pasuruan","kediri","gresik"],
+    "malang":       ["malang","batu"],
+    "jawa_timur":   ["jawa timur","jatim","banyuwangi","jember","madiun",
+                     "lumajang","blitar","mojokerto","probolinggo","lamongan",
+                     "tuban","bojonegoro"],
+    "yogyakarta":   ["yogyakarta","jogja","sleman","bantul","gunung kidul","kulon progo"],
+    "solo":         ["solo","surakarta","karanganyar","wonogiri","klaten","boyolali","sragen"],
+    "semarang":     ["semarang","salatiga","kendal","demak","ungaran"],
+    "jawa_tengah":  ["jawa tengah","jateng","magelang","purwokerto","cilacap",
+                     "banyumas","kebumen","wonosobo","temanggung","kudus",
+                     "pati","jepara","rembang","blora","batang","pemalang",
+                     "tegal","brebes","pekalongan","purbalingga","banjarnegara","grobogan"],
+    "bali":         ["bali","denpasar","badung","gianyar","tabanan","buleleng",
+                     "karangasem","klungkung","bangli","jembrana"],
+    "sumatra":      ["medan","palembang","pekanbaru","pekan baru","batam","lampung",
+                     "padang","aceh","jambi","bengkulu","banda aceh","langsa",
+                     "lhokseumawe","binjai","pematangsiantar","lubuklinggau",
+                     "prabumulih","dumai","padang sidempuan"],
+    "kalimantan":   ["kalimantan","banjarmasin","samarinda","pontianak","balikpapan",
+                     "palangkaraya","banjarbaru","tarakan","singkawang","kotabaru"],
+    "sulawesi":     ["sulawesi","makassar","manado","gowa","palu","kendari",
+                     "gorontalo","mamuju","palopo"],
+    "nasional":     ["nasional","national","indonesia"],
 }
+
+# Grup Jawa untuk proximity
+JAWA_GROUPS = {"jakarta","bandung","cirebon","surabaya","malang","jawa_timur",
+               "yogyakarta","solo","semarang","jawa_tengah"}
 
 TOPIC_TO_CATEGORY = {
     "finance": ["Trending News","Facts News","Akun Gossip"],
@@ -84,15 +104,6 @@ CAT_TIER_MAP = {
     'Facts News':2,'Girls News':2,'Mystery,Facts,Fenomena':1,'Internasional News':1,
 }
 
-LOC_PROXIMITY = {
-    ('jakarta','jakarta'):1.0,('jakarta','nasional'):0.95,
-    ('bandung','bandung'):1.0,('bandung','nasional'):0.95,('bandung','jakarta'):0.7,
-    ('surabaya','surabaya'):1.0,('surabaya','nasional'):0.95,
-    ('yogyakarta','yogyakarta'):1.0,('yogyakarta','nasional'):0.95,
-    ('bali','bali'):1.0,('bali','nasional'):0.95,
-    ('nasional','nasional'):1.0,
-}
-
 
 def load_rf_models():
     global _rf_cache
@@ -115,10 +126,12 @@ def load_rf_models():
 
 
 def normalize_location_query(loc):
+    """Normalisasi input lokasi user ke grup yang benar."""
     if not loc: return "nasional"
     loc_lower = loc.lower().strip()
     for group, keywords in LOCATION_GROUPS.items():
-        if any(kw in loc_lower for kw in keywords): return group
+        if any(kw in loc_lower for kw in keywords):
+            return group
     return "nasional"
 
 
@@ -144,14 +157,22 @@ def get_topic_media_score(topic_text, media_category):
 
 
 def get_loc_score(campaign_loc, media_loc):
-    key = (campaign_loc, media_loc)
-    rev = (media_loc, campaign_loc)
-    if key in LOC_PROXIMITY: return LOC_PROXIMITY[key]
-    if rev in LOC_PROXIMITY: return LOC_PROXIMITY[rev]
-    if media_loc == 'nasional': return 0.90
-    if campaign_loc == media_loc: return 1.0
-    jawa = {'jakarta','bandung','surabaya','yogyakarta'}
-    if campaign_loc in jawa and media_loc in jawa: return 0.65
+    """
+    Scoring lokasi yang akurat:
+    - Exact match → 1.0
+    - Media nasional → 0.90 (bisa reach manapun)
+    - Campaign nasional → 1.0 semua relevan
+    - Sesama Jawa → 0.65
+    - Beda pulau → 0.25
+    """
+    if campaign_loc == 'nasional': return 1.0
+    if campaign_loc == media_loc:  return 1.0
+    if media_loc == 'nasional':    return 0.90
+
+    # Proximity sesama Jawa
+    if campaign_loc in JAWA_GROUPS and media_loc in JAWA_GROUPS:
+        return 0.65
+
     return 0.25
 
 
@@ -203,6 +224,8 @@ def recommend_homeless_media(topics="", goals="", campaign_description="",
     relevant_cats    = get_relevant_categories(topics, goals, campaign_description)
     topic_text       = f"{topics} {goals} {campaign_description}"
 
+    print(f"   [LOC] Homeless Media — Input: '{location}' → normalized: '{target_loc}'")
+
     filtered = all_media
     if content_type.lower() not in ('semua','all',''):
         ct = content_type.lower()
@@ -247,6 +270,7 @@ def recommend_homeless_media(topics="", goals="", campaign_description="",
         elif budget_score >= 0.4: reasons.append("rate bisa dinegosiasikan")
         if is_nasional: reasons.append("coverage nasional")
         elif loc_score == 1.0: reasons.append(f"media lokal {media.get('location_raw','')}")
+        elif loc_score >= 0.6: reasons.append(f"media terdekat ({media.get('location_raw','')})")
         if reach_score >= 0.88: reasons.append(f"reach besar ({media.get('followers_raw','')} followers)")
         if has_layer3 and layer3: reasons.append(f"RF score {round(layer3*100,1)}%")
 

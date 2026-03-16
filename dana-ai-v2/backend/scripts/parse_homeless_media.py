@@ -1,7 +1,6 @@
 """
 parse_homeless_media.py
-Parse Sheet2 dari HomelessMedia.xlsx (atau KOL.xlsx yang sudah include sheet2)
-menjadi homeless_media.json di folder data/
+FIXED: Location normalization — setiap kota ke grup yang benar.
 """
 import sys, io
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
@@ -11,8 +10,6 @@ import pandas as pd
 import numpy as np
 import re, json, os
 
-# Bisa menerima path sebagai argument, default ke HomelessMedia.xlsx
-import sys as _sys
 DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data')
 OUT_PATH = os.path.join(DATA_DIR, 'homeless_media.json')
 
@@ -20,27 +17,38 @@ HOMELESS_MEDIA_PATH = os.environ.get(
     'HOMELESS_MEDIA_PATH',
     os.path.join(DATA_DIR, 'HomelessMedia.xlsx')
 )
-# Fallback: kalau belum ada HomelessMedia.xlsx terpisah, baca dari KOL.xlsx Sheet2
 KOL_PATH = os.path.join(DATA_DIR, 'KOL.xlsx')
 
-
+# ── FIXED: Location groups ───────────────────────────────────────
 LOCATION_GROUPS = {
-    "jakarta":    ["jakarta","jaksel","jakpus","jakbar","jaktim","jakut","jkt",
-                   "gading serpong","tangerang","depok","bekasi","bogor","bsd","serpong","cibubur","cikarang"],
-    "bandung":    ["bandung","cimahi","cirebon"],
-    "surabaya":   ["surabaya","sidoarjo","malang","jawa timur","jatim","pasuruan","kediri",
-                   "gresik","banyuwangi","jember"],
-    "yogyakarta": ["yogyakarta","jogja","sleman","solo","magelang","semarang","purwokerto","cilacap"],
-    "bali":       ["bali","denpasar","badung"],
-    "sumatra":    ["medan","palembang","pekanbaru","batam","lampung","padang","aceh","jambi",
-                   "bengkulu","pekan baru"],
-    "kalimantan": ["kalimantan","banjarmasin","samarinda","pontianak","balikpapan"],
-    "sulawesi":   ["sulawesi","makassar","manado","gowa"],
-    "nasional":   ["nasional","national","indonesia"],
-    "banten":     ["banten","serang","tangerang selatan"],
-    "jawa_barat": ["jawa barat","jabar","bekasi","bogor","depok"],
-    "jawa_tengah":["jawa tengah","jateng","semarang","solo","magelang"],
-    "jawa_timur": ["jawa timur","jatim","surabaya","malang","gresik"],
+    "jakarta":      ["jakarta","jaksel","jakpus","jakbar","jaktim","jakut","jkt",
+                     "gading serpong","tangerang","depok","bekasi","bogor","bsd",
+                     "serpong","cibubur","cikarang"],
+    "bandung":      ["bandung","cimahi"],
+    "cirebon":      ["cirebon"],
+    "surabaya":     ["surabaya","sidoarjo","pasuruan","kediri","gresik"],
+    "malang":       ["malang","batu"],
+    "jawa_timur":   ["jawa timur","jatim","banyuwangi","jember","madiun",
+                     "lumajang","blitar","mojokerto","probolinggo","lamongan",
+                     "tuban","bojonegoro"],
+    "yogyakarta":   ["yogyakarta","jogja","sleman","bantul","gunung kidul","kulon progo"],
+    "solo":         ["solo","surakarta","karanganyar","wonogiri","klaten","boyolali","sragen"],
+    "semarang":     ["semarang","salatiga","kendal","demak","ungaran"],
+    "jawa_tengah":  ["jawa tengah","jateng","magelang","purwokerto","cilacap",
+                     "banyumas","kebumen","wonosobo","temanggung","kudus",
+                     "pati","jepara","rembang","blora","batang","pemalang",
+                     "tegal","brebes","pekalongan","purbalingga","banjarnegara","grobogan"],
+    "bali":         ["bali","denpasar","badung","gianyar","tabanan","buleleng",
+                     "karangasem","klungkung","bangli","jembrana"],
+    "sumatra":      ["medan","palembang","pekanbaru","pekan baru","batam","lampung",
+                     "padang","aceh","jambi","bengkulu","banda aceh","langsa",
+                     "lhokseumawe","binjai","pematangsiantar","lubuklinggau",
+                     "prabumulih","dumai","padang sidempuan"],
+    "kalimantan":   ["kalimantan","banjarmasin","samarinda","pontianak","balikpapan",
+                     "palangkaraya","banjarbaru","tarakan","singkawang","kotabaru"],
+    "sulawesi":     ["sulawesi","makassar","manado","gowa","palu","kendari",
+                     "gorontalo","mamuju","palopo"],
+    "nasional":     ["nasional","national","indonesia"],
 }
 
 
@@ -66,6 +74,7 @@ def parse_rate(val):
 
 
 def normalize_location(loc):
+    """Normalisasi lokasi ke grup yang benar. Semarang → semarang, bukan yogyakarta."""
     if not loc or str(loc).strip().lower() in ('nan', ''):
         return "nasional"
     loc_lower = str(loc).lower().strip()
@@ -76,7 +85,6 @@ def normalize_location(loc):
 
 
 def parse_sheet(df):
-    """Parse dataframe Sheet2/Sheet5 format menjadi list of dicts"""
     records = []
     current = {}
 
@@ -91,11 +99,9 @@ def parse_sheet(df):
             if current and current.get('username', '').strip():
                 records.append(current)
 
-            # Parse rate card dari baris ini
             rate_platform = str(row.iloc[8]).strip() if pd.notna(row.iloc[8]) else ''
             rate_value    = parse_rate(row.iloc[9]) if len(row) > 9 else 0
 
-            # Format contact
             contact_raw = str(row.iloc[6]).strip() if pd.notna(row.iloc[6]) else ''
             contact_raw = contact_raw.replace('+', '').replace(' ', '').replace('.0', '').strip()
 
@@ -114,7 +120,6 @@ def parse_sheet(df):
                 current['rate_card'][rate_platform] = rate_value
 
         elif current:
-            # Baris lanjutan (rate card tambahan)
             if len(row) > 9:
                 rp = str(row.iloc[8]).strip() if pd.notna(row.iloc[8]) else ''
                 rv = parse_rate(row.iloc[9]) if pd.notna(row.iloc[9]) else 0
@@ -128,7 +133,6 @@ def parse_sheet(df):
 
 
 def enrich(records):
-    """Tambahkan computed fields"""
     result = []
     for r in records:
         followers_num = parse_followers(r['followers_raw'])
@@ -136,7 +140,8 @@ def enrich(records):
         rate_min = min(rates) if rates else 0
         rate_max = max(rates) if rates else 0
 
-        # Contact action
+        loc_norm = normalize_location(r['location_raw'])
+
         contact = r['pic_contact']
         if contact and contact.isdigit() and len(contact) >= 8:
             if contact.startswith('0'):
@@ -166,7 +171,7 @@ def enrich(records):
             'pic_name':        r['pic_name'],
             'pic_contact':     r['pic_contact'],
             'location_raw':    r['location_raw'],
-            'location_norm':   normalize_location(r['location_raw']),
+            'location_norm':   loc_norm,
             'rate_card':       r['rate_card'],
             'rate_min':        rate_min,
             'rate_max':        rate_max,
@@ -178,7 +183,6 @@ def enrich(records):
 
 def load_and_parse(filepath, sheet_name='Sheet2'):
     df = pd.read_excel(filepath, sheet_name=sheet_name, header=None)
-    # Skip header row
     df = df.iloc[1:].reset_index(drop=True)
     records = parse_sheet(df)
     return enrich(records)
@@ -187,12 +191,10 @@ def load_and_parse(filepath, sheet_name='Sheet2'):
 def main():
     os.makedirs(DATA_DIR, exist_ok=True)
 
-    # Cari file sumber
     source = None
     if os.path.exists(HOMELESS_MEDIA_PATH):
         source = HOMELESS_MEDIA_PATH
     elif os.path.exists(KOL_PATH):
-        # Cek apakah KOL.xlsx punya Sheet2
         xl = pd.ExcelFile(KOL_PATH)
         if 'Sheet2' in xl.sheet_names:
             source = KOL_PATH
@@ -204,18 +206,34 @@ def main():
     records = load_and_parse(source, 'Sheet2')
     print(f"[OK] {len(records)} Homeless Media accounts parsed")
 
+    # Debug: tampilkan sample normalisasi lokasi
+    print("\n  Sample location_norm:")
+    seen = set()
+    for r in records:
+        key = (r['location_raw'], r['location_norm'])
+        if key not in seen:
+            print(f"    '{r['location_raw']}' → '{r['location_norm']}'")
+            seen.add(key)
+            if len(seen) >= 25: break
+
     with open(OUT_PATH, 'w', encoding='utf-8') as f:
         json.dump(records, f, ensure_ascii=False, indent=2)
 
-    print(f"[OK] Saved -> {OUT_PATH}")
+    print(f"\n[OK] Saved -> {OUT_PATH}")
 
-    # Print sample
     cats = {}
+    locs = {}
     for r in records:
         cats[r['category']] = cats.get(r['category'], 0) + 1
-    print("Kategori:")
+        locs[r['location_norm']] = locs.get(r['location_norm'], 0) + 1
+
+    print("\nKategori:")
     for cat, cnt in sorted(cats.items(), key=lambda x: -x[1]):
         print(f"  {cat}: {cnt}")
+
+    print("\nLokasi (normalized):")
+    for loc, cnt in sorted(locs.items(), key=lambda x: -x[1]):
+        print(f"  {loc}: {cnt}")
 
 
 if __name__ == '__main__':

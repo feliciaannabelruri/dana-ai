@@ -13,17 +13,36 @@ ER_PATH      = os.path.join(os.path.dirname(__file__), '..', 'data', 'er_data.js
 
 TIER_MAP = {"nano":1,"mikro":2,"micro":2,"makro":3,"macro":3,"mega":4,"celeb":5}
 
+# ── FIXED: Setiap kota/wilayah ke grup yang tepat ───────────────
 LOCATION_GROUPS = {
-    "jakarta":    ["jakarta","jaksel","jakpus","jakbar","jaktim","jakut",
-                   "gading serpong","tangerang","depok","bekasi","bogor","bsd","serpong","cibubur","cikarang"],
-    "bandung":    ["bandung","cimahi","cirebon"],
-    "surabaya":   ["surabaya","sidoarjo","malang","jawa timur","jatim","pasuruan","kediri"],
-    "yogyakarta": ["yogyakarta","jogja","sleman","solo","magelang","semarang","purwokerto","cilacap"],
-    "bali":       ["bali","denpasar","badung"],
-    "sumatra":    ["medan","palembang","pekanbaru","batam","lampung","padang","aceh","jambi","bengkulu"],
-    "kalimantan": ["kalimantan","banjarmasin","samarinda","pontianak","balikpapan"],
-    "sulawesi":   ["sulawesi","makassar","manado","gowa"],
-    "nasional":   ["nasional","national","indonesia"],
+    "jakarta":      ["jakarta","jaksel","jakpus","jakbar","jaktim","jakut",
+                     "gading serpong","tangerang","depok","bekasi","bogor","bsd",
+                     "serpong","cibubur","cikarang"],
+    "bandung":      ["bandung","cimahi"],
+    "cirebon":      ["cirebon"],
+    "surabaya":     ["surabaya","sidoarjo","pasuruan","kediri","gresik"],
+    "malang":       ["malang","batu"],
+    "jawa_timur":   ["jawa timur","jatim","banyuwangi","jember","madiun",
+                     "lumajang","blitar","mojokerto","probolinggo","lamongan",
+                     "tuban","bojonegoro"],
+    "yogyakarta":   ["yogyakarta","jogja","sleman","bantul","gunung kidul","kulon progo"],
+    "solo":         ["solo","surakarta","karanganyar","wonogiri","klaten","boyolali","sragen"],
+    "semarang":     ["semarang","salatiga","kendal","demak","ungaran"],
+    "jawa_tengah":  ["jawa tengah","jateng","magelang","purwokerto","cilacap",
+                     "banyumas","kebumen","wonosobo","temanggung","kudus",
+                     "pati","jepara","rembang","blora","batang","pemalang",
+                     "tegal","brebes","pekalongan","purbalingga","banjarnegara","grobogan"],
+    "bali":         ["bali","denpasar","badung","gianyar","tabanan","buleleng",
+                     "karangasem","klungkung","bangli","jembrana"],
+    "sumatra":      ["medan","palembang","pekanbaru","pekan baru","batam","lampung",
+                     "padang","aceh","jambi","bengkulu","banda aceh","langsa",
+                     "lhokseumawe","binjai","pematangsiantar","lubuklinggau",
+                     "prabumulih","dumai","padang sidempuan"],
+    "kalimantan":   ["kalimantan","banjarmasin","samarinda","pontianak","balikpapan",
+                     "palangkaraya","banjarbaru","tarakan","singkawang","kotabaru"],
+    "sulawesi":     ["sulawesi","makassar","manado","gowa","palu","kendari",
+                     "gorontalo","mamuju","palopo"],
+    "nasional":     ["nasional","national","indonesia"],
 }
 
 def parse_followers(val):
@@ -41,19 +60,13 @@ def parse_rate(val):
     except: return 0
 
 def parse_contact(val):
-    """
-    Safely parse pic_contact — could be a phone number (int/float) or
-    a plain string like 'loveforworkingmom'. Always return a string.
-    """
     if val is None or (isinstance(val, float) and np.isnan(val)):
         return ''
-    # Already a plain integer stored as float (e.g. 6281234567890.0)
     if isinstance(val, (int, float)):
         try:
             return str(int(val)).strip()
         except:
             return ''
-    # String — keep as-is (might be a username or WA number written as text)
     return str(val).strip()
 
 def normalize_location(loc):
@@ -78,7 +91,6 @@ def _set_rate(current, platform, value):
     elif 'bundl' in p or 'mirror' in p: current['rate_bundling'] = r
 
 def load_er_data():
-    """Load ER data dari insight.xlsx atau er_data.json"""
     if os.path.exists(ER_PATH):
         with open(ER_PATH) as f:
             return json.load(f)
@@ -108,7 +120,6 @@ def parse_kol():
                 'followers_raw':row.get('followers'),
                 'category':     str(row.get('category','')).strip() if pd.notna(row.get('category')) else '',
                 'pic_name':     str(row.get('pic_name','')).strip() if pd.notna(row.get('pic_name')) else '',
-                # ← Fixed: use parse_contact() instead of str(int(float(...)))
                 'pic_contact':  parse_contact(row.get('pic_contact')),
                 'rate_tiktok':0, 'rate_ig':0, 'rate_bundling':0,
             }
@@ -122,7 +133,6 @@ def parse_kol():
 
     df = pd.DataFrame(records)
 
-    # Feature engineering
     df['followers_num'] = df['followers_raw'].apply(parse_followers)
     df['type_norm']     = df['type_raw'].apply(normalize_type)
     df['tier_score']    = df['type_norm'].map(TIER_MAP).fillna(2)
@@ -132,7 +142,6 @@ def parse_kol():
     df['rate_max']      = df[['rate_tiktok','rate_ig','rate_bundling']].max(axis=1)
     df['followers_log'] = np.log1p(df['followers_num'])
 
-    # ── Gabungkan ER data dari insight.xlsx ──────────────────
     er_data = load_er_data()
     df['has_er_data']  = False
     df['avg_er_pct']   = np.nan
@@ -151,6 +160,12 @@ def parse_kol():
     enriched = df['has_er_data'].sum()
     print(f"  Total KOL: {len(df)}")
     print(f"  KOL dengan real ER data: {enriched}")
+
+    # Debug: tampilkan sample location normalization
+    print("\n  Sample location normalization:")
+    for _, r in df[['location_raw','location_norm']].drop_duplicates().head(20).iterrows():
+        print(f"    '{r['location_raw']}' → '{r['location_norm']}'")
+
     return df
 
 if __name__ == '__main__':

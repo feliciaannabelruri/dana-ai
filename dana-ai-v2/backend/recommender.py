@@ -1,17 +1,7 @@
 """
 recommender.py — Multi-Layer Scoring v3 + Company Profile
 ==========================================================
-Scoring pipeline saat inference:
-
-1. HuggingFace — semantic similarity (query enriched dengan company context)
-2. Budget / Location / Tier — rule-based scoring
-3. Random Forest — prediksi quality score dari tabular features
-4. XGBoost — prediksi ER untuk KOL tanpa data nyata
-5. RBM latent similarity — cosine similarity di latent space
-6. Campaign Pattern — boost berdasarkan insight history
-7. Brand Fit — company guideline: preferred category boost, blacklist filter
-
-Final score = weighted sum dari semua layer.
+FIXED: Location normalization — setiap kota/wilayah dipetakan ke grup yang benar.
 """
 import numpy as np
 import pandas as pd
@@ -19,47 +9,70 @@ import joblib, os, json
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import MinMaxScaler
 
-# Import company profile (hardcoded agency guideline)
 try:
     from company_profile import (
         score_kol_fit, get_context_enriched_query, get_profile_summary,
-        AGENCY_PROFILE
+        COMPANY_PROFILE
     )
     _PROFILE_LOADED = True
-    print(f"[OK] Company profile loaded: {AGENCY_PROFILE['agency_name']} ({AGENCY_PROFILE['type']})")
+    print(f"[OK] Company profile loaded: {COMPANY_PROFILE['company_name']}")
 except ImportError:
     _PROFILE_LOADED = False
     print("[WARN] company_profile.py tidak ditemukan — brand fit scoring dinonaktifkan")
 
 MODELS_DIR = os.path.join(os.path.dirname(__file__), 'models')
 
+# ── FIXED: Location groups — setiap kota ke grup yang tepat ─────
 LOCATION_GROUPS = {
-    "jakarta":    ["jakarta","jaksel","jakpus","gading serpong","tangerang",
-                   "depok","bekasi","bogor","bsd","serpong","cibubur","cikarang"],
-    "bandung":    ["bandung","cimahi","cirebon"],
-    "surabaya":   ["surabaya","sidoarjo","malang","jawa timur","pasuruan","kediri"],
-    "yogyakarta": ["yogyakarta","jogja","sleman","solo","semarang","purwokerto","cilacap"],
-    "bali":       ["bali","denpasar"],
-    "sumatra":    ["medan","palembang","pekanbaru","batam","lampung","padang","aceh","jambi"],
-    "kalimantan": ["kalimantan","banjarmasin","samarinda","pontianak","balikpapan"],
-    "sulawesi":   ["sulawesi","makassar","manado"],
-    "nasional":   ["nasional","national","indonesia"],
+    "jakarta":      ["jakarta","jaksel","jakpus","jakbar","jaktim","jakut","jkt",
+                     "gading serpong","tangerang","depok","bekasi","bogor","bsd",
+                     "serpong","cibubur","cikarang"],
+    "bandung":      ["bandung","cimahi"],
+    "cirebon":      ["cirebon"],
+    "surabaya":     ["surabaya","sidoarjo","pasuruan","kediri","gresik"],
+    "malang":       ["malang","batu"],
+    "jawa_timur":   ["jawa timur","jatim","banyuwangi","jember","madiun",
+                     "lumajang","blitar","mojokerto","probolinggo","lamongan",
+                     "tuban","bojonegoro"],
+    "yogyakarta":   ["yogyakarta","jogja","sleman","bantul","gunung kidul","kulon progo"],
+    "solo":         ["solo","surakarta","karanganyar","wonogiri","klaten","boyolali","sragen"],
+    "semarang":     ["semarang","salatiga","kendal","demak","ungaran"],
+    "jawa_tengah":  ["jawa tengah","jateng","magelang","purwokerto","cilacap",
+                     "banyumas","kebumen","wonosobo","temanggung","kudus",
+                     "pati","jepara","rembang","blora","batang","pemalang",
+                     "tegal","brebes","pekalongan","purbalingga","banjarnegara","grobogan"],
+    "bali":         ["bali","denpasar","badung","gianyar","tabanan","buleleng",
+                     "karangasem","klungkung","bangli","jembrana"],
+    "sumatra":      ["medan","palembang","pekanbaru","pekan baru","batam","lampung",
+                     "padang","aceh","jambi","bengkulu","banda aceh","langsa",
+                     "lhokseumawe","binjai","pematangsiantar","lubuklinggau",
+                     "prabumulih","dumai","padang sidempuan"],
+    "kalimantan":   ["kalimantan","banjarmasin","samarinda","pontianak","balikpapan",
+                     "palangkaraya","banjarbaru","tarakan","singkawang","kotabaru"],
+    "sulawesi":     ["sulawesi","makassar","manado","gowa","palu","kendari",
+                     "gorontalo","mamuju","palopo"],
+    "nasional":     ["nasional","national","indonesia"],
 }
-TIER_NAME_MAP  = {1:'nano', 2:'mikro', 3:'makro', 4:'mega', 5:'mega'}
-LOCATION_LIST  = ['jakarta','bandung','surabaya','yogyakarta','bali',
-                  'sumatra','kalimantan','sulawesi','nasional','other','unknown']
 
-# Bobot tiap layer dalam final score
+# Grup "Jawa" untuk proximity scoring antar kota Jawa
+JAWA_GROUPS = {"jakarta","bandung","cirebon","surabaya","malang","jawa_timur",
+               "yogyakarta","solo","semarang","jawa_tengah"}
+
+TIER_NAME_MAP  = {1:'nano', 2:'mikro', 3:'makro', 4:'mega', 5:'mega'}
+LOCATION_LIST  = ['jakarta','bandung','cirebon','surabaya','malang','jawa_timur',
+                  'yogyakarta','solo','semarang','jawa_tengah',
+                  'bali','sumatra','kalimantan','sulawesi','nasional','other','unknown']
+
 WEIGHTS = {
-    'semantic':   0.25,   # HuggingFace similarity (enriched dengan company context)
-    'rf':         0.17,   # Random Forest quality score
-    'xgb_er':     0.14,   # XGBoost ER prediction
-    'rbm':        0.09,   # RBM latent similarity
-    'budget':     0.12,   # Budget fit
-    'location':   0.09,   # Location match
-    'brand_fit':  0.10,   # Company guideline — preferred category, blacklist
-    'pattern':    0.03,   # Campaign pattern boost
-    'tier':       0.01,   # Tier preference
+    'semantic':   0.25,
+    'rf':         0.17,
+    'xgb_er':     0.14,
+    'rbm':        0.09,
+    'budget':     0.12,
+    'location':   0.09,
+    'brand_fit':  0.10,
+    'pattern':    0.03,
+    'tier':       0.01,
 }
 
 _cache = {}
@@ -116,7 +129,6 @@ def load_models():
         'st_model':       joblib.load(os.path.join(MODELS_DIR, 'st_model.pkl')),
     }
 
-    # Optional models — tidak crash jika belum ada
     for key, filename in [
         ('rf_model',      'rf_model.pkl'),
         ('xgb_model',     'xgb_model.pkl'),
@@ -141,17 +153,21 @@ def load_models():
     return _cache
 
 
-# ── Location / query utils ───────────────────────────────────────
+# ── Location utils ───────────────────────────────────────────────
 def normalize_location_query(loc):
+    """
+    Normalisasi input lokasi dari user ke grup lokasi yang benar.
+    Bandung → bandung, Semarang → semarang, Solo → solo, dst.
+    """
     if not loc: return "nasional"
     loc_lower = loc.lower().strip()
     for group, keywords in LOCATION_GROUPS.items():
-        if any(kw in loc_lower for kw in keywords): return group
+        if any(kw in loc_lower for kw in keywords):
+            return group
     return "nasional"
 
 
 def encode_query(topics, goals, description, st_model, target_audience=""):
-    """Encode query dengan agency context enrichment untuk HuggingFace."""
     if _PROFILE_LOADED:
         text = get_context_enriched_query(topics, goals, description, target_audience)
     else:
@@ -160,29 +176,19 @@ def encode_query(topics, goals, description, st_model, target_audience=""):
 
 
 def score_brand_fit(category, topics, goals):
-    """
-    Score kesesuaian KOL dengan topik & goals campaign berdasarkan
-    agency profile mapping. Tidak ada hard exclude — semua KOL tetap
-    bisa direkomendasikan, tapi yang kategorinya cocok dengan topik
-    campaign dapat boost score.
-    Return: float 0.5 (neutral) – 0.65 (match)
-    """
     if not _PROFILE_LOADED:
         return 0.5
     return score_kol_fit(category, topics, goals)
 
 
 def build_row_tabular(row, patterns, scaler):
-    """Buat tabular feature vector untuk satu KOL (untuk RF/XGB inference)"""
     overall_avg_er = patterns.get('overall_avg_er', 5.0) if patterns else 5.0
     tier_stats     = patterns.get('tier_stats', {}) if patterns else {}
     optimal_fol    = patterns.get('optimal_followers', {}) if patterns else {}
 
-    # Location one-hot
     loc = row.get('location_norm', 'other')
     loc_oh = [1.0 if loc == l else 0.0 for l in LOCATION_LIST]
 
-    # Numeric (same order as scaler was fit on)
     num_raw = np.array([[
         float(row.get('followers_log', 0) or 0),
         float(row.get('tier_score', 2) or 2),
@@ -194,7 +200,6 @@ def build_row_tabular(row, patterns, scaler):
     except:
         num_scaled = [0.0, 0.5, 0.0, 0.0]
 
-    # ER score
     tier_name = TIER_NAME_MAP.get(to_int(row.get('tier_score', 2)), 'mikro')
     if row.get('has_er_data') and not pd.isna(row.get('avg_er_pct', float('nan'))):
         er = float(row['avg_er_pct'])
@@ -205,7 +210,6 @@ def build_row_tabular(row, patterns, scaler):
         n = to_int(row.get('followers_num', 0))
         er_s = 0.65 if n<10_000 else 0.55 if n<50_000 else 0.45 if n<200_000 else 0.35 if n<1_000_000 else 0.25
 
-    # Pattern score
     ts = tier_stats.get(tier_name, {})
     if ts:
         all_avgs = [s.get('avg_er', 0) for s in tier_stats.values()]
@@ -241,7 +245,6 @@ def score_semantic(query_emb, kol_emb):
 
 
 def score_rf(row, m):
-    """Random Forest quality prediction"""
     rf = m.get('rf_model')
     if rf is None: return 0.5
     try:
@@ -253,10 +256,8 @@ def score_rf(row, m):
 
 
 def score_xgb_er(row, m):
-    """XGBoost ER prediction — normalize ke 0-1"""
     xgb = m.get('xgb_model')
     if xgb is None:
-        # Fallback: rule-based ER estimate
         if row.get('has_er_data') and not pd.isna(row.get('avg_er_pct', float('nan'))):
             er = float(row['avg_er_pct'])
             return min(er / 20.0, 1.0)
@@ -268,7 +269,6 @@ def score_xgb_er(row, m):
         n = to_int(row.get('followers_num', 0))
         return 0.65 if n<10_000 else 0.55 if n<50_000 else 0.45 if n<200_000 else 0.35 if n<1_000_000 else 0.25
 
-    # Ada model real ER data → pakai langsung
     if row.get('has_er_data') and not pd.isna(row.get('avg_er_pct', float('nan'))):
         er = float(row['avg_er_pct'])
         return min(er / 20.0, 1.0)
@@ -282,18 +282,15 @@ def score_xgb_er(row, m):
 
 
 def score_rbm(kol_idx, m):
-    """RBM latent similarity — rata-rata cosine ke top KOL di latent space"""
     rbm_latent = m.get('rbm_latent')
     rf_model   = m.get('rf_model')
-    df         = m['df']
 
     if rbm_latent is None: return 0.5
     try:
         this_vec = rbm_latent[kol_idx].reshape(1, -1)
-        # Ambil top 10 "reference KOL" = yang RF score-nya tinggi
         if rf_model is not None and m.get('tabular') is not None:
             rf_scores = rf_model.predict(m['tabular'])
-            top_idx   = np.argsort(rf_scores)[-20:]  # top 20 KOL by RF
+            top_idx   = np.argsort(rf_scores)[-20:]
         else:
             top_idx   = np.arange(min(20, len(rbm_latent)))
 
@@ -319,11 +316,22 @@ def score_budget(rate_min, rate_max, budget_per_kol):
 
 
 def score_location(kol_loc, target_loc):
+    """
+    Scoring lokasi yang akurat:
+    - Exact match → 1.0
+    - Nasional (KOL) → 0.85 (bisa reach manapun)
+    - Target nasional → 1.0 (semua lokasi relevan)
+    - Sesama kota Jawa → 0.6 (masih relevan)
+    - Beda pulau → 0.2
+    """
     if target_loc == 'nasional': return 1.0
     if kol_loc == target_loc:   return 1.0
-    if kol_loc == 'nasional':   return 0.8
-    jawa = {'jakarta','bandung','surabaya','yogyakarta'}
-    if kol_loc in jawa and target_loc in jawa: return 0.6
+    if kol_loc == 'nasional':   return 0.85
+
+    # Sesama wilayah Jawa → masih ada proximity
+    if kol_loc in JAWA_GROUPS and target_loc in JAWA_GROUPS:
+        return 0.6
+
     return 0.2
 
 
@@ -359,11 +367,11 @@ def recommend(topics, goals, campaign_description, location,
     budget_per_kol = float(budget_total) / max(num_kol, 1)
     target_loc     = normalize_location_query(location)
 
+    print(f"   [LOC] Input: '{location}' → normalized: '{target_loc}'")
     print(f"   [NLP] Encoding query: '{topics} {goals}' (with company context)")
     query_emb = encode_query(topics, goals, campaign_description, m['st_model'], target_audience="")
 
-    # Topic boost dari company profile
-    topic_boost = 0.0  # agency profile tidak ada global topic boost — tiap campaign beda klien
+    topic_boost = 0.0
 
     if content_type.lower() not in ('semua','all',''):
         mask = df['social_media'].str.lower().str.contains(content_type.lower(), na=False)
@@ -380,7 +388,6 @@ def recommend(topics, goals, campaign_description, location,
         abs_idx  = df.index.get_loc(idx)
         kol_emb  = cat_embs[abs_idx]
 
-        # ── Score setiap layer ──────────────────────────────────
         s_brand   = score_brand_fit(to_str(row.get('category','')), topics, goals)
         s_sem     = score_semantic(query_emb, kol_emb)
         s_rf      = score_rf(row, m)
@@ -390,9 +397,6 @@ def recommend(topics, goals, campaign_description, location,
         s_loc     = score_location(row['location_norm'], target_loc)
         s_pattern = score_pattern(row, patterns)
         s_tier    = score_tier(row['tier_score'], preferred_tier)
-
-        # Terapkan topic boost ke semantic score
-        s_sem_boosted = min(s_sem + topic_boost, 1.0)
 
         final = (
             WEIGHTS['semantic']  * s_sem +
@@ -406,13 +410,11 @@ def recommend(topics, goals, campaign_description, location,
             WEIGHTS['tier']      * s_tier
         )
 
-        # ── Build rate card ─────────────────────────────────────
         rate_card = {}
         if to_int(row['rate_tiktok']) > 0:  rate_card['Tiktok']   = to_int(row['rate_tiktok'])
         if to_int(row['rate_ig']) > 0:       rate_card['IG Reels'] = to_int(row['rate_ig'])
         if to_int(row['rate_bundling']) > 0: rate_card['Bundling'] = to_int(row['rate_bundling'])
 
-        # ── Build reasoning ─────────────────────────────────────
         reasons = []
         if s_sem >= 0.6:
             reasons.append(f"konten relevan dengan topik campaign (semantic {round(s_sem*100)}%)")
@@ -424,6 +426,8 @@ def recommend(topics, goals, campaign_description, location,
             reasons.append("rate bisa dinegosiasikan")
         if s_loc == 1.0 and target_loc != 'nasional':
             reasons.append(f"berlokasi di {to_str(row['location_raw']) or row['location_norm']}")
+        elif s_loc == 0.85 and row['location_norm'] == 'nasional':
+            reasons.append("coverage nasional")
         if row['has_er_data']:
             try:
                 er_val = row.get('avg_er_pct')
@@ -440,7 +444,6 @@ def recommend(topics, goals, campaign_description, location,
             if ts:
                 reasons.append(f"tier {tier_name} avg ER {ts.get('avg_er',0):.1f}% di campaign sebelumnya")
 
-        # ── ER display ──────────────────────────────────────────
         er_display = None
         xgb_er_pred = None
         try:
@@ -471,7 +474,7 @@ def recommend(topics, goals, campaign_description, location,
             'rate_max':       to_int(row['rate_max']),
             'has_real_er':    bool(row['has_er_data']),
             'avg_er_pct':     er_display,
-            'xgb_er_pred':    xgb_er_pred,  # prediksi XGB untuk KOL tanpa real ER
+            'xgb_er_pred':    xgb_er_pred,
             'match_score':    round(float(final) * 100, 1),
             'score_detail': {
                 'semantic (HF)':     to_float(s_sem * 100),
@@ -492,7 +495,6 @@ def recommend(topics, goals, campaign_description, location,
     results.sort(key=lambda x: x['match_score'], reverse=True)
     top = results[:num_kol]
 
-    # Pattern summary
     pattern_summary = None
     if patterns:
         pattern_summary = {
