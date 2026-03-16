@@ -6,6 +6,12 @@ export async function checkStatus() {
   return r.json();
 }
 
+export async function getLocations() {
+  const r = await fetch(`${BASE}/locations`);
+  if (!r.ok) throw new Error('Gagal load lokasi');
+  return r.json();
+}
+
 export async function uploadKOL(file) {
   const form = new FormData();
   form.append('file', file);

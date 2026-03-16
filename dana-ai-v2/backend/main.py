@@ -27,7 +27,6 @@ DATA_DIR   = os.path.join(os.path.dirname(__file__), 'data')
 
 @app.on_event("startup")
 async def startup():
-    # Download dari HF Hub kalau models belum ada
     download_models()
     if os.path.exists(os.path.join(MODELS_DIR, 'st_model.pkl')):
         load_models()
@@ -54,7 +53,7 @@ class CampaignRequest(BaseModel):
 
 @app.get("/")
 def root():
-    return {"status": "ok", "version": "2.2", "message": "DANA AI Campaign Planner"}
+    return {"status": "ok", "version": "2.3", "message": "DANA AI Campaign Planner"}
 
 
 @app.get("/status")
@@ -86,6 +85,115 @@ def status():
         "has_campaign_patterns": has_patterns,
         "campaign_patterns":     pattern_summary,
         "meta": get_meta() if trained else {},
+    }
+
+
+@app.get("/locations")
+def get_locations():
+    """
+    Return daftar lokasi unik dari KOL database dan Homeless Media database.
+    Frontend pakai ini untuk dropdown — 100% sesuai data yang ada.
+    """
+    kol_locations = []
+    homeless_locations = []
+
+    # Dari KOL database (pkl)
+    kol_pkl = os.path.join(MODELS_DIR, 'kol_df.pkl')
+    if os.path.exists(kol_pkl):
+        try:
+            import joblib, pandas as pd
+            df = joblib.load(kol_pkl)
+            # Ambil location_raw yang unik, bersih, bukan kosong
+            raw = df['location_raw'].dropna().astype(str).str.strip()
+            raw = raw[raw.str.len() > 0].unique().tolist()
+            kol_locations = sorted(set(raw))
+        except Exception as e:
+            print(f"[WARN] Gagal load KOL locations: {e}")
+
+    # Dari Homeless Media JSON
+    homeless_path = os.path.join(DATA_DIR, 'homeless_media.json')
+    if os.path.exists(homeless_path):
+        try:
+            with open(homeless_path) as f:
+                media_list = json.load(f)
+            raw = [m.get('location_raw','').strip() for m in media_list]
+            raw = [r for r in raw if r]
+            homeless_locations = sorted(set(raw))
+        except Exception as e:
+            print(f"[WARN] Gagal load homeless locations: {e}")
+
+    # Gabung semua lokasi unik
+    all_raw = sorted(set(kol_locations + homeless_locations))
+
+    # Kelompokkan berdasarkan location_norm untuk display yang rapi
+    from recommender import normalize_location_query
+    grouped = {}
+    for loc_raw in all_raw:
+        norm = normalize_location_query(loc_raw)
+        if norm not in grouped:
+            grouped[norm] = []
+        grouped[norm].append(loc_raw)
+
+    # Susun urutan wilayah
+    region_order = [
+        "nasional",
+        "jakarta", "bandung", "cirebon", "yogyakarta", "solo",
+        "semarang", "jawa_tengah", "surabaya", "malang", "jawa_timur",
+        "bali", "sumatra", "kalimantan", "sulawesi", "other"
+    ]
+
+    result = []
+    # Nasional selalu di atas
+    result.append({"value": "nasional", "label": "🌏 Nasional (Semua Indonesia)", "group": "nasional"})
+
+    for region in region_order:
+        if region == "nasional":
+            continue
+        locs = grouped.get(region, [])
+        if not locs:
+            continue
+        label_map = {
+            "jakarta": "Jakarta & Sekitarnya",
+            "bandung": "Bandung & Cimahi",
+            "cirebon": "Cirebon",
+            "yogyakarta": "Yogyakarta",
+            "solo": "Solo / Surakarta",
+            "semarang": "Semarang",
+            "jawa_tengah": "Jawa Tengah Lainnya",
+            "surabaya": "Surabaya & Sekitarnya",
+            "malang": "Malang",
+            "jawa_timur": "Jawa Timur Lainnya",
+            "bali": "Bali",
+            "sumatra": "Sumatra",
+            "kalimantan": "Kalimantan",
+            "sulawesi": "Sulawesi",
+            "other": "Kota Lainnya",
+        }
+        group_label = label_map.get(region, region)
+        for loc in sorted(locs):
+            result.append({
+                "value": loc,
+                "label": loc,
+                "group": group_label,
+                "norm": region,
+            })
+
+    # Tambah lokasi yang mungkin di "other" tapi belum kecover
+    for region, locs in grouped.items():
+        if region not in region_order:
+            for loc in sorted(locs):
+                result.append({
+                    "value": loc,
+                    "label": loc,
+                    "group": "Kota Lainnya",
+                    "norm": region,
+                })
+
+    return {
+        "locations": result,
+        "total": len(result),
+        "kol_count": len(kol_locations),
+        "media_count": len(homeless_locations),
     }
 
 
@@ -199,9 +307,7 @@ def train():
 
         has_patterns = os.path.exists(os.path.join(MODELS_DIR, 'campaign_patterns.json'))
 
-        # Auto upload ke HF Hub di background
         threading.Thread(target=upload_models, daemon=True).start()
-        print("[BG] Upload ke HF Hub dimulai di background...")
 
         return {
             "status":                "success",
