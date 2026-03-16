@@ -1,7 +1,9 @@
 """
 recommender.py — Multi-Layer Scoring v3 + Company Profile
 ==========================================================
-FIXED: Location normalization — setiap kota/wilayah dipetakan ke grup yang benar.
+FIXED: Hard exact location filter.
+- Nasional → semua KOL
+- Kota X   → hanya KOL location_norm == kota X (strict, no bleed)
 """
 import numpy as np
 import pandas as pd
@@ -22,7 +24,6 @@ except ImportError:
 
 MODELS_DIR = os.path.join(os.path.dirname(__file__), 'models')
 
-# ── FIXED: Location groups — setiap kota ke grup yang tepat ─────
 LOCATION_GROUPS = {
     "jakarta":      ["jakarta","jaksel","jakpus","jakbar","jaktim","jakut","jkt",
                      "gading serpong","tangerang","depok","bekasi","bogor","bsd",
@@ -53,10 +54,6 @@ LOCATION_GROUPS = {
                      "gorontalo","mamuju","palopo"],
     "nasional":     ["nasional","national","indonesia"],
 }
-
-# Grup "Jawa" untuk proximity scoring antar kota Jawa
-JAWA_GROUPS = {"jakarta","bandung","cirebon","surabaya","malang","jawa_timur",
-               "yogyakarta","solo","semarang","jawa_tengah"}
 
 TIER_NAME_MAP  = {1:'nano', 2:'mikro', 3:'makro', 4:'mega', 5:'mega'}
 LOCATION_LIST  = ['jakarta','bandung','cirebon','surabaya','malang','jawa_timur',
@@ -155,16 +152,34 @@ def load_models():
 
 # ── Location utils ───────────────────────────────────────────────
 def normalize_location_query(loc):
-    """
-    Normalisasi input lokasi dari user ke grup lokasi yang benar.
-    Bandung → bandung, Semarang → semarang, Solo → solo, dst.
-    """
     if not loc: return "nasional"
     loc_lower = loc.lower().strip()
     for group, keywords in LOCATION_GROUPS.items():
         if any(kw in loc_lower for kw in keywords):
             return group
     return "nasional"
+
+
+def filter_by_location(df, target_loc):
+    """
+    HARD FILTER — strict exact match, zero bleed:
+    - target = 'nasional' → return semua KOL tanpa filter
+    - target = kota X     → return HANYA KOL dengan location_norm == kota X
+                            KOL nasional TIDAK ikut masuk
+    Kalau hasil filter < num_kol, frontend akan dapat lebih sedikit — itu wajar,
+    lebih baik sedikit tapi relevan daripada banyak tapi ngawur.
+    """
+    if target_loc == 'nasional':
+        return df
+
+    mask = df['location_norm'] == target_loc
+    filtered = df[mask]
+
+    print(f"   [FILTER] Strict location '{target_loc}': {len(filtered)} KOL lolos dari {len(df)}")
+
+    # Kalau tidak ada KOL sama sekali untuk kota ini, kembalikan empty df
+    # (jangan fallback ke semua KOL — lebih baik kosong daripada ngawur)
+    return filtered
 
 
 def encode_query(topics, goals, description, st_model, target_audience=""):
@@ -317,22 +332,11 @@ def score_budget(rate_min, rate_max, budget_per_kol):
 
 def score_location(kol_loc, target_loc):
     """
-    Scoring lokasi yang akurat:
-    - Exact match → 1.0
-    - Nasional (KOL) → 0.85 (bisa reach manapun)
-    - Target nasional → 1.0 (semua lokasi relevan)
-    - Sesama kota Jawa → 0.6 (masih relevan)
-    - Beda pulau → 0.2
+    Setelah hard filter, fungsi ini hanya dipakai untuk score internal.
+    Semua KOL yang tersisa sudah pasti exact match atau nasional (jika target nasional).
+    Kembalikan 1.0 untuk semua — filter sudah dilakukan sebelumnya.
     """
-    if target_loc == 'nasional': return 1.0
-    if kol_loc == target_loc:   return 1.0
-    if kol_loc == 'nasional':   return 0.85
-
-    # Sesama wilayah Jawa → masih ada proximity
-    if kol_loc in JAWA_GROUPS and target_loc in JAWA_GROUPS:
-        return 0.6
-
-    return 0.2
+    return 1.0
 
 
 def score_pattern(row, patterns):
@@ -368,25 +372,47 @@ def recommend(topics, goals, campaign_description, location,
     target_loc     = normalize_location_query(location)
 
     print(f"   [LOC] Input: '{location}' → normalized: '{target_loc}'")
+
+    # ── STEP 1: Hard filter lokasi SEBELUM scoring ───────────────
+    df = filter_by_location(df, target_loc)
+
+    # Kalau tidak ada KOL yang lolos filter, kembalikan empty result
+    if len(df) == 0:
+        print(f"   [WARN] Tidak ada KOL untuk lokasi '{target_loc}'")
+        return {
+            'recommended_kol':    [],
+            'total_kol':          0,
+            'budget_per_kol':     int(round(budget_per_kol)),
+            'estimated_cost_min': 0,
+            'estimated_cost_max': 0,
+            'budget_remaining':   int(budget_total),
+            'avg_match_score':    0.0,
+            'target_location':    target_loc,
+            'hf_model_used':      str(m['meta']['hf_model']),
+            'models_active':      m['meta'].get('models', {}),
+            'campaign_patterns':  None,
+            'warning':            f"Tidak ada KOL terdaftar untuk lokasi '{location}'. Coba pilih 'Nasional'.",
+        }
+
     print(f"   [NLP] Encoding query: '{topics} {goals}' (with company context)")
     query_emb = encode_query(topics, goals, campaign_description, m['st_model'], target_audience="")
 
-    topic_boost = 0.0
-
+    # ── STEP 2: Filter platform ──────────────────────────────────
     if content_type.lower() not in ('semua','all',''):
         mask = df['social_media'].str.lower().str.contains(content_type.lower(), na=False)
-        df_f = df[mask] if mask.sum() >= num_kol else df
+        df_f = df[mask] if mask.sum() >= 1 else df
     else:
         df_f = df.copy()
 
     cat_embs   = m['cat_embeddings']
-    df_indices = df_f.index.tolist()
+    df_full    = m['df']  # df asli (sebelum filter) untuk index cat_embeddings
     results    = []
 
-    for idx in df_indices:
-        row      = df_f.loc[idx]
-        abs_idx  = df.index.get_loc(idx)
-        kol_emb  = cat_embs[abs_idx]
+    for idx in df_f.index.tolist():
+        row     = df_f.loc[idx]
+        # abs_idx untuk cat_embeddings harus pakai df asli (bukan df yang sudah difilter)
+        abs_idx = df_full.index.get_loc(idx)
+        kol_emb = cat_embs[abs_idx]
 
         s_brand   = score_brand_fit(to_str(row.get('category','')), topics, goals)
         s_sem     = score_semantic(query_emb, kol_emb)
@@ -394,7 +420,7 @@ def recommend(topics, goals, campaign_description, location,
         s_xgb     = score_xgb_er(row, m)
         s_rbm     = score_rbm(abs_idx, m)
         s_budget  = score_budget(row['rate_min'], row['rate_max'], budget_per_kol)
-        s_loc     = score_location(row['location_norm'], target_loc)
+        s_loc     = score_location(row['location_norm'], target_loc)  # selalu 1.0 post-filter
         s_pattern = score_pattern(row, patterns)
         s_tier    = score_tier(row['tier_score'], preferred_tier)
 
@@ -424,10 +450,8 @@ def recommend(topics, goals, campaign_description, location,
             reasons.append("rate card sesuai budget")
         elif s_budget >= 0.5:
             reasons.append("rate bisa dinegosiasikan")
-        if s_loc == 1.0 and target_loc != 'nasional':
+        if target_loc != 'nasional':
             reasons.append(f"berlokasi di {to_str(row['location_raw']) or row['location_norm']}")
-        elif s_loc == 0.85 and row['location_norm'] == 'nasional':
-            reasons.append("coverage nasional")
         if row['has_er_data']:
             try:
                 er_val = row.get('avg_er_pct')

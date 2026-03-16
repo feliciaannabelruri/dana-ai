@@ -1,7 +1,9 @@
 """
 homeless_recommender.py  — Layer 1 + Layer 3
 ============================================
-FIXED: Location normalization — setiap kota dipetakan ke grup yang benar.
+FIXED: Hard exact location filter.
+- Nasional → semua media
+- Kota X   → hanya media dengan location_norm == kota X (strict, no bleed)
 """
 import json, os
 import numpy as np
@@ -13,7 +15,6 @@ HOMELESS_MEDIA_PATH = os.path.join(DATA_DIR, 'homeless_media.json')
 
 _rf_cache = {}
 
-# ── FIXED: Location groups ───────────────────────────────────────
 LOCATION_GROUPS = {
     "jakarta":      ["jakarta","jaksel","jakpus","jakbar","jaktim","jakut","jkt",
                      "gading serpong","tangerang","depok","bekasi","bogor","bsd",
@@ -44,10 +45,6 @@ LOCATION_GROUPS = {
                      "gorontalo","mamuju","palopo"],
     "nasional":     ["nasional","national","indonesia"],
 }
-
-# Grup Jawa untuk proximity
-JAWA_GROUPS = {"jakarta","bandung","cirebon","surabaya","malang","jawa_timur",
-               "yogyakarta","solo","semarang","jawa_tengah"}
 
 TOPIC_TO_CATEGORY = {
     "finance": ["Trending News","Facts News","Akun Gossip"],
@@ -126,13 +123,29 @@ def load_rf_models():
 
 
 def normalize_location_query(loc):
-    """Normalisasi input lokasi user ke grup yang benar."""
     if not loc: return "nasional"
     loc_lower = loc.lower().strip()
     for group, keywords in LOCATION_GROUPS.items():
         if any(kw in loc_lower for kw in keywords):
             return group
     return "nasional"
+
+
+def filter_media_by_location(all_media, target_loc):
+    """
+    HARD FILTER — strict exact match, zero bleed:
+    - target = 'nasional' → return semua media tanpa filter
+    - target = kota X     → return HANYA media dengan location_norm == kota X
+                            Media nasional TIDAK ikut masuk
+    """
+    if target_loc == 'nasional':
+        return all_media
+
+    filtered = [m for m in all_media if m.get('location_norm') == target_loc]
+
+    print(f"   [FILTER] Strict location '{target_loc}': {len(filtered)} media lolos dari {len(all_media)}")
+
+    return filtered
 
 
 def get_relevant_categories(topics, goals, description):
@@ -154,26 +167,6 @@ def get_topic_media_score(topic_text, media_category):
             score = affinities.get(media_category, 0.2)
             best  = max(best, score)
     return best
-
-
-def get_loc_score(campaign_loc, media_loc):
-    """
-    Scoring lokasi yang akurat:
-    - Exact match → 1.0
-    - Media nasional → 0.90 (bisa reach manapun)
-    - Campaign nasional → 1.0 semua relevan
-    - Sesama Jawa → 0.65
-    - Beda pulau → 0.25
-    """
-    if campaign_loc == 'nasional': return 1.0
-    if campaign_loc == media_loc:  return 1.0
-    if media_loc == 'nasional':    return 0.90
-
-    # Proximity sesama Jawa
-    if campaign_loc in JAWA_GROUPS and media_loc in JAWA_GROUPS:
-        return 0.65
-
-    return 0.25
 
 
 def get_budget_score(budget_per_media, rate_min, rate_max):
@@ -226,6 +219,22 @@ def recommend_homeless_media(topics="", goals="", campaign_description="",
 
     print(f"   [LOC] Homeless Media — Input: '{location}' → normalized: '{target_loc}'")
 
+    # ── STEP 1: Hard filter lokasi SEBELUM scoring ───────────────
+    all_media = filter_media_by_location(all_media, target_loc)
+
+    # Kalau tidak ada media yang lolos filter
+    if len(all_media) == 0:
+        return {
+            'recommended_media':        [],
+            'total_media':              0,
+            'relevant_categories':      relevant_cats,
+            'estimated_cost_media_min': 0,
+            'estimated_cost_media_max': 0,
+            'layer3_active':            has_layer3,
+            'warning':                  f"Tidak ada Homeless Media untuk lokasi '{location}'. Coba pilih 'Nasional'.",
+        }
+
+    # ── STEP 2: Filter platform ──────────────────────────────────
     filtered = all_media
     if content_type.lower() not in ('semua','all',''):
         ct = content_type.lower()
@@ -240,14 +249,16 @@ def recommend_homeless_media(topics="", goals="", campaign_description="",
         cat        = media.get('category','')
         cat_tier   = CAT_TIER_MAP.get(cat, 2)
         is_nasional= int(media_loc == 'nasional')
-        loc_match  = int(media_loc == target_loc)
+        loc_match  = 1  # selalu 1 karena sudah difilter sebelumnya
 
         relevance_score = get_topic_media_score(topic_text, cat)
         budget_score    = get_budget_score(budget_per_media, rate_min, rate_max)
-        loc_score       = get_loc_score(target_loc, media_loc)
         reach_score     = get_reach_score(followers)
 
-        layer1 = 0.32*relevance_score + 0.28*budget_score + 0.22*loc_score + 0.18*reach_score
+        # loc_score selalu 1.0 karena sudah hard filter
+        loc_score = 1.0
+
+        layer1 = 0.35*relevance_score + 0.30*budget_score + 0.10*loc_score + 0.25*reach_score
 
         if has_layer3:
             fv = [
@@ -268,9 +279,10 @@ def recommend_homeless_media(topics="", goals="", campaign_description="",
         elif relevance_score >= 0.6: reasons.append(f"kategori '{cat}' relevan")
         if budget_score >= 0.7: reasons.append("rate sesuai budget")
         elif budget_score >= 0.4: reasons.append("rate bisa dinegosiasikan")
-        if is_nasional: reasons.append("coverage nasional")
-        elif loc_score == 1.0: reasons.append(f"media lokal {media.get('location_raw','')}")
-        elif loc_score >= 0.6: reasons.append(f"media terdekat ({media.get('location_raw','')})")
+        if target_loc == 'nasional':
+            reasons.append("coverage nasional")
+        else:
+            reasons.append(f"media lokal {media.get('location_raw','')}")
         if reach_score >= 0.88: reasons.append(f"reach besar ({media.get('followers_raw','')} followers)")
         if has_layer3 and layer3: reasons.append(f"RF score {round(layer3*100,1)}%")
 
