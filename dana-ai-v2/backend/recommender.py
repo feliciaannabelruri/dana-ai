@@ -1,7 +1,35 @@
+"""
+recommender.py — Multi-Layer Scoring v3 + Company Profile
+==========================================================
+Scoring pipeline saat inference:
+
+1. HuggingFace — semantic similarity (query enriched dengan company context)
+2. Budget / Location / Tier — rule-based scoring
+3. Random Forest — prediksi quality score dari tabular features
+4. XGBoost — prediksi ER untuk KOL tanpa data nyata
+5. RBM latent similarity — cosine similarity di latent space
+6. Campaign Pattern — boost berdasarkan insight history
+7. Brand Fit — company guideline: preferred category boost, blacklist filter
+
+Final score = weighted sum dari semua layer.
+"""
 import numpy as np
 import pandas as pd
 import joblib, os, json
 from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.preprocessing import MinMaxScaler
+
+# Import company profile (hardcoded agency guideline)
+try:
+    from company_profile import (
+        score_kol_fit, get_context_enriched_query, get_profile_summary,
+        AGENCY_PROFILE
+    )
+    _PROFILE_LOADED = True
+    print(f"[OK] Company profile loaded: {AGENCY_PROFILE['agency_name']} ({AGENCY_PROFILE['type']})")
+except ImportError:
+    _PROFILE_LOADED = False
+    print("[WARN] company_profile.py tidak ditemukan — brand fit scoring dinonaktifkan")
 
 MODELS_DIR = os.path.join(os.path.dirname(__file__), 'models')
 
@@ -17,60 +45,41 @@ LOCATION_GROUPS = {
     "sulawesi":   ["sulawesi","makassar","manado"],
     "nasional":   ["nasional","national","indonesia"],
 }
+TIER_NAME_MAP  = {1:'nano', 2:'mikro', 3:'makro', 4:'mega', 5:'mega'}
+LOCATION_LIST  = ['jakarta','bandung','surabaya','yogyakarta','bali',
+                  'sumatra','kalimantan','sulawesi','nasional','other','unknown']
 
-# Layer 1 weights (rule-based) — dipakai sebagai feature input ke RF juga
-WEIGHTS = {'semantic':0.35,'budget':0.25,'location':0.20,'er':0.12,'tier':0.05,'platform':0.03}
+# Bobot tiap layer dalam final score
+WEIGHTS = {
+    'semantic':   0.25,   # HuggingFace similarity (enriched dengan company context)
+    'rf':         0.17,   # Random Forest quality score
+    'xgb_er':     0.14,   # XGBoost ER prediction
+    'rbm':        0.09,   # RBM latent similarity
+    'budget':     0.12,   # Budget fit
+    'location':   0.09,   # Location match
+    'brand_fit':  0.10,   # Company guideline — preferred category, blacklist
+    'pattern':    0.03,   # Campaign pattern boost
+    'tier':       0.01,   # Tier preference
+}
 
 _cache = {}
 
-TOPIC_CATEGORY_AFFINITY = {
-    'finance':      {'Finance & Investment': 1.0, 'Business & Entrepreneurship': 0.8,
-                     'Career & Self Development': 0.6, 'Education': 0.5},
-    'keuangan':     {'Finance & Investment': 1.0, 'Business & Entrepreneurship': 0.8,
-                     'Career & Self Development': 0.6},
-    'lifestyle':    {'Lifestyle': 1.0, 'Beauty & Fashion': 0.8, 'Travel': 0.7,
-                     'Food & Culinary': 0.7, 'Health & Fitness': 0.6},
-    'beauty':       {'Beauty & Fashion': 1.0, 'Lifestyle': 0.8, 'Health & Fitness': 0.6},
-    'fashion':      {'Beauty & Fashion': 1.0, 'Lifestyle': 0.9},
-    'food':         {'Food & Culinary': 1.0, 'Lifestyle': 0.7, 'Travel': 0.5},
-    'travel':       {'Travel': 1.0, 'Lifestyle': 0.8, 'Food & Culinary': 0.6},
-    'parenting':    {'Parenting': 1.0, 'Health & Fitness': 0.6, 'Education': 0.6,
-                     'Lifestyle': 0.5},
-    'health':       {'Health & Fitness': 1.0, 'Lifestyle': 0.6, 'Education': 0.5},
-    'education':    {'Education': 1.0, 'Career & Self Development': 0.8,
-                     'Technology': 0.5, 'Finance & Investment': 0.4},
-    'edukasi':      {'Education': 1.0, 'Career & Self Development': 0.8},
-    'technology':   {'Technology': 1.0, 'Business & Entrepreneurship': 0.6,
-                     'Career & Self Development': 0.5, 'Gaming': 0.4},
-    'gaming':       {'Gaming': 1.0, 'Technology': 0.7, 'Entertainment': 0.6},
-    'entertainment':{'Entertainment': 1.0, 'Comedy & Humor': 0.8, 'Lifestyle': 0.5},
-    'comedy':       {'Comedy & Humor': 1.0, 'Entertainment': 0.9},
-    'business':     {'Business & Entrepreneurship': 1.0, 'Finance & Investment': 0.8,
-                     'Career & Self Development': 0.7},
-    'bisnis':       {'Business & Entrepreneurship': 1.0, 'Finance & Investment': 0.8},
-}
 
-TIERS = ['nano', 'mikro', 'makro', 'mega']
-
-
-# ── helpers ───────────────────────────────────────────────────
+# ── Type helpers ─────────────────────────────────────────────────
 def to_int(v):
     try:
-        if v is None: return 0
-        if isinstance(v, float) and np.isnan(v): return 0
+        if v is None or (isinstance(v, float) and np.isnan(v)): return 0
         return int(v)
     except: return 0
 
-def to_float(v, decimals=1):
+def to_float(v, d=1):
     try:
-        if v is None: return 0.0
-        if isinstance(v, float) and np.isnan(v): return 0.0
-        return round(float(v), decimals)
+        if v is None or (isinstance(v, float) and np.isnan(v)): return 0.0
+        return round(float(v), d)
     except: return 0.0
 
 def to_str(v):
-    if v is None: return ''
-    if isinstance(v, float) and np.isnan(v): return ''
+    if v is None or (isinstance(v, float) and np.isnan(v)): return ''
     return str(v)
 
 
@@ -78,10 +87,8 @@ def build_contact(pic_contact, social_media, username):
     contact = str(pic_contact).strip() if pic_contact else ''
     contact = contact.replace('+','').replace(' ','').replace('.0','').strip()
     if contact and contact.isdigit() and len(contact) >= 8:
-        if contact.startswith('0'):
-            contact = '62' + contact[1:]
-        elif not contact.startswith('62'):
-            contact = '62' + contact
+        if contact.startswith('0'): contact = '62' + contact[1:]
+        elif not contact.startswith('62'): contact = '62' + contact
         return {'type':'whatsapp','url':f'https://wa.me/{contact}','label':f'WA {contact}'}
     sm    = str(social_media).lower().strip() if social_media else ''
     uname = str(username).strip().lstrip('@') if username else ''
@@ -94,41 +101,47 @@ def build_contact(pic_contact, social_media, username):
     return None
 
 
+# ── Model loader ─────────────────────────────────────────────────
 def load_models():
     global _cache
     if _cache: return _cache
-    print("[*] Loading ML models + HuggingFace embeddings...")
+
+    print("[*] Loading all models...")
     _cache = {
-        'df':             joblib.load(os.path.join(MODELS_DIR,'kol_df.pkl')),
-        'X':              joblib.load(os.path.join(MODELS_DIR,'feature_matrix.pkl')),
-        'cat_embeddings': joblib.load(os.path.join(MODELS_DIR,'cat_embeddings.pkl')),
-        'scaler':         joblib.load(os.path.join(MODELS_DIR,'scaler.pkl')),
-        'knn':            joblib.load(os.path.join(MODELS_DIR,'knn.pkl')),
-        'st_model':       joblib.load(os.path.join(MODELS_DIR,'st_model.pkl')),
+        'df':             joblib.load(os.path.join(MODELS_DIR, 'kol_df.pkl')),
+        'X':              joblib.load(os.path.join(MODELS_DIR, 'feature_matrix.pkl')),
+        'cat_embeddings': joblib.load(os.path.join(MODELS_DIR, 'cat_embeddings.pkl')),
+        'scaler':         joblib.load(os.path.join(MODELS_DIR, 'scaler.pkl')),
+        'knn':            joblib.load(os.path.join(MODELS_DIR, 'knn.pkl')),
+        'st_model':       joblib.load(os.path.join(MODELS_DIR, 'st_model.pkl')),
     }
-    with open(os.path.join(MODELS_DIR,'meta.json')) as f:
+
+    # Optional models — tidak crash jika belum ada
+    for key, filename in [
+        ('rf_model',      'rf_model.pkl'),
+        ('xgb_model',     'xgb_model.pkl'),
+        ('rbm_model',     'rbm_model.pkl'),
+        ('rbm_scaler',    'rbm_scaler.pkl'),
+        ('rbm_latent',    'rbm_latent.pkl'),
+        ('tabular',       'tabular_features.pkl'),
+    ]:
+        path = os.path.join(MODELS_DIR, filename)
+        _cache[key] = joblib.load(path) if os.path.exists(path) else None
+
+    with open(os.path.join(MODELS_DIR, 'meta.json')) as f:
         _cache['meta'] = json.load(f)
 
-    # Layer 3: load RF + GBM if available (KOL)
-    rf_path  = os.path.join(MODELS_DIR, 'rf_kol.pkl')
-    gb_path  = os.path.join(MODELS_DIR, 'gb_kol.pkl')
-    meta_path= os.path.join(MODELS_DIR, 'rf_kol_meta.json')
-    if os.path.exists(rf_path) and os.path.exists(gb_path):
-        _cache['rf_kol'] = joblib.load(rf_path)
-        _cache['gb_kol'] = joblib.load(gb_path)
-        if os.path.exists(meta_path):
-            with open(meta_path) as f:
-                _cache['rf_kol_meta'] = json.load(f)
-        print(f"[OK] Layer 3 KOL RF loaded (MAE={_cache.get('rf_kol_meta',{}).get('rf_cv_mae','?')})")
-    else:
-        _cache['rf_kol'] = None
-        _cache['gb_kol'] = None
-        print("[!] Layer 3 KOL RF not found — using Layer 1+2 only")
+    patterns_path = os.path.join(MODELS_DIR, 'campaign_patterns.json')
+    _cache['patterns'] = json.load(open(patterns_path)) if os.path.exists(patterns_path) else None
 
-    print(f"[OK] {_cache['meta']['total_kol']} KOL loaded")
+    models_active = [k for k in ['rf_model','xgb_model','rbm_model'] if _cache.get(k)]
+    print(f"[OK] {_cache['meta']['total_kol']} KOL | "
+          f"Models: HF+KNN+{'+'.join(m.replace('_model','').upper() for m in models_active)} | "
+          f"Patterns: {'Ya' if _cache['patterns'] else 'Tidak'}")
     return _cache
 
 
+# ── Location / query utils ───────────────────────────────────────
 def normalize_location_query(loc):
     if not loc: return "nasional"
     loc_lower = loc.lower().strip()
@@ -137,14 +150,158 @@ def normalize_location_query(loc):
     return "nasional"
 
 
-def encode_query(topics, goals, description, st_model):
-    text = f"{topics} {goals} {description}".strip() or "campaign marketing umum"
+def encode_query(topics, goals, description, st_model, target_audience=""):
+    """Encode query dengan agency context enrichment untuk HuggingFace."""
+    if _PROFILE_LOADED:
+        text = get_context_enriched_query(topics, goals, description, target_audience)
+    else:
+        text = f"{topics} {goals} {description}".strip() or "campaign marketing umum"
     return st_model.encode([text])[0]
 
 
+def score_brand_fit(category, topics, goals):
+    """
+    Score kesesuaian KOL dengan topik & goals campaign berdasarkan
+    agency profile mapping. Tidak ada hard exclude — semua KOL tetap
+    bisa direkomendasikan, tapi yang kategorinya cocok dengan topik
+    campaign dapat boost score.
+    Return: float 0.5 (neutral) – 0.65 (match)
+    """
+    if not _PROFILE_LOADED:
+        return 0.5
+    return score_kol_fit(category, topics, goals)
+
+
+def build_row_tabular(row, patterns, scaler):
+    """Buat tabular feature vector untuk satu KOL (untuk RF/XGB inference)"""
+    overall_avg_er = patterns.get('overall_avg_er', 5.0) if patterns else 5.0
+    tier_stats     = patterns.get('tier_stats', {}) if patterns else {}
+    optimal_fol    = patterns.get('optimal_followers', {}) if patterns else {}
+
+    # Location one-hot
+    loc = row.get('location_norm', 'other')
+    loc_oh = [1.0 if loc == l else 0.0 for l in LOCATION_LIST]
+
+    # Numeric (same order as scaler was fit on)
+    num_raw = np.array([[
+        float(row.get('followers_log', 0) or 0),
+        float(row.get('tier_score', 2) or 2),
+        float(row.get('rate_min', 0) or 0),
+        float(row.get('rate_max', 0) or 0),
+    ]])
+    try:
+        num_scaled = scaler.transform(num_raw)[0].tolist()
+    except:
+        num_scaled = [0.0, 0.5, 0.0, 0.0]
+
+    # ER score
+    tier_name = TIER_NAME_MAP.get(to_int(row.get('tier_score', 2)), 'mikro')
+    if row.get('has_er_data') and not pd.isna(row.get('avg_er_pct', float('nan'))):
+        er = float(row['avg_er_pct'])
+        er_s = min(er / 20.0, 1.0)
+    elif tier_name in tier_stats:
+        er_s = min(tier_stats[tier_name].get('avg_er', overall_avg_er) / 20.0, 1.0) * 0.8
+    else:
+        n = to_int(row.get('followers_num', 0))
+        er_s = 0.65 if n<10_000 else 0.55 if n<50_000 else 0.45 if n<200_000 else 0.35 if n<1_000_000 else 0.25
+
+    # Pattern score
+    ts = tier_stats.get(tier_name, {})
+    if ts:
+        all_avgs = [s.get('avg_er', 0) for s in tier_stats.values()]
+        max_avg  = max(all_avgs) if all_avgs else overall_avg_er
+        tier_s   = (ts.get('avg_er', overall_avg_er) / (max_avg + 0.01)) * 0.7 + \
+                   (ts.get('pct_good', 30) / 100) * 0.3
+    else:
+        tier_s = 0.5
+
+    fol = to_int(row.get('followers_num', 0))
+    if optimal_fol and optimal_fol.get('min') and optimal_fol.get('max'):
+        o_min, o_max = optimal_fol['min'], optimal_fol['max']
+        if o_min <= fol <= o_max:
+            fol_s = 1.0 - abs(fol - (o_min+o_max)/2) / max(o_max-o_min, 1) * 0.3
+        elif fol < o_min:
+            fol_s = max(0.3, fol / o_min * 0.8)
+        else:
+            fol_s = max(0.3, o_max / fol * 0.8)
+    else:
+        fol_s = 0.5
+
+    tw  = patterns.get('tier_weight_hint', {}).get(tier_name, 1.0) if patterns else 1.0
+    ps  = tier_s * 0.50 + fol_s * 0.30 + min(tw / 2.0, 1.0) * 0.20
+
+    feat_vec = np.array(loc_oh + num_scaled + [er_s, ps], dtype=float).reshape(1, -1)
+    return feat_vec
+
+
+# ── Individual scorers ───────────────────────────────────────────
 def score_semantic(query_emb, kol_emb):
     sim = cosine_similarity(query_emb.reshape(1,-1), kol_emb.reshape(1,-1))[0][0]
     return float(max(0, sim))
+
+
+def score_rf(row, m):
+    """Random Forest quality prediction"""
+    rf = m.get('rf_model')
+    if rf is None: return 0.5
+    try:
+        feat = build_row_tabular(row, m.get('patterns'), m['scaler'])
+        pred = rf.predict(feat)[0]
+        return float(max(0, min(1, pred)))
+    except:
+        return 0.5
+
+
+def score_xgb_er(row, m):
+    """XGBoost ER prediction — normalize ke 0-1"""
+    xgb = m.get('xgb_model')
+    if xgb is None:
+        # Fallback: rule-based ER estimate
+        if row.get('has_er_data') and not pd.isna(row.get('avg_er_pct', float('nan'))):
+            er = float(row['avg_er_pct'])
+            return min(er / 20.0, 1.0)
+        patterns = m.get('patterns')
+        tier_name = TIER_NAME_MAP.get(to_int(row.get('tier_score', 2)), 'mikro')
+        if patterns and tier_name in patterns.get('tier_stats', {}):
+            tier_avg = patterns['tier_stats'][tier_name].get('avg_er', 5.0)
+            return min(tier_avg / 20.0, 1.0) * 0.8
+        n = to_int(row.get('followers_num', 0))
+        return 0.65 if n<10_000 else 0.55 if n<50_000 else 0.45 if n<200_000 else 0.35 if n<1_000_000 else 0.25
+
+    # Ada model real ER data → pakai langsung
+    if row.get('has_er_data') and not pd.isna(row.get('avg_er_pct', float('nan'))):
+        er = float(row['avg_er_pct'])
+        return min(er / 20.0, 1.0)
+
+    try:
+        feat  = build_row_tabular(row, m.get('patterns'), m['scaler'])
+        er_pred = float(xgb.predict(feat)[0])
+        return min(max(er_pred, 0) / 20.0, 1.0)
+    except:
+        return 0.4
+
+
+def score_rbm(kol_idx, m):
+    """RBM latent similarity — rata-rata cosine ke top KOL di latent space"""
+    rbm_latent = m.get('rbm_latent')
+    rf_model   = m.get('rf_model')
+    df         = m['df']
+
+    if rbm_latent is None: return 0.5
+    try:
+        this_vec = rbm_latent[kol_idx].reshape(1, -1)
+        # Ambil top 10 "reference KOL" = yang RF score-nya tinggi
+        if rf_model is not None and m.get('tabular') is not None:
+            rf_scores = rf_model.predict(m['tabular'])
+            top_idx   = np.argsort(rf_scores)[-20:]  # top 20 KOL by RF
+        else:
+            top_idx   = np.arange(min(20, len(rbm_latent)))
+
+        top_vecs = rbm_latent[top_idx]
+        sims     = cosine_similarity(this_vec, top_vecs)[0]
+        return float(np.mean(sims))
+    except:
+        return 0.5
 
 
 def score_budget(rate_min, rate_max, budget_per_kol):
@@ -154,39 +311,33 @@ def score_budget(rate_min, rate_max, budget_per_kol):
     if budget_per_kol >= rate_max: return 1.0
     if budget_per_kol >= rate_min:
         ratio = (budget_per_kol - rate_min) / (rate_max - rate_min + 1)
-        return 0.65 + 0.35 * ratio
+        return 0.7 + 0.3 * ratio
     ratio = budget_per_kol / rate_min
-    if ratio >= 0.85: return 0.55
-    if ratio >= 0.6:  return 0.35
-    if ratio >= 0.4:  return 0.18
+    if ratio >= 0.8: return 0.55
+    if ratio >= 0.5: return 0.30
     return 0.05
 
 
 def score_location(kol_loc, target_loc):
     if target_loc == 'nasional': return 1.0
-    if kol_loc == target_loc:    return 1.0
-    if kol_loc == 'nasional':    return 0.85
+    if kol_loc == target_loc:   return 1.0
+    if kol_loc == 'nasional':   return 0.8
     jawa = {'jakarta','bandung','surabaya','yogyakarta'}
-    if kol_loc in jawa and target_loc in jawa: return 0.65
-    return 0.25
+    if kol_loc in jawa and target_loc in jawa: return 0.6
+    return 0.2
 
 
-def score_er(has_er_data, avg_er_pct, followers_num):
-    try:
-        if has_er_data and avg_er_pct is not None and not np.isnan(float(avg_er_pct)):
-            er = float(avg_er_pct)
-            if er >= 20: return 1.0
-            if er >= 10: return 0.88
-            if er >= 5:  return 0.72
-            if er >= 2:  return 0.52
-            return 0.30
-    except: pass
-    n = to_int(followers_num)
-    if n < 10000:   return 0.65
-    if n < 50000:   return 0.55
-    if n < 200000:  return 0.45
-    if n < 1000000: return 0.35
-    return 0.25
+def score_pattern(row, patterns):
+    if not patterns or 'tier_stats' not in patterns: return 0.5
+    tier_stats = patterns['tier_stats']
+    tier_name  = TIER_NAME_MAP.get(to_int(row.get('tier_score', 2)), 'mikro')
+    ts = tier_stats.get(tier_name, {})
+    if not ts: return 0.5
+    all_avgs = [s.get('avg_er', 0) for s in tier_stats.values()]
+    max_avg  = max(all_avgs) if all_avgs else 5.0
+    s = (ts.get('avg_er', 5.0) / (max_avg + 0.01)) * 0.6 + \
+        (ts.get('pct_good', 30) / 100) * 0.4
+    return float(max(0, min(1, s)))
 
 
 def score_tier(tier_score, preferred_tier):
@@ -196,47 +347,23 @@ def score_tier(tier_score, preferred_tier):
     return max(0.0, 1.0 - abs(float(tier_score) - pref) * 0.3)
 
 
-def get_topic_category_score(topics: str, kol_category: str) -> float:
-    text = topics.lower()
-    best = 0.2
-    for keyword, affinities in TOPIC_CATEGORY_AFFINITY.items():
-        if keyword in text:
-            score = affinities.get(kol_category, 0.15)
-            best  = max(best, score)
-    return best
-
-
-def get_tier_match_score(tier_score, budget_per_kol: float) -> float:
-    if budget_per_kol < 3_000_000:   ideal = 1
-    elif budget_per_kol < 8_000_000: ideal = 2
-    elif budget_per_kol < 25_000_000:ideal = 3
-    else:                            ideal = 4
-    tier = to_int(tier_score) or 2
-    diff = abs(tier - ideal)
-    return 1.0 if diff == 0 else (0.7 if diff == 1 else 0.4)
-
-
-def predict_rf_score(rf, gb, feature_vector: list) -> float:
-    """Ensemble RF (60%) + GBM (40%)"""
-    x = np.array(feature_vector).reshape(1, -1)
-    rf_pred = float(rf.predict(x)[0])
-    gb_pred = float(gb.predict(x)[0])
-    return float(np.clip(0.6 * rf_pred + 0.4 * gb_pred, 0.0, 1.0))
-
-
+# ── Main recommend function ──────────────────────────────────────
 def recommend(topics, goals, campaign_description, location,
               budget_total, num_kol, content_type="semua", preferred_tier="semua"):
 
-    m = load_models()
-    df = m['df'].copy()
-    df = df[df['username'].str.strip() != ''].copy()
+    m          = load_models()
+    df         = m['df'].copy()
+    df         = df[df['username'].str.strip() != ''].copy()
+    patterns   = m.get('patterns')
 
     budget_per_kol = float(budget_total) / max(num_kol, 1)
     target_loc     = normalize_location_query(location)
-    has_layer3     = m['rf_kol'] is not None and m['gb_kol'] is not None
 
-    print(f"   [NLP] Encoding query: '{topics} {goals}'")
-    query_emb = encode_query(topics, goals, campaign_description, m['st_model'])
+    print(f"   [NLP] Encoding query: '{topics} {goals}' (with company context)")
+    query_emb = encode_query(topics, goals, campaign_description, m['st_model'], target_audience="")
+
+    # Topic boost dari company profile
+    topic_boost = 0.0  # agency profile tidak ada global topic boost — tiap campaign beda klien
 
     if content_type.lower() not in ('semua','all',''):
         mask = df['social_media'].str.lower().str.contains(content_type.lower(), na=False)
@@ -249,91 +376,52 @@ def recommend(topics, goals, campaign_description, location,
     results    = []
 
     for idx in df_indices:
-        row     = df_f.loc[idx]
-        kol_emb = cat_embs[df.index.get_loc(idx)]
+        row      = df_f.loc[idx]
+        abs_idx  = df.index.get_loc(idx)
+        kol_emb  = cat_embs[abs_idx]
 
-        # ── Layer 1: Rule-based sub-scores ─────────────────
-        s_sem  = score_semantic(query_emb, kol_emb)         # HuggingFace semantic
-        s_budg = score_budget(row['rate_min'], row['rate_max'], budget_per_kol)
-        s_loc  = score_location(row['location_norm'], target_loc)
-        s_er   = score_er(row['has_er_data'], row.get('avg_er_pct'), row['followers_num'])
-        s_tier = score_tier(row['tier_score'], preferred_tier)
+        # ── Score setiap layer ──────────────────────────────────
+        s_brand   = score_brand_fit(to_str(row.get('category','')), topics, goals)
+        s_sem     = score_semantic(query_emb, kol_emb)
+        s_rf      = score_rf(row, m)
+        s_xgb     = score_xgb_er(row, m)
+        s_rbm     = score_rbm(abs_idx, m)
+        s_budget  = score_budget(row['rate_min'], row['rate_max'], budget_per_kol)
+        s_loc     = score_location(row['location_norm'], target_loc)
+        s_pattern = score_pattern(row, patterns)
+        s_tier    = score_tier(row['tier_score'], preferred_tier)
 
-        # ── Layer 1 weighted score ──────────────────────────
-        layer1_score = (
-            WEIGHTS['semantic']  * s_sem  +
-            WEIGHTS['budget']    * s_budg +
-            WEIGHTS['location']  * s_loc  +
-            WEIGHTS['er']        * s_er   +
+        # Terapkan topic boost ke semantic score
+        s_sem_boosted = min(s_sem + topic_boost, 1.0)
+
+        final = (
+            WEIGHTS['semantic']  * s_sem +
+            WEIGHTS['rf']        * s_rf +
+            WEIGHTS['xgb_er']    * s_xgb +
+            WEIGHTS['rbm']       * s_rbm +
+            WEIGHTS['budget']    * s_budget +
+            WEIGHTS['location']  * s_loc +
+            WEIGHTS['brand_fit'] * s_brand +
+            WEIGHTS['pattern']   * s_pattern +
             WEIGHTS['tier']      * s_tier
         )
 
-        # ── Layer 3: RF ensemble score ──────────────────────
-        if has_layer3:
-            topic_cat = get_topic_category_score(
-                f"{topics} {goals} {campaign_description}",
-                to_str(row['category'])
-            )
-            er_pct_val = 0.0
-            try:
-                v = row.get('avg_er_pct')
-                if v is not None and not np.isnan(float(v)):
-                    er_pct_val = float(v)
-            except: pass
-
-            tier_idx   = to_int(row['tier_score']) - 1  # 0-indexed
-            tier_match = get_tier_match_score(row['tier_score'], budget_per_kol)
-
-            # Platform match
-            platform = (content_type or 'semua').lower()
-            sm = to_str(row['social_media']).lower()
-            if platform == 'semua':
-                plat_match = 1.0
-            elif platform in sm:
-                plat_match = 1.0
-            else:
-                plat_match = 0.2
-
-            # RF feature vector (must match train_rf_kol.py FEATURE_COLS order)
-            fv = [
-                topic_cat,                          # topic_cat_score
-                s_budg,                             # budget_score
-                s_loc,                              # loc_score
-                s_er,                               # er_score
-                er_pct_val,                         # er_pct
-                int(bool(row['has_er_data'])),      # has_real_er
-                tier_match,                         # tier_match_score
-                plat_match,                         # platform_match
-                float(np.log1p(to_int(row['followers_num']))),  # followers_log
-                float(np.log1p(budget_per_kol)),    # budget_per_kol_log
-                float(np.log1p(to_int(row['rate_min']))),       # rate_min_log
-                min(budget_per_kol / max(to_int(row['rate_min']), 1), 5.0),  # rate_ratio
-                max(0, min(tier_idx, 3)),            # tier_idx
-                int(row['location_norm'] == 'nasional'),        # loc_is_nasional
-                int(row['location_norm'] == target_loc),        # loc_match_exact
-            ]
-
-            layer3_score = predict_rf_score(m['rf_kol'], m['gb_kol'], fv)
-
-            # ── Final: blend Layer 1+3 ──────────────────────
-            # Layer 1 = 40% (tetap penting untuk interpretability)
-            # Layer 3 = 60% (RF lebih akurat secara keseluruhan)
-            final = 0.40 * layer1_score + 0.60 * layer3_score
-        else:
-            final        = layer1_score
-            layer3_score = None
-
-        # ── Build rate card ─────────────────────────────────
+        # ── Build rate card ─────────────────────────────────────
         rate_card = {}
-        if to_int(row['rate_tiktok']) > 0:   rate_card['Tiktok']   = to_int(row['rate_tiktok'])
-        if to_int(row['rate_ig']) > 0:        rate_card['IG Reels'] = to_int(row['rate_ig'])
-        if to_int(row['rate_bundling']) > 0:  rate_card['Bundling'] = to_int(row['rate_bundling'])
+        if to_int(row['rate_tiktok']) > 0:  rate_card['Tiktok']   = to_int(row['rate_tiktok'])
+        if to_int(row['rate_ig']) > 0:       rate_card['IG Reels'] = to_int(row['rate_ig'])
+        if to_int(row['rate_bundling']) > 0: rate_card['Bundling'] = to_int(row['rate_bundling'])
 
-        # ── Reasoning ───────────────────────────────────────
+        # ── Build reasoning ─────────────────────────────────────
         reasons = []
-        if s_sem >= 0.6:    reasons.append(f"konten relevan dengan topik campaign (semantic {round(s_sem*100)}%)")
-        if s_budg >= 0.8:   reasons.append("rate card sesuai budget")
-        elif s_budg >= 0.5: reasons.append("rate bisa dinegosiasikan")
+        if s_sem >= 0.6:
+            reasons.append(f"konten relevan dengan topik campaign (semantic {round(s_sem*100)}%)")
+        if s_rf >= 0.7:
+            reasons.append(f"RF quality score tinggi ({round(s_rf*100)}%)")
+        if s_budget >= 0.8:
+            reasons.append("rate card sesuai budget")
+        elif s_budget >= 0.5:
+            reasons.append("rate bisa dinegosiasikan")
         if s_loc == 1.0 and target_loc != 'nasional':
             reasons.append(f"berlokasi di {to_str(row['location_raw']) or row['location_norm']}")
         if row['has_er_data']:
@@ -342,43 +430,61 @@ def recommend(topics, goals, campaign_description, location,
                 if er_val is not None and not np.isnan(float(er_val)):
                     reasons.append(f"ER aktual {round(float(er_val),1)}% dari {to_int(row['post_count'])} post nyata")
             except: pass
-        if has_layer3:
-            reasons.append(f"RF score {round(layer3_score*100,1)}%")
+        elif s_xgb >= 0.6:
+            reasons.append(f"ER diprediksi tinggi oleh XGBoost ({round(s_xgb*20,1)}%)")
+        if _PROFILE_LOADED and s_brand >= 0.6:
+            reasons.append(f"kategori KOL cocok dengan topik campaign")
+        if patterns and s_pattern >= 0.7:
+            tier_name = TIER_NAME_MAP.get(to_int(row.get('tier_score',2)), 'mikro')
+            ts = patterns.get('tier_stats', {}).get(tier_name, {})
+            if ts:
+                reasons.append(f"tier {tier_name} avg ER {ts.get('avg_er',0):.1f}% di campaign sebelumnya")
 
+        # ── ER display ──────────────────────────────────────────
         er_display = None
+        xgb_er_pred = None
         try:
             er_val = row.get('avg_er_pct')
             if row['has_er_data'] and er_val is not None and not np.isnan(float(er_val)):
                 er_display = round(float(er_val), 2)
         except: pass
 
+        if m.get('xgb_model') and not row['has_er_data']:
+            try:
+                feat = build_row_tabular(row, patterns, m['scaler'])
+                xgb_er_pred = round(float(m['xgb_model'].predict(feat)[0]), 1)
+            except: pass
+
         results.append({
-            'id':            to_int(row['id']),
-            'username':      to_str(row['username']),
-            'type':          to_str(row['type_raw']),
-            'tier':          to_int(row['tier_score']) if pd.notna(row['tier_score']) else None,
-            'location':      to_str(row['location_raw']) or to_str(row['location_norm']),
-            'social_media':  to_str(row['social_media']),
-            'followers':     to_str(row['followers_raw']),
-            'followers_num': to_int(row['followers_num']),
-            'category':      to_str(row['category']),
-            'pic_name':      to_str(row['pic_name']),
-            'rate_card':     rate_card,
-            'rate_min':      to_int(row['rate_min']),
-            'rate_max':      to_int(row['rate_max']),
-            'has_real_er':   bool(row['has_er_data']),
-            'avg_er_pct':    er_display,
-            'match_score':   round(float(final) * 100, 1),
+            'id':             to_int(row['id']),
+            'username':       to_str(row['username']),
+            'type':           to_str(row['type_raw']),
+            'tier':           to_int(row['tier_score']) if pd.notna(row['tier_score']) else None,
+            'location':       to_str(row['location_raw']) or to_str(row['location_norm']),
+            'social_media':   to_str(row['social_media']),
+            'followers':      to_str(row['followers_raw']),
+            'followers_num':  to_int(row['followers_num']),
+            'category':       to_str(row['category']),
+            'pic_name':       to_str(row['pic_name']),
+            'rate_card':      rate_card,
+            'rate_min':       to_int(row['rate_min']),
+            'rate_max':       to_int(row['rate_max']),
+            'has_real_er':    bool(row['has_er_data']),
+            'avg_er_pct':     er_display,
+            'xgb_er_pred':    xgb_er_pred,  # prediksi XGB untuk KOL tanpa real ER
+            'match_score':    round(float(final) * 100, 1),
             'score_detail': {
-                'semantic (HF)':  to_float(s_sem * 100),
-                'budget':         to_float(s_budg * 100),
-                'location':       to_float(s_loc * 100),
-                'engagement':     to_float(s_er * 100),
-                'tier':           to_float(s_tier * 100),
-                **(({'RF ensemble': to_float(layer3_score * 100)} if has_layer3 and layer3_score else {})),
+                'semantic (HF)':     to_float(s_sem * 100),
+                'brand fit':         to_float(s_brand * 100),
+                'random forest':     to_float(s_rf * 100),
+                'xgboost ER':        to_float(s_xgb * 100),
+                'rbm latent':        to_float(s_rbm * 100),
+                'budget':            to_float(s_budget * 100),
+                'location':          to_float(s_loc * 100),
+                'campaign pattern':  to_float(s_pattern * 100),
+                'tier':              to_float(s_tier * 100),
             },
-            'layer3_active': has_layer3,
-            'reasoning': ' & '.join(reasons) if reasons else 'Profil sesuai parameter campaign',
+            'reasoning':      ' & '.join(reasons) if reasons else 'Profil sesuai parameter campaign',
             'pic_contact':    to_str(row.get('pic_contact', '')),
             'contact_action': build_contact(row.get('pic_contact',''), row['social_media'], row['username']),
         })
@@ -386,6 +492,17 @@ def recommend(topics, goals, campaign_description, location,
     results.sort(key=lambda x: x['match_score'], reverse=True)
     top = results[:num_kol]
 
+    # Pattern summary
+    pattern_summary = None
+    if patterns:
+        pattern_summary = {
+            'total_campaign_records': patterns.get('total_with_er', 0),
+            'overall_avg_er':         patterns.get('overall_avg_er'),
+            'best_tier':              patterns.get('best_tier'),
+            'tier_stats':             patterns.get('tier_stats', {}),
+        }
+
+    meta = m['meta']
     return {
         'recommended_kol':    top,
         'total_kol':          int(len(top)),
@@ -395,8 +512,9 @@ def recommend(topics, goals, campaign_description, location,
         'budget_remaining':   int(max(0, budget_total - sum(r['rate_min'] for r in top))),
         'avg_match_score':    round(sum(r['match_score'] for r in top)/len(top),1) if top else 0.0,
         'target_location':    target_loc,
-        'hf_model_used':      str(_cache['meta']['hf_model']),
-        'layer3_active':      has_layer3,
+        'hf_model_used':      str(meta['hf_model']),
+        'models_active':      meta.get('models', {}),
+        'campaign_patterns':  pattern_summary,
     }
 
 

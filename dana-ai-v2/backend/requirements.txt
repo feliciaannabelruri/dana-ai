@@ -1,4 +1,4 @@
-fastapi
+﻿fastapi
 uvicorn
 scikit-learn
 pandas
@@ -7,4 +7,5 @@ numpy
 joblib
 python-multipart
 sentence-transformers
-torch
+torch --index-url https://download.pytorch.org/whl/cpu
+huggingface_hub

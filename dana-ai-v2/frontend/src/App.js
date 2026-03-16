@@ -342,6 +342,38 @@ function BudgetSlider({ budgetMin, budgetMax, onChangeMin, onChangeMax }) {
   );
 }
 
+function MAEBadge({ meta }) {
+  if (!meta?.metrics?.random_forest?.mae) return null;
+  const rf  = meta.metrics.random_forest;
+  const xgb = meta.metrics.xgboost;
+  const mae = rf.mae;
+  const color = mae <= 0.05 ? GREEN : mae <= 0.10 ? GOLD : RED;
+  return (
+    <div style={{ marginTop:8, display:'flex', gap:6, flexWrap:'wrap', alignItems:'center' }}>
+      <span style={{ color:'#333', fontSize:10 }}>Model Accuracy:</span>
+      <span style={{
+        background: color + '18', border: `1px solid ${color}44`,
+        color, borderRadius:6, padding:'2px 8px', fontSize:11, fontWeight:800,
+        fontFamily:"'Syne',sans-serif",
+      }}>
+        MAE {mae.toFixed(4)}
+      </span>
+      {xgb?.mae_train && (
+        <span style={{
+          background: GOLD+'18', border:`1px solid ${GOLD}44`,
+          color:GOLD, borderRadius:6, padding:'2px 8px', fontSize:11, fontWeight:800,
+          fontFamily:"'Syne',sans-serif",
+        }}>
+          ER MAE {xgb.mae_train.toFixed(2)}%
+        </span>
+      )}
+      <span style={{ color:'#2a2a3a', fontSize:9 }}>
+        {mae <= 0.05 ? 'Sangat baik' : mae <= 0.10 ? 'Baik' : 'Cukup'}
+      </span>
+    </div>
+  );
+}
+
 function Badge({ label, color=ACCENT, icon=null }) {
   return (
     <span style={{ display:'inline-flex', alignItems:'center', gap:4, background:color+'22', color, border:`1px solid ${color}44`, padding:'2px 10px', borderRadius:20, fontSize:11, fontWeight:700, whiteSpace:'nowrap' }}>
@@ -626,6 +658,7 @@ export default function App() {
     campaign_name:'', campaign_description:'', goals:'',
     target_audience:'', topics:'', location:'',
     budget_min:'5000000', budget_max:'50000000',
+    budget_kol_pct: 70,   // default 70% KOL, 30% media
     num_kol:5, num_media:3, content_type:'semua', preferred_tier:'semua',
   });
   const kolRef      = useRef();
@@ -693,10 +726,13 @@ export default function App() {
   const handleSubmit = async () => {
     if (!form.campaign_name || !form.budget_min) return;
     setPage('loading'); msgIdx.current=0; setMsg(MSGS[0]);
-    // Kirim midpoint dari range ke API (API expect satu angka budget)
     const budgetMid = Math.round((parseFloat(form.budget_min) + parseFloat(form.budget_max)) / 2);
     try {
-      const data = await getRecommendations({ ...form, budget: String(budgetMid) });
+      const data = await getRecommendations({
+        ...form,
+        budget: String(budgetMid),
+        budget_kol_pct: form.budget_kol_pct / 100,
+      });
       setResult(data); setPage('result');
     } catch(err) { alert(err.message); setPage('form'); }
   };
@@ -763,13 +799,60 @@ export default function App() {
                 <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, minWidth:220 }}>
                   <Stat label="KOL Avg Match" value={`${result.avg_match_score}%`} color={ACCENT} />
                   <Stat label="Total KOL" value={result.total_kol} color={GOLD} />
-                  <Stat label="Est. KOL Min" value={fmt(result.estimated_cost_min)} color={GREEN} />
+                  <Stat label="KOL Est. Min" value={fmt(result.estimated_cost_min)} color={GOLD} />
                   {hasHomeless
-                    ? <Stat label="Est. Media Min" value={fmt(homelessData.estimated_cost_media_min)} color={TEAL} />
-                    : <Stat label="Sisa Budget" value={fmt(result.budget_remaining)} color={PURPLE} />
+                    ? <Stat label="Media Est. Min" value={fmt(result.homeless_media?.estimated_cost_media_min)} color={TEAL} />
+                    : <Stat label="Sisa Budget" value={fmt(result.budget_remaining)} color={GREEN} />
                   }
                 </div>
               </div>
+
+              {/* Budget breakdown bar */}
+              {result.budget_total > 0 && (
+                <div style={{ marginTop:14, paddingTop:14, borderTop:'1px solid rgba(255,255,255,.06)' }}>
+                  <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
+                    <span style={{ color:'#555', fontSize:10 }}>Budget breakdown</span>
+                    <div style={{ display:'flex', gap:8, alignItems:'center' }}>
+                      <span style={{ color:'#fff', fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:13 }}>
+                        {fmt(result.total_estimated_min || (result.estimated_cost_min + (result.homeless_media?.estimated_cost_media_min||0)))}
+                      </span>
+                      <span style={{ color:'#444', fontSize:10 }}>dari</span>
+                      <span style={{ color:GOLD, fontWeight:700, fontSize:13 }}>{fmt(result.budget_total)}</span>
+                    </div>
+                  </div>
+                  {/* Progress bar */}
+                  {(() => {
+                    const total    = result.budget_total || 1;
+                    const kolMin   = result.estimated_cost_min || 0;
+                    const mediaMin = result.homeless_media?.estimated_cost_media_min || 0;
+                    const kolPct   = Math.min(kolMin / total * 100, 100);
+                    const mediaPct = Math.min(mediaMin / total * 100, 100 - kolPct);
+                    const over     = result.over_budget;
+                    return (
+                      <div>
+                        <div style={{ height:8, background:'rgba(255,255,255,.05)', borderRadius:4, overflow:'hidden', display:'flex' }}>
+                          <div style={{ width:`${kolPct}%`, background:GOLD, transition:'width .8s', borderRadius:'4px 0 0 4px' }} />
+                          <div style={{ width:`${mediaPct}%`, background:TEAL, transition:'width .8s' }} />
+                        </div>
+                        <div style={{ display:'flex', gap:12, marginTop:6 }}>
+                          <span style={{ color:GOLD, fontSize:9 }}>KOL {fmt(kolMin)}</span>
+                          {mediaMin > 0 && <span style={{ color:TEAL, fontSize:9 }}>Media {fmt(mediaMin)}</span>}
+                          {result.budget_remaining_min > 0 && (
+                            <span style={{ color:GREEN, fontSize:9, marginLeft:'auto' }}>
+                              Sisa {fmt(result.budget_remaining_min)}
+                            </span>
+                          )}
+                          {over && (
+                            <span style={{ color:RED, fontSize:9, fontWeight:700, marginLeft:'auto' }}>
+                              Over budget!
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+              )}
             </div>
           </div>
 
@@ -865,7 +948,18 @@ export default function App() {
       <style>{`
         @keyframes spin{to{transform:rotate(360deg)}}
         input,select,textarea{color-scheme:dark}
-        input:focus,textarea:focus,select:focus{border-color:${ACCENT}99!important;box-shadow:0 0 0 3px ${ACCENT}18}
+        input:focus,textarea:focus{border-color:${ACCENT}99!important;box-shadow:0 0 0 3px ${ACCENT}18}
+        select{
+          -webkit-appearance:none;
+          appearance:none;
+          background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+          background-repeat:no-repeat;
+          background-position:right 12px center;
+          padding-right:32px !important;
+          cursor:pointer;
+        }
+        select:focus{border-color:${ACCENT}99!important;box-shadow:0 0 0 3px ${ACCENT}18;outline:none}
+        select option{background:#0f0f1a;color:#fff}
         @keyframes fu{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
         .fu{animation:fu .5s ease forwards}
       `}</style>
@@ -890,9 +984,6 @@ export default function App() {
               Semantic Matching
             </span>
           </h1>
-          <p style={{ color:'#555', fontSize:13, lineHeight:1.7, maxWidth:460, marginInline:'auto', margin:0 }}>
-            Rekomendasi KOL & media placement secara bersamaan. Diperkaya ER data nyata dari insight.xlsx.
-          </p>
         </div>
 
         {/* database panel */}
@@ -901,7 +992,7 @@ export default function App() {
             <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:14 }}>
               {statusIcon}
               <span style={{ fontWeight:700, fontSize:13, color:backendErr?RED:modelReady?GREEN:'#ccc' }}>
-                {backendErr?'Backend tidak bisa dihubungi — jalankan server Python dulu':status===null?'Menghubungi backend...':modelReady?`Model siap — ${meta.total_kol||0} KOL | ${meta.kol_with_er||0} ER nyata`:'Model belum dilatih'}
+                {backendErr?'Backend tidak bisa dihubungi — jalankan server Python dulu':status===null?'Menghubungi backend...':modelReady?`Model siap — ${meta.total_kol||0} KOL | ${meta.kol_with_er||0} ER nyata${meta.metrics?.random_forest?.mae ? ` | MAE ${meta.metrics.random_forest.mae.toFixed(4)}` : ''}`:'Model belum dilatih'}
               </span>
               {homelessLoaded && <Badge label={`${homelessCount} Homeless Media`} color={TEAL} icon={Icon.newspaper(10)} />}
             </div>
@@ -958,6 +1049,10 @@ export default function App() {
                 </div>
               ))}
             </div>
+
+            {/* MAE — tampil setelah training */}
+            {modelReady && <MAEBadge meta={meta} />}
+
           </div>
         </div>
 
@@ -977,7 +1072,18 @@ export default function App() {
               <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
                 <div>
                   <label style={lbl}>Goals</label>
-                  <input style={inp} placeholder="Brand awareness, edukasi, dll" value={form.goals} onChange={e=>setForm(f=>({...f,goals:e.target.value}))} />
+                  <select style={inp} value={form.goals} onChange={e=>setForm(f=>({...f,goals:e.target.value}))}>
+                    <option value="">Pilih goals...</option>
+                    <option value="brand awareness">Brand Awareness</option>
+                    <option value="edukasi audience">Edukasi Audience</option>
+                    <option value="product launch">Product Launch</option>
+                    <option value="lead generation">Lead Generation</option>
+                    <option value="engagement">Engagement</option>
+                    <option value="conversion penjualan">Conversion / Penjualan</option>
+                    <option value="community building">Community Building</option>
+                    <option value="viral campaign">Viral Campaign</option>
+                    <option value="repositioning brand">Repositioning Brand</option>
+                  </select>
                 </div>
                 <div>
                   <label style={lbl}>Target Audience</label>
@@ -987,7 +1093,25 @@ export default function App() {
               <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
                 <div>
                   <label style={lbl}>Topik / Niche</label>
-                  <input style={inp} placeholder="Finance, lifestyle, edukasi..." value={form.topics} onChange={e=>setForm(f=>({...f,topics:e.target.value}))} />
+                  <select style={inp} value={form.topics} onChange={e=>setForm(f=>({...f,topics:e.target.value}))}>
+                    <option value="">Pilih topik...</option>
+                    <option value="finance keuangan investasi">Finance &amp; Keuangan</option>
+                    <option value="lifestyle">Lifestyle</option>
+                    <option value="beauty skincare">Beauty &amp; Skincare</option>
+                    <option value="fashion">Fashion</option>
+                    <option value="food kuliner">Food &amp; Kuliner</option>
+                    <option value="travel wisata">Travel &amp; Wisata</option>
+                    <option value="health wellness">Health &amp; Wellness</option>
+                    <option value="teknologi gadget">Teknologi &amp; Gadget</option>
+                    <option value="edukasi pendidikan">Edukasi</option>
+                    <option value="entertainment hiburan">Entertainment</option>
+                    <option value="parenting keluarga">Parenting &amp; Keluarga</option>
+                    <option value="bisnis entrepreneurship">Bisnis &amp; Entrepreneurship</option>
+                    <option value="gaming">Gaming</option>
+                    <option value="olahraga fitness">Olahraga &amp; Fitness</option>
+                    <option value="otomotif">Otomotif</option>
+                    <option value="properti">Properti</option>
+                  </select>
                 </div>
                 <div>
                   <label style={lbl}>Lokasi Target</label>
@@ -1007,6 +1131,56 @@ export default function App() {
                     onChangeMin={(val) => setForm(f => ({ ...f, budget_min: val }))}
                     onChangeMax={(val) => setForm(f => ({ ...f, budget_max: val }))}
                   />
+                </div>
+              </div>
+
+              {/* ── BUDGET SPLIT ── */}
+              <div>
+                <label style={{ ...lbl, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+                  <span style={{ display:'flex', alignItems:'center', gap:6 }}>
+                    {Icon.chart(11)} Alokasi Budget
+                  </span>
+                  <span style={{ color:'#444', fontSize:10, fontWeight:500, textTransform:'none', letterSpacing:0 }}>
+                    KOL {form.budget_kol_pct}% · Media {100 - form.budget_kol_pct}%
+                  </span>
+                </label>
+                <div style={{ background:'rgba(0,0,0,.2)', border:'1px solid rgba(255,255,255,.06)', borderRadius:12, padding:'14px 16px' }}>
+                  {/* Split bar visual */}
+                  <div style={{ display:'flex', height:8, borderRadius:4, overflow:'hidden', marginBottom:10 }}>
+                    <div style={{ width:`${form.budget_kol_pct}%`, background:GOLD, transition:'width .2s' }} />
+                    <div style={{ flex:1, background:TEAL }} />
+                  </div>
+                  {/* Slider */}
+                  <style>{`
+                    .split-slider{-webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:3px;background:transparent;outline:none;cursor:pointer}
+                    .split-slider::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 6px rgba(0,0,0,.5);cursor:pointer}
+                    .split-slider::-moz-range-thumb{width:18px;height:18px;border-radius:50%;border:none;background:#fff;cursor:pointer}
+                  `}</style>
+                  <input type="range" className="split-slider" min={10} max={90} step={5}
+                    value={form.budget_kol_pct}
+                    onChange={e=>setForm(f=>({...f,budget_kol_pct:parseInt(e.target.value)}))}
+                  />
+                  {/* Labels */}
+                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginTop:10 }}>
+                    <div style={{ background:GOLD+'12', border:`1px solid ${GOLD}33`, borderRadius:8, padding:'8px 12px' }}>
+                      <div style={{ color:GOLD, fontSize:9, fontWeight:700, letterSpacing:'.7px', marginBottom:3 }}>KOL</div>
+                      <div style={{ color:'#fff', fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:14 }}>
+                        {fmtBudget(Math.round((parseFloat(form.budget_min)||0) * form.budget_kol_pct / 100))}
+                      </div>
+                      <div style={{ color:'#555', fontSize:9, marginTop:1 }}>
+                        – {fmtBudget(Math.round((parseFloat(form.budget_max)||0) * form.budget_kol_pct / 100))}
+                      </div>
+                    </div>
+                    <div style={{ background:TEAL+'12', border:`1px solid ${TEAL}33`, borderRadius:8, padding:'8px 12px' }}>
+                      <div style={{ color:TEAL, fontSize:9, fontWeight:700, letterSpacing:'.7px', marginBottom:3 }}>HOMELESS MEDIA</div>
+                      <div style={{ color:'#fff', fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:14 }}>
+                        {fmtBudget(Math.round((parseFloat(form.budget_min)||0) * (100 - form.budget_kol_pct) / 100))}
+                      </div>
+                      <div style={{ color:'#555', fontSize:9, marginTop:1 }}>
+                        – {fmtBudget(Math.round((parseFloat(form.budget_max)||0) * (100 - form.budget_kol_pct) / 100))}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 

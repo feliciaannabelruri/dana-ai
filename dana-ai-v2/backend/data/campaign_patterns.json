@@ -1,0 +1,57 @@
+{
+  "total_records": 20,
+  "total_with_er": 12,
+  "overall_avg_er": 26.37,
+  "overall_median_er": 17.46,
+  "best_tier": "nano",
+  "best_tier_avg_er": 49.91,
+  "tier_stats": {
+    "nano": {
+      "count": 4,
+      "avg_er": 49.91,
+      "median_er": 58.32,
+      "max_er": 76.35,
+      "min_er": 6.63,
+      "avg_reach": 5112,
+      "pct_excellent": 75.0,
+      "pct_good": 75.0
+    }
+  },
+  "quality_distribution": {
+    "excellent": {
+      "count": 6,
+      "pct": 50.0
+    },
+    "good": {
+      "count": 1,
+      "pct": 8.3
+    },
+    "average": {
+      "count": 4,
+      "pct": 33.3
+    },
+    "low": {
+      "count": 1,
+      "pct": 8.3
+    }
+  },
+  "optimal_followers": {
+    "min": 1,
+    "max": 1,
+    "avg": 1,
+    "median": 1
+  },
+  "reach_ratio_stats": {
+    "avg": 5112.0,
+    "median": 1934.5,
+    "p75": 5990.25,
+    "p90": 11878.5
+  },
+  "tier_weight_hint": {
+    "nano": 1.0
+  },
+  "insights_summary": {
+    "recommendation": "Berdasarkan 12 data campaign, tier nano perform paling baik dengan rata-rata ER 49.9%",
+    "top_er_range": "ER range dari dataset: 0.8% - 76.4%"
+  }
+}

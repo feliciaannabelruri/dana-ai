@@ -1,0 +1,9 @@
+﻿venv/
+__pycache__/
+*.pyc
+models/
+data/*.xlsx
+data/*.pkl
+data/kol_clean.pkl
+.env
+*.env
