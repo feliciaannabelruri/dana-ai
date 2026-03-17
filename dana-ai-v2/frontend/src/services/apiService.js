@@ -15,30 +15,30 @@ export async function getLocations() {
 export async function uploadKOL(file) {
   const form = new FormData();
   form.append('file', file);
-  const r = await fetch(`${BASE}/upload-kol`, { method:'POST', body:form });
-  if (!r.ok) { const e = await r.json(); throw new Error(e.detail||'Upload KOL gagal'); }
+  const r = await fetch(`${BASE}/upload-kol`, { method: 'POST', body: form });
+  if (!r.ok) { const e = await r.json(); throw new Error(e.detail || 'Upload KOL gagal'); }
   return r.json();
 }
 
 export async function uploadInsight(file) {
   const form = new FormData();
   form.append('file', file);
-  const r = await fetch(`${BASE}/upload-insight`, { method:'POST', body:form });
-  if (!r.ok) { const e = await r.json(); throw new Error(e.detail||'Upload insight gagal'); }
+  const r = await fetch(`${BASE}/upload-insight`, { method: 'POST', body: form });
+  if (!r.ok) { const e = await r.json(); throw new Error(e.detail || 'Upload insight gagal'); }
   return r.json();
 }
 
 export async function uploadHomelessMedia(file) {
   const form = new FormData();
   form.append('file', file);
-  const r = await fetch(`${BASE}/upload-homeless-media`, { method:'POST', body:form });
-  if (!r.ok) { const e = await r.json(); throw new Error(e.detail||'Upload Homeless Media gagal'); }
+  const r = await fetch(`${BASE}/upload-homeless-media`, { method: 'POST', body: form });
+  if (!r.ok) { const e = await r.json(); throw new Error(e.detail || 'Upload Homeless Media gagal'); }
   return r.json();
 }
 
 export async function trainModel() {
-  const r = await fetch(`${BASE}/train`, { method:'POST' });
-  if (!r.ok) { const e = await r.json(); throw new Error(e.detail||'Training gagal'); }
+  const r = await fetch(`${BASE}/train`, { method: 'POST' });
+  if (!r.ok) { const e = await r.json(); throw new Error(e.detail || 'Training gagal'); }
   return r.json();
 }
 
@@ -61,6 +61,6 @@ export async function getRecommendations(form) {
       include_homeless_media: true,
     }),
   });
-  if (!r.ok) { const e = await r.json(); throw new Error(e.detail||'Gagal'); }
+  if (!r.ok) { const e = await r.json(); throw new Error(e.detail || 'Gagal'); }
   return r.json();
 }
