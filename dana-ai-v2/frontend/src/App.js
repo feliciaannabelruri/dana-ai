@@ -107,6 +107,13 @@ const fmtF = n => {
   return String(n);
 };
 
+// Format rate card — data sudah rupiah penuh (hasil parse_homeless_media.py baru)
+// Tidak perlu × 1000 lagi. Langsung pakai fmt().
+const fmtRate = n => {
+  if (!n || isNaN(n)) return 'Rp –';
+  return fmt(Math.round(n));
+};
+
 // Format budget (lebih verbose, untuk label slider/alokasi)
 const fmtBudget = n => {
   if (!n || isNaN(n)) return 'Rp 0';
@@ -298,7 +305,7 @@ function KOLCard({ kol, rank }) {
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:12 }}>
           <StatBox label="Followers" value={fmtF(kol.followers_num)||kol.followers}/>
           <StatBox label="Type" value={kol.type||'–'}/>
-          <StatBox label="Rate Min" value={fmt(kol.rate_min)} color={C.gold}/>
+          <StatBox label="Rate Min" value={fmtRate(kol.rate_min)} color={C.gold}/>
           <StatBox label="Lokasi" value={kol.location||'–'}/>
         </div>
 
@@ -314,7 +321,7 @@ function KOLCard({ kol, rank }) {
             {Object.entries(kol.rate_card).map(([p,r])=>(
               <div key={p} style={{ display:'flex', justifyContent:'space-between', marginBottom:3 }}>
                 <span style={{ color:C.textSub, fontSize:12 }}>{p}</span>
-                <span style={{ color:C.gold, fontWeight:700, fontSize:12 }}>{fmt(r)}</span>
+                <span style={{ color:C.gold, fontWeight:700, fontSize:12 }}>{fmtRate(r)}</span>
               </div>
             ))}
           </div>
@@ -430,7 +437,7 @@ function HomelessMediaCard({ media, rank }) {
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:12 }}>
           <StatBox label="Followers" value={media.followers||'–'}/>
           <StatBox label="Platform" value={media.social_media||'–'}/>
-          <StatBox label="Rate Min" value={fmt(media.rate_min)} color={C.gold}/>
+          <StatBox label="Rate Min" value={fmtRate(media.rate_min)} color={C.gold}/>
           <StatBox label="Lokasi" value={media.location||'–'}/>
         </div>
 
@@ -445,7 +452,7 @@ function HomelessMediaCard({ media, rank }) {
             {Object.entries(media.rate_card).map(([p,r])=>(
               <div key={p} style={{ display:'flex', justifyContent:'space-between', marginBottom:3 }}>
                 <span style={{ color:C.textSub, fontSize:12 }}>{p}</span>
-                <span style={{ color:C.gold, fontWeight:700, fontSize:12 }}>{fmt(r)}</span>
+                <span style={{ color:C.gold, fontWeight:700, fontSize:12 }}>{fmtRate(r)}</span>
               </div>
             ))}
           </div>
@@ -639,16 +646,16 @@ export default function App() {
                     <div>
                       <div style={{ color: overBudget ? C.red : C.green, fontSize:10, fontWeight:700, letterSpacing:'.8px', marginBottom:4 }}>TOTAL ESTIMASI BIAYA</div>
                       <div style={{ color: overBudget ? C.red : C.green, fontWeight:800, fontSize:isMobile?18:22, letterSpacing:'-0.5px' }}>
-                        {fmt(totMin)}
-                        {totMax > totMin && <span style={{ fontSize:isMobile?13:15, fontWeight:600, opacity:.7 }}> — {fmt(totMax)}</span>}
+                        {fmtRate(totMin)}
+                        {totMax > totMin && <span style={{ fontSize:isMobile?13:15, fontWeight:600, opacity:.7 }}> — {fmtRate(totMax)}</span>}
                       </div>
                     </div>
                     {budget > 0 && (
                       <div style={{ textAlign:'right' }}>
                         <div style={{ color:C.textMuted, fontSize:10, fontWeight:600, marginBottom:2 }}>BUDGET CAMPAIGN</div>
-                        <div style={{ color:C.textSub, fontWeight:700, fontSize:14 }}>{fmt(budget)}</div>
+                        <div style={{ color:C.textSub, fontWeight:700, fontSize:14 }}>{fmtBudget(budget)}</div>
                         <div style={{ color: overBudget ? C.red : C.green, fontSize:11, fontWeight:700, marginTop:2 }}>
-                          {overBudget ? `⚠ Over budget` : `✓ Sisa ~${fmt(budget - totMin)}`}
+                          {overBudget ? `⚠ Over budget` : `✓ Sisa ~${fmtRate(budget - totMin)}`}
                         </div>
                       </div>
                     )}
@@ -660,9 +667,9 @@ export default function App() {
                       <div style={{ color:C.gold, fontSize:10, fontWeight:700, letterSpacing:'.6px', marginBottom:5, display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                         <span>KOL ({result.total_kol} orang)</span>
                       </div>
-                      <div style={{ color:C.text, fontWeight:800, fontSize:14 }}>{fmt(kolMin)}</div>
-                      {kolMax > kolMin && <div style={{ color:C.textMuted, fontSize:11, marginTop:2 }}>s/d {fmt(kolMax)}</div>}
-                      <div style={{ color:C.textMuted, fontSize:10, marginTop:4 }}>~{fmt(Math.round(kolMin / Math.max(result.total_kol,1)))} / KOL</div>
+                      <div style={{ color:C.text, fontWeight:800, fontSize:14 }}>{fmtRate(kolMin)}</div>
+                      {kolMax > kolMin && <div style={{ color:C.textMuted, fontSize:11, marginTop:2 }}>s/d {fmtRate(kolMax)}</div>}
+                      <div style={{ color:C.textMuted, fontSize:10, marginTop:4 }}>~{fmtRate(Math.round(kolMin / Math.max(result.total_kol,1)))} / KOL</div>
                     </div>
 
                     {hasHM && (
@@ -670,9 +677,9 @@ export default function App() {
                         <div style={{ color:C.teal, fontSize:10, fontWeight:700, letterSpacing:'.6px', marginBottom:5 }}>
                           HOMELESS MEDIA ({hm.total_media} akun)
                         </div>
-                        <div style={{ color:C.text, fontWeight:800, fontSize:14 }}>{fmt(medMin)}</div>
-                        {medMax > medMin && <div style={{ color:C.textMuted, fontSize:11, marginTop:2 }}>s/d {fmt(medMax)}</div>}
-                        <div style={{ color:C.textMuted, fontSize:10, marginTop:4 }}>~{fmt(Math.round(medMin / Math.max(hm.total_media,1)))} / akun</div>
+                        <div style={{ color:C.text, fontWeight:800, fontSize:14 }}>{fmtRate(medMin)}</div>
+                        {medMax > medMin && <div style={{ color:C.textMuted, fontSize:11, marginTop:2 }}>s/d {fmtRate(medMax)}</div>}
+                        <div style={{ color:C.textMuted, fontSize:10, marginTop:4 }}>~{fmtRate(Math.round(medMin / Math.max(hm.total_media,1)))} / akun</div>
                       </div>
                     )}
                   </div>

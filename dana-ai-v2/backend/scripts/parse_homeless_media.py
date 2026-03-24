@@ -1,6 +1,18 @@
 """
 parse_homeless_media.py
-FIXED: Location normalization — setiap kota ke grup yang benar.
+FIXED: Format baru — Sheet1, kolom berbeda dari versi lama.
+
+Struktur kolom Sheet1:
+  0: No
+  1: Username
+  2: Social Media
+  3: Followers
+  4: General Brief (= Category)
+  5: PIC name
+  6: No PIC (= PIC contact)
+  7: Tier (= Location, misal 'Nasional', 'Jakarta', dll)
+  8: Rate Card (platform name)
+  9: Rate value (sudah dalam rupiah penuh)
 """
 import sys, io
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
@@ -17,9 +29,7 @@ HOMELESS_MEDIA_PATH = os.environ.get(
     'HOMELESS_MEDIA_PATH',
     os.path.join(DATA_DIR, 'HomelessMedia.xlsx')
 )
-KOL_PATH = os.path.join(DATA_DIR, 'KOL.xlsx')
 
-# ── FIXED: Location groups ───────────────────────────────────────
 LOCATION_GROUPS = {
     "jakarta":      ["jakarta","jaksel","jakpus","jakbar","jaktim","jakut","jkt",
                      "gading serpong","tangerang","depok","bekasi","bogor","bsd",
@@ -66,15 +76,29 @@ def parse_followers(val):
 
 
 def parse_rate(val):
-    if val is None or str(val).strip() in ('', '-', 'nan', 'None', '#DIV/0!'): return 0
+    """Rate di sheet baru sudah rupiah penuh — tinggal ambil angkanya."""
+    if val is None: return 0
+    if isinstance(val, (int, float)):
+        try: return int(val)
+        except: return 0
+    s = str(val).strip()
+    if s in ('', '-', 'nan', 'None', '#DIV/0!'): return 0
     try:
-        return int(re.sub(r'[^0-9]', '', str(val).replace('.0', '')))
+        return int(re.sub(r'[^0-9]', '', s))
     except:
         return 0
 
 
+def parse_contact(val):
+    """Normalisasi nomor HP jadi string bersih."""
+    if val is None: return ''
+    if isinstance(val, (int, float)):
+        try: return str(int(val)).strip()
+        except: return ''
+    return str(val).strip()
+
+
 def normalize_location(loc):
-    """Normalisasi lokasi ke grup yang benar. Semarang → semarang, bukan yogyakarta."""
     if not loc or str(loc).strip().lower() in ('nan', ''):
         return "nasional"
     loc_lower = str(loc).lower().strip()
@@ -84,48 +108,84 @@ def normalize_location(loc):
     return "other"
 
 
-def parse_sheet(df):
-    records = []
-    current = {}
+def build_contact_action(contact_raw, username, social_media):
+    contact = contact_raw.replace('+', '').replace(' ', '').replace('.0', '').strip()
+    if contact and contact.isdigit() and len(contact) >= 8:
+        if contact.startswith('0'):
+            contact = '62' + contact[1:]
+        elif not contact.startswith('62'):
+            contact = '62' + contact
+        return {
+            'type': 'whatsapp',
+            'url': f'https://wa.me/{contact}',
+            'label': f'WA {contact}',
+        }
+    uname = username.lstrip('@')
+    sm = str(social_media).lower()
+    if 'tiktok' in sm:
+        return {'type': 'tiktok', 'url': f'https://tiktok.com/@{uname}', 'label': f'DM @{uname}'}
+    return {'type': 'instagram', 'url': f'https://instagram.com/{uname}', 'label': f'DM @{uname}'}
 
-    for _, row in df.iterrows():
-        no_val = row.iloc[0]
+
+def parse_sheet1(filepath):
+    """
+    Parse Sheet1 dengan struktur baru:
+    col 0: No | 1: Username | 2: Social Media | 3: Followers
+    col 4: General Brief (category) | 5: PIC name | 6: No PIC (contact)
+    col 7: Tier (location) | 8: Rate Card platform | 9: Rate value
+    """
+    import openpyxl
+    wb = openpyxl.load_workbook(filepath, read_only=True)
+
+    # Coba Sheet1 dulu, fallback ke sheet pertama
+    sheet_name = 'Sheet1' if 'Sheet1' in wb.sheetnames else wb.sheetnames[0]
+    ws = wb[sheet_name]
+    print(f"[*] Membaca sheet: '{sheet_name}'")
+
+    records = []
+    current = None
+
+    for row in ws.iter_rows(min_row=2, values_only=True):
+        # Pastikan row punya cukup kolom
+        row = list(row) + [None] * max(0, 10 - len(row))
+
+        no_val = row[0]
         try:
-            has_id = pd.notna(no_val) and str(no_val).replace('.0', '').strip().isdigit()
+            has_id = no_val is not None and str(no_val).replace('.0', '').strip().isdigit()
         except:
             has_id = False
 
         if has_id:
+            # Simpan record sebelumnya
             if current and current.get('username', '').strip():
                 records.append(current)
 
-            rate_platform = str(row.iloc[8]).strip() if pd.notna(row.iloc[8]) else ''
-            rate_value    = parse_rate(row.iloc[9]) if len(row) > 9 else 0
-
-            contact_raw = str(row.iloc[6]).strip() if pd.notna(row.iloc[6]) else ''
-            contact_raw = contact_raw.replace('+', '').replace(' ', '').replace('.0', '').strip()
+            rate_platform = str(row[8]).strip() if row[8] is not None else ''
+            rate_value    = parse_rate(row[9])
+            contact_raw   = parse_contact(row[6])
 
             current = {
                 'id':            int(float(no_val)),
-                'username':      str(row.iloc[1]).strip() if pd.notna(row.iloc[1]) else '',
-                'social_media':  str(row.iloc[2]).strip() if pd.notna(row.iloc[2]) else 'Instagram',
-                'followers_raw': row.iloc[3],
-                'category':      str(row.iloc[4]).strip() if pd.notna(row.iloc[4]) else 'Media',
-                'pic_name':      str(row.iloc[5]).strip() if pd.notna(row.iloc[5]) else '',
+                'username':      str(row[1]).strip() if row[1] is not None else '',
+                'social_media':  str(row[2]).strip() if row[2] is not None else 'Instagram',
+                'followers_raw': row[3],
+                'category':      str(row[4]).strip() if row[4] is not None else 'Media',
+                'pic_name':      str(row[5]).strip() if row[5] is not None else '',
                 'pic_contact':   contact_raw,
-                'location_raw':  str(row.iloc[7]).strip() if pd.notna(row.iloc[7]) else 'Nasional',
+                'location_raw':  str(row[7]).strip() if row[7] is not None else 'Nasional',
                 'rate_card':     {},
             }
             if rate_platform and rate_value > 0:
                 current['rate_card'][rate_platform] = rate_value
 
-        elif current:
-            if len(row) > 9:
-                rp = str(row.iloc[8]).strip() if pd.notna(row.iloc[8]) else ''
-                rv = parse_rate(row.iloc[9]) if pd.notna(row.iloc[9]) else 0
-                if rp and rv > 0:
-                    current['rate_card'][rp] = rv
+        elif current is not None:
+            # Baris lanjutan — tambah rate card
+            rate_platform = str(row[8]).strip() if row[8] is not None else ''
+            rate_value    = parse_rate(row[9])
+            if rate_platform and rate_value > 0:
+                current['rate_card'][rate_platform] = rate_value
 
+    # Jangan lupa record terakhir
     if current and current.get('username', '').strip():
         records.append(current)
 
@@ -139,33 +199,14 @@ def enrich(records):
         rates = [v for v in r['rate_card'].values() if v > 0]
         rate_min = min(rates) if rates else 0
         rate_max = max(rates) if rates else 0
-
         loc_norm = normalize_location(r['location_raw'])
-
-        contact = r['pic_contact']
-        if contact and contact.isdigit() and len(contact) >= 8:
-            if contact.startswith('0'):
-                contact = '62' + contact[1:]
-            elif not contact.startswith('62'):
-                contact = '62' + contact
-            contact_action = {
-                'type': 'whatsapp',
-                'url': f'https://wa.me/{contact}',
-                'label': f'WA {contact}',
-            }
-        else:
-            uname = r['username'].lstrip('@')
-            contact_action = {
-                'type': 'instagram',
-                'url': f'https://instagram.com/{uname}',
-                'label': f'DM @{uname}',
-            }
+        contact_action = build_contact_action(r['pic_contact'], r['username'], r['social_media'])
 
         result.append({
             'id':              r['id'],
             'username':        r['username'],
             'social_media':    r['social_media'],
-            'followers_raw':   str(r['followers_raw']),
+            'followers_raw':   str(r['followers_raw']) if r['followers_raw'] else '0',
             'followers_num':   followers_num,
             'category':        r['category'],
             'pic_name':        r['pic_name'],
@@ -177,53 +218,44 @@ def enrich(records):
             'rate_max':        rate_max,
             'contact_action':  contact_action,
         })
-
     return result
-
-
-def load_and_parse(filepath, sheet_name='Sheet2'):
-    df = pd.read_excel(filepath, sheet_name=sheet_name, header=None)
-    df = df.iloc[1:].reset_index(drop=True)
-    records = parse_sheet(df)
-    return enrich(records)
 
 
 def main():
     os.makedirs(DATA_DIR, exist_ok=True)
 
-    source = None
-    if os.path.exists(HOMELESS_MEDIA_PATH):
-        source = HOMELESS_MEDIA_PATH
-    elif os.path.exists(KOL_PATH):
-        xl = pd.ExcelFile(KOL_PATH)
-        if 'Sheet2' in xl.sheet_names:
-            source = KOL_PATH
-        else:
-            print(f"[WARN] Tidak ada Sheet2 di KOL.xlsx dan HomelessMedia.xlsx tidak ditemukan")
-            return
+    if not os.path.exists(HOMELESS_MEDIA_PATH):
+        print(f"[ERROR] File tidak ditemukan: {HOMELESS_MEDIA_PATH}")
+        sys.exit(1)
 
-    print(f"[*] Parsing Homeless Media dari: {source}")
-    records = load_and_parse(source, 'Sheet2')
-    print(f"[OK] {len(records)} Homeless Media accounts parsed")
+    print(f"[*] Parsing: {HOMELESS_MEDIA_PATH}")
+    records = parse_sheet1(HOMELESS_MEDIA_PATH)
+    enriched = enrich(records)
+    print(f"[OK] {len(enriched)} Homeless Media accounts parsed")
 
-    # Debug: tampilkan sample normalisasi lokasi
+    # Debug: sample lokasi
     print("\n  Sample location_norm:")
     seen = set()
-    for r in records:
+    for r in enriched:
         key = (r['location_raw'], r['location_norm'])
         if key not in seen:
             print(f"    '{r['location_raw']}' → '{r['location_norm']}'")
             seen.add(key)
-            if len(seen) >= 25: break
+            if len(seen) >= 20: break
+
+    # Debug: sample rate
+    print("\n  Sample rate card:")
+    for r in enriched[:5]:
+        print(f"    @{r['username']}: {r['rate_card']} | min={r['rate_min']} max={r['rate_max']}")
 
     with open(OUT_PATH, 'w', encoding='utf-8') as f:
-        json.dump(records, f, ensure_ascii=False, indent=2)
+        json.dump(enriched, f, ensure_ascii=False, indent=2)
+    print(f"\n[OK] Saved → {OUT_PATH}")
 
-    print(f"\n[OK] Saved -> {OUT_PATH}")
-
+    # Summary
     cats = {}
     locs = {}
-    for r in records:
+    for r in enriched:
         cats[r['category']] = cats.get(r['category'], 0) + 1
         locs[r['location_norm']] = locs.get(r['location_norm'], 0) + 1
 
