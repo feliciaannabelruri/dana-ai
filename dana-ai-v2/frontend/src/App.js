@@ -79,9 +79,48 @@ function getProfileUrl(username, socialMedia) {
 }
 
 // ── Formatters ────────────────────────────────────────────────
-const fmt = n => { if (!n || isNaN(n)) return 'Rp –'; if (n >= 1e9) return `Rp ${(n/1e9).toFixed(1)}M`; if (n >= 1e6) return `Rp ${(n/1e6).toFixed(0)}jt`; if (n >= 1e3) return `Rp ${(n/1e3).toFixed(0)}rb`; return `Rp ${n}`; };
-const fmtF = n => { if (!n) return '–'; if (n >= 1e6) return `${(n/1e6).toFixed(1)}M`; if (n >= 1e3) return `${(n/1e3).toFixed(0)}K`; return String(n); };
-const fmtBudget = n => { if (!n || isNaN(n)) return 'Rp 0'; if (n >= 1e9) return `Rp ${(n/1e9).toFixed(2).replace(/\.?0+$/,'')} M`; if (n >= 1e6) return `Rp ${(n/1e6).toFixed(n>=100e6?0:1).replace(/\.0$/,'')} juta`; if (n >= 1e3) return `Rp ${(n/1e3).toFixed(0)} rb`; return `Rp ${n.toLocaleString('id-ID')}`; };
+// Format angka natural ala Indonesia — persis seperti di sheet
+// 300.000 → "Rp 300.000"  |  1.500.000 → "Rp 1,5 jt"  |  25.000.000 → "Rp 25 jt"
+// 1.200.000.000 → "Rp 1,2 M"
+const fmt = n => {
+  if (!n || isNaN(n)) return 'Rp –';
+  const v = Math.round(n);
+  if (v >= 1_000_000_000) {
+    const x = v / 1_000_000_000;
+    return `Rp ${x % 1 === 0 ? x.toFixed(0) : x.toFixed(1)} M`;
+  }
+  if (v >= 1_000_000) {
+    const x = v / 1_000_000;
+    // Tampilkan desimal hanya kalau ada nilai berarti (mis 1,5 jt bukan 1,0 jt)
+    const str = x % 1 === 0 ? x.toFixed(0) : x.toFixed(1);
+    return `Rp ${str} jt`;
+  }
+  // Di bawah 1 juta: tampilkan angka penuh dengan titik ribuan (300.000, 50.000, dll)
+  return `Rp ${v.toLocaleString('id-ID')}`;
+};
+
+// Format followers: 1.200.000 → "1,2 M" | 500.000 → "500 K" | 12.000 → "12 K"
+const fmtF = n => {
+  if (!n) return '–';
+  if (n >= 1_000_000) return `${(n/1_000_000).toFixed(n % 1_000_000 === 0 ? 0 : 1)} M`;
+  if (n >= 1_000) return `${Math.round(n/1_000)} K`;
+  return String(n);
+};
+
+// Format budget (lebih verbose, untuk label slider/alokasi)
+const fmtBudget = n => {
+  if (!n || isNaN(n)) return 'Rp 0';
+  const v = Math.round(n);
+  if (v >= 1_000_000_000) {
+    const x = v / 1_000_000_000;
+    return `Rp ${x % 1 === 0 ? x.toFixed(0) : x.toFixed(2).replace(/\.?0+$/, '')} M`;
+  }
+  if (v >= 1_000_000) {
+    const x = v / 1_000_000;
+    return `Rp ${x % 1 === 0 ? x.toFixed(0) : x.toFixed(1)} juta`;
+  }
+  return `Rp ${v.toLocaleString('id-ID')}`;
+};
 
 // ── Budget Slider ─────────────────────────────────────────────
 const PRESETS = [
