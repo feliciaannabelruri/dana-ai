@@ -11,9 +11,9 @@ INSIGHT_PATH = os.path.join(os.path.dirname(__file__), '..', 'data', 'insight.xl
 OUT_PATH     = os.path.join(os.path.dirname(__file__), '..', 'data', 'kol_clean.pkl')
 ER_PATH      = os.path.join(os.path.dirname(__file__), '..', 'data', 'er_data.json')
 
+# Type text → tier score
 TIER_MAP = {"nano":1,"mikro":2,"micro":2,"makro":3,"macro":3,"mega":4,"celeb":5}
 
-# ── FIXED: Setiap kota/wilayah ke grup yang tepat ───────────────
 LOCATION_GROUPS = {
     "jakarta":      ["jakarta","jaksel","jakpus","jakbar","jaktim","jakut",
                      "gading serpong","tangerang","depok","bekasi","bogor","bsd",
@@ -51,22 +51,49 @@ def parse_followers(val):
     try:
         if 'M' in s: return int(float(re.sub(r'[^0-9.]','',s))*1_000_000)
         if 'K' in s: return int(float(re.sub(r'[^0-9.]','',s))*1_000)
-        return int(float(re.sub(r'[^0-9.]','',s)))
+        cleaned = re.sub(r'[^0-9.]','',s)
+        return int(float(cleaned)) if cleaned else 0
     except: return 0
 
 def parse_rate(val):
-    if val is None or str(val).strip() in ('','-','nan','None'): return 0
-    try: return int(re.sub(r'[^0-9]','',str(val)))
-    except: return 0
-
-def parse_contact(val):
-    if val is None or (isinstance(val, float) and np.isnan(val)):
-        return ''
+    """Robust — handles int/float, '-', 'FREE', range strings like '50,000-200,000 views Rp.1.000.000'"""
+    if val is None: return 0
     if isinstance(val, (int, float)):
         try:
-            return str(int(val)).strip()
-        except:
-            return ''
+            v = int(val)
+            return v if v > 0 else 0
+        except: return 0
+    s = str(val).strip()
+    if s in ('', '-', 'nan', 'None', 'FREE', 'free', 'N/A', 'n/a', '#DIV/0!'): return 0
+
+    # Extract last number-like chunk (handles 'Rp.1.000.000' at end of string)
+    # Find all sequences of digits+separators
+    candidates = re.findall(r'[\d][0-9.,]*', s.replace('Rp','').replace('rp',''))
+    if not candidates: return 0
+
+    # Take the largest number found (most likely the actual rate)
+    best = 0
+    for c in candidates:
+        c = c.strip('.,')
+        # dots as thousands separator
+        if c.count('.') > 1:
+            c = c.replace('.', '')
+        elif c.count('.') == 1 and c.count(',') == 0:
+            parts = c.split('.')
+            if len(parts[1]) == 3:
+                c = c.replace('.', '')
+        c = c.replace(',', '')
+        try:
+            v = int(float(c))
+            best = max(best, v)
+        except: pass
+    return best
+
+def parse_contact(val):
+    if val is None or (isinstance(val, float) and np.isnan(val)): return ''
+    if isinstance(val, (int, float)):
+        try: return str(int(val)).strip()
+        except: return ''
     return str(val).strip()
 
 def normalize_location(loc):
@@ -77,6 +104,7 @@ def normalize_location(loc):
     return "other"
 
 def normalize_type(t):
+    """Handle type text like 'Nano', 'Mikro', 'Makro', 'Mega', 'Mega (but in 2026 viewers drop)'"""
     if not t: return "unknown"
     t_lower = str(t).lower().strip()
     for key in TIER_MAP:
@@ -84,11 +112,14 @@ def normalize_type(t):
     return "unknown"
 
 def _set_rate(current, platform, value):
-    p = str(platform).lower()
+    p = str(platform).lower().strip()
     r = parse_rate(value)
-    if 'tiktok' in p: current['rate_tiktok'] = r
-    elif 'ig' in p or 'instagram' in p or 'reels' in p: current['rate_ig'] = r
-    elif 'bundl' in p or 'mirror' in p: current['rate_bundling'] = r
+    if 'tiktok' in p:
+        current['rate_tiktok'] = r
+    elif 'ig' in p or 'instagram' in p or 'reels' in p:
+        current['rate_ig'] = r
+    elif 'bundl' in p or 'mirror' in p:
+        current['rate_bundling'] = r
 
 def load_er_data():
     if os.path.exists(ER_PATH):
@@ -97,36 +128,50 @@ def load_er_data():
     return {}
 
 def parse_kol():
-    wb = pd.read_excel(DATA_PATH, header=0)
-    wb.columns = ['no','username','type','tier_raw','location','social_media',
-                  'followers','category','pic_name','pic_contact','rate_platform','rate_value']
+    import openpyxl
+    wb_raw = openpyxl.load_workbook(DATA_PATH, read_only=True)
+    ws = wb_raw.active
 
     records = []
     current = {}
-    for _, row in wb.iterrows():
-        no_val = row.get('no')
-        try: has_id = pd.notna(no_val) and str(no_val).replace('.0','').strip().isdigit()
-        except: has_id = False
+
+    for row in ws.iter_rows(min_row=2, values_only=True):
+        # Pad row to at least 13 cols
+        row = list(row) + [None] * max(0, 13 - len(row))
+
+        # col indices (0-based):
+        # 0:no 1:username 2:type 3:tier_raw 4:location 5:social_media
+        # 6:followers 7:category 8:pic_name 9:pic_contact 10:rate_platform 11:rate_value 12:(empty)
+
+        no_val = row[0]
+        try:
+            has_id = no_val is not None and str(no_val).replace('.0','').strip().isdigit()
+        except:
+            has_id = False
 
         if has_id:
             if current and current.get('username','').strip():
                 records.append(current)
+
             current = {
                 'id':           int(float(no_val)),
-                'username':     str(row.get('username','')).strip() if pd.notna(row.get('username')) else '',
-                'type_raw':     str(row.get('type','')).strip() if pd.notna(row.get('type')) else '',
-                'location_raw': str(row.get('location','')).strip() if pd.notna(row.get('location')) else '',
-                'social_media': str(row.get('social_media','')).strip() if pd.notna(row.get('social_media')) else '',
-                'followers_raw':row.get('followers'),
-                'category':     str(row.get('category','')).strip() if pd.notna(row.get('category')) else '',
-                'pic_name':     str(row.get('pic_name','')).strip() if pd.notna(row.get('pic_name')) else '',
-                'pic_contact':  parse_contact(row.get('pic_contact')),
-                'rate_tiktok':0, 'rate_ig':0, 'rate_bundling':0,
+                'username':     str(row[1]).strip() if row[1] is not None else '',
+                'type_raw':     str(row[2]).strip() if row[2] is not None else '',
+                'location_raw': str(row[4]).strip() if row[4] is not None else '',
+                'social_media': str(row[5]).strip() if row[5] is not None else '',
+                'followers_raw': row[6],
+                'category':     str(row[7]).strip() if row[7] is not None else '',
+                'pic_name':     str(row[8]).strip() if row[8] is not None else '',
+                'pic_contact':  parse_contact(row[9]),
+                'rate_tiktok':  0,
+                'rate_ig':      0,
+                'rate_bundling':0,
             }
-            if pd.notna(row.get('rate_platform')) and pd.notna(row.get('rate_value')):
-                _set_rate(current, str(row['rate_platform']), row['rate_value'])
-        elif current and pd.notna(row.get('rate_platform')):
-            _set_rate(current, str(row['rate_platform']), row.get('rate_value'))
+            if row[10] is not None and str(row[10]).strip():
+                _set_rate(current, str(row[10]), row[11])
+
+        elif current and row[10] is not None and str(row[10]).strip():
+            _set_rate(current, str(row[10]), row[11])
 
     if current and current.get('username','').strip():
         records.append(current)
@@ -143,25 +188,24 @@ def parse_kol():
     df['followers_log'] = np.log1p(df['followers_num'])
 
     er_data = load_er_data()
-    df['has_er_data']  = False
-    df['avg_er_pct']   = np.nan
-    df['avg_reach_actual'] = np.nan
-    df['post_count']   = 0
+    df['has_er_data']       = False
+    df['avg_er_pct']        = np.nan
+    df['avg_reach_actual']  = np.nan
+    df['post_count']        = 0
 
     for idx, row in df.iterrows():
         uname = row['username'].lower().strip()
         if uname in er_data:
             d = er_data[uname]
-            df.at[idx, 'has_er_data']       = True
-            df.at[idx, 'avg_er_pct']        = d.get('avg_er_pct') or np.nan
-            df.at[idx, 'avg_reach_actual']  = d.get('avg_reach') or np.nan
-            df.at[idx, 'post_count']        = d.get('post_count', 0)
+            df.at[idx, 'has_er_data']      = True
+            df.at[idx, 'avg_er_pct']       = d.get('avg_er_pct') or np.nan
+            df.at[idx, 'avg_reach_actual'] = d.get('avg_reach') or np.nan
+            df.at[idx, 'post_count']       = d.get('post_count', 0)
 
     enriched = df['has_er_data'].sum()
     print(f"  Total KOL: {len(df)}")
     print(f"  KOL dengan real ER data: {enriched}")
 
-    # Debug: tampilkan sample location normalization
     print("\n  Sample location normalization:")
     for _, r in df[['location_raw','location_norm']].drop_duplicates().head(20).iterrows():
         print(f"    '{r['location_raw']}' → '{r['location_norm']}'")
@@ -169,7 +213,7 @@ def parse_kol():
     return df
 
 if __name__ == '__main__':
-    print("[*] Parsing KOL.xlsx + insight.xlsx...")
+    print("[*] Parsing KOL.xlsx...")
     df = parse_kol()
     joblib.dump(df, OUT_PATH)
     print(f"[OK] Saved {len(df)} KOL -> {OUT_PATH}")
