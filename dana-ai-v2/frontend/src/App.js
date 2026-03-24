@@ -574,19 +574,73 @@ export default function App() {
             <div style={{ position:'absolute', top:0, left:0, right:0, height:3, background:`linear-gradient(90deg,${C.blue},${C.teal})` }}/>
             <div style={{ fontSize:11, fontWeight:700, color:C.textMuted, letterSpacing:'1px', marginBottom:6 }}>HASIL ANALISIS</div>
             <div style={{ fontSize:isMobile?18:22, fontWeight:800, color:C.text, letterSpacing:'-0.5px', marginBottom:10 }}>{result.campaign_name}</div>
-            <div style={{ display:'flex', gap:6, flexWrap:'wrap', marginBottom:14 }}>
+            <div style={{ display:'flex', gap:6, flexWrap:'wrap', marginBottom:16 }}>
               <Chip label={result.target_location} icon={Icon.pin(10)}/>
-              <Chip label={`Avg ${result.avg_match_score}%`} color={C.green} bg={C.greenBg}/>
+              <Chip label={`Avg match ${result.avg_match_score}%`} color={C.green} bg={C.greenBg}/>
+              <Chip label={`${result.total_kol} KOL`}/>
               {hasHM&&<Chip label={`${hm.total_media} Media`} color={C.teal} bg={C.tealBg} icon={Icon.newspaper(10)}/>}
             </div>
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:isMobile?8:10 }}>
-              {[{label:'Total KOL',value:result.total_kol,color:C.blue},{label:'Est. Min KOL',value:fmt(result.estimated_cost_min),color:C.gold},{label:'Avg Match',value:`${result.avg_match_score}%`,color:C.green}].map(s=>(
-                <div key={s.label} style={{ background:C.bgGray, borderRadius:10, padding:isMobile?'10px 8px':'10px 14px', textAlign:'center' }}>
-                  <div style={{ color:C.textMuted, fontSize:10, fontWeight:700, marginBottom:3 }}>{s.label}</div>
-                  <div style={{ color:s.color, fontWeight:800, fontSize:isMobile?14:16 }}>{s.value}</div>
+
+            {/* ── Cost breakdown ── */}
+            {(() => {
+              const kolMin  = result.estimated_cost_min  || 0;
+              const kolMax  = result.estimated_cost_max  || 0;
+              const medMin  = hm?.estimated_cost_media_min || 0;
+              const medMax  = hm?.estimated_cost_media_max || 0;
+              const totMin  = result.total_estimated_min  || (kolMin + medMin);
+              const totMax  = result.total_estimated_max  || (kolMax + medMax);
+              const budget  = result.budget_total || 0;
+              const overBudget = totMin > budget && budget > 0;
+
+              return (
+                <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+
+                  {/* Total biaya — hero number */}
+                  <div style={{ background: overBudget ? C.redBg : C.greenBg, border:`1px solid ${overBudget ? C.redBorder : C.greenBorder}`, borderRadius:10, padding:'14px 16px', display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:8 }}>
+                    <div>
+                      <div style={{ color: overBudget ? C.red : C.green, fontSize:10, fontWeight:700, letterSpacing:'.8px', marginBottom:4 }}>TOTAL ESTIMASI BIAYA</div>
+                      <div style={{ color: overBudget ? C.red : C.green, fontWeight:800, fontSize:isMobile?18:22, letterSpacing:'-0.5px' }}>
+                        {fmt(totMin)}
+                        {totMax > totMin && <span style={{ fontSize:isMobile?13:15, fontWeight:600, opacity:.7 }}> — {fmt(totMax)}</span>}
+                      </div>
+                    </div>
+                    {budget > 0 && (
+                      <div style={{ textAlign:'right' }}>
+                        <div style={{ color:C.textMuted, fontSize:10, fontWeight:600, marginBottom:2 }}>BUDGET CAMPAIGN</div>
+                        <div style={{ color:C.textSub, fontWeight:700, fontSize:14 }}>{fmt(budget)}</div>
+                        <div style={{ color: overBudget ? C.red : C.green, fontSize:11, fontWeight:700, marginTop:2 }}>
+                          {overBudget ? `⚠ Over budget` : `✓ Sisa ~${fmt(budget - totMin)}`}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Breakdown KOL vs Media */}
+                  <div style={{ display:'grid', gridTemplateColumns: hasHM ? '1fr 1fr' : '1fr', gap:8 }}>
+                    <div style={{ background:C.goldBg, border:`1px solid ${C.goldBorder}`, borderRadius:8, padding:'10px 12px' }}>
+                      <div style={{ color:C.gold, fontSize:10, fontWeight:700, letterSpacing:'.6px', marginBottom:5, display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                        <span>KOL ({result.total_kol} orang)</span>
+                      </div>
+                      <div style={{ color:C.text, fontWeight:800, fontSize:14 }}>{fmt(kolMin)}</div>
+                      {kolMax > kolMin && <div style={{ color:C.textMuted, fontSize:11, marginTop:2 }}>s/d {fmt(kolMax)}</div>}
+                      <div style={{ color:C.textMuted, fontSize:10, marginTop:4 }}>~{fmt(Math.round(kolMin / Math.max(result.total_kol,1)))} / KOL</div>
+                    </div>
+
+                    {hasHM && (
+                      <div style={{ background:C.tealBg, border:`1px solid ${C.tealBorder}`, borderRadius:8, padding:'10px 12px' }}>
+                        <div style={{ color:C.teal, fontSize:10, fontWeight:700, letterSpacing:'.6px', marginBottom:5 }}>
+                          HOMELESS MEDIA ({hm.total_media} akun)
+                        </div>
+                        <div style={{ color:C.text, fontWeight:800, fontSize:14 }}>{fmt(medMin)}</div>
+                        {medMax > medMin && <div style={{ color:C.textMuted, fontSize:11, marginTop:2 }}>s/d {fmt(medMax)}</div>}
+                        <div style={{ color:C.textMuted, fontSize:10, marginTop:4 }}>~{fmt(Math.round(medMin / Math.max(hm.total_media,1)))} / akun</div>
+                      </div>
+                    )}
+                  </div>
+
                 </div>
-              ))}
-            </div>
+              );
+            })()}
           </div>
 
           {/* KOL */}
