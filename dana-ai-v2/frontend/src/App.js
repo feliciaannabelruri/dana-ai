@@ -65,7 +65,18 @@ const Icon = {
   tiktok: (s = 14) => <svg width={s} height={s} viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.84 1.56V6.79a4.85 4.85 0 01-1.07-.1z"/></svg>,
   lightbulb: (s = 12) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0018 8 6 6 0 006 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 018.91 14"/></svg>,
   arrowLeft: (s = 14) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>,
+  externalLink: (s = 11) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>,
 };
+
+// ── Helper: build social media profile URL ────────────────────
+function getProfileUrl(username, socialMedia) {
+  if (!username) return null;
+  const sm = (socialMedia || '').toLowerCase();
+  const clean = username.replace(/^@/, '').trim();
+  if (sm.includes('tiktok')) return `https://www.tiktok.com/@${clean}`;
+  // Default to Instagram
+  return `https://www.instagram.com/${clean}`;
+}
 
 // ── Formatters ────────────────────────────────────────────────
 const fmt = n => { if (!n || isNaN(n)) return 'Rp –'; if (n >= 1e9) return `Rp ${(n/1e9).toFixed(1)}M`; if (n >= 1e6) return `Rp ${(n/1e6).toFixed(0)}jt`; if (n >= 1e3) return `Rp ${(n/1e3).toFixed(0)}rb`; return `Rp ${n}`; };
@@ -183,6 +194,11 @@ function KOLCard({ kol, rank }) {
   const cStyles={ whatsapp:{bg:'#F0FDF4',border:C.greenBorder,text:'#15803D',Ic:Icon.whatsapp}, instagram:{bg:'#FDF2F8',border:'#F9A8D4',text:'#BE185D',Ic:Icon.instagram}, tiktok:{bg:'#FFF1F2',border:'#FECDD3',text:'#BE123C',Ic:Icon.tiktok}, profile:{bg:'#FDF2F8',border:'#F9A8D4',text:'#BE185D',Ic:Icon.instagram} };
   const cc=cStyles[kol.contact_action?.type]||cStyles.instagram;
 
+  // Build profile URL for username click
+  const profileUrl = getProfileUrl(kol.username, kol.social_media);
+  const platformColor = isTK ? '#BE123C' : '#BE185D';
+  const platformBg = isTK ? '#FFF1F2' : '#FDF2F8';
+
   return (
     <div style={{ background:C.bg, border:`1px solid ${C.border}`, borderRadius:12, overflow:'hidden' }}>
       <div style={{ height:3, background:rank<=3?rc:C.blue }}/>
@@ -191,7 +207,34 @@ function KOLCard({ kol, rank }) {
           <div style={{ display:'flex', gap:10, alignItems:'center', minWidth:0 }}>
             <div style={{ width:38, height:38, borderRadius:8, background:isTK?'#FFF1F2':C.blueLight, display:'flex', alignItems:'center', justifyContent:'center', color:isTK?'#BE123C':C.blue, flexShrink:0 }}>{isTK?Icon.tiktok(17):Icon.instagram(17)}</div>
             <div style={{ minWidth:0 }}>
-              <div style={{ fontWeight:700, color:C.text, fontSize:14, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>@{kol.username}</div>
+              {/* ── CLICKABLE USERNAME ── */}
+              <a
+                href={profileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={`Buka profil @${kol.username} di ${isTK ? 'TikTok' : 'Instagram'}`}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 4,
+                  fontWeight: 700,
+                  color: C.text,
+                  fontSize: 14,
+                  textDecoration: 'none',
+                  maxWidth: '100%',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  borderRadius: 4,
+                  padding: '1px 0',
+                  transition: 'color .15s',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.color = platformColor; }}
+                onMouseLeave={e => { e.currentTarget.style.color = C.text; }}
+              >
+                <span style={{ overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>@{kol.username}</span>
+                <span style={{ flexShrink:0, opacity:.5 }}>{Icon.externalLink(10)}</span>
+              </a>
               <div style={{ color:C.textMuted, fontSize:11, marginTop:1, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{kol.category}</div>
             </div>
           </div>
@@ -288,6 +331,10 @@ function HomelessMediaCard({ media, rank }) {
   const cStyles={ whatsapp:{bg:'#F0FDF4',border:C.greenBorder,text:'#15803D',Ic:Icon.whatsapp}, instagram:{bg:'#FDF2F8',border:'#F9A8D4',text:'#BE185D',Ic:Icon.instagram}, profile:{bg:'#FDF2F8',border:'#F9A8D4',text:'#BE185D',Ic:Icon.instagram} };
   const cc=cStyles[media.contact_action?.type]||cStyles.instagram;
 
+  // Build profile URL for username click
+  const isTK = media.social_media?.toLowerCase().includes('tiktok');
+  const profileUrl = getProfileUrl(media.username, media.social_media);
+
   return (
     <div style={{ background:C.bg, border:`1px solid ${C.border}`, borderRadius:12, overflow:'hidden' }}>
       <div style={{ height:3, background:`linear-gradient(90deg,${C.teal},${C.blue})` }}/>
@@ -296,7 +343,34 @@ function HomelessMediaCard({ media, rank }) {
           <div style={{ display:'flex', gap:10, alignItems:'center', minWidth:0 }}>
             <div style={{ width:38, height:38, borderRadius:8, background:C.tealBg, display:'flex', alignItems:'center', justifyContent:'center', color:C.teal, flexShrink:0 }}>{Icon.newspaper(17)}</div>
             <div style={{ minWidth:0 }}>
-              <div style={{ fontWeight:700, color:C.text, fontSize:14, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>@{media.username}</div>
+              {/* ── CLICKABLE USERNAME ── */}
+              <a
+                href={profileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={`Buka profil @${media.username} di ${isTK ? 'TikTok' : 'Instagram'}`}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 4,
+                  fontWeight: 700,
+                  color: C.text,
+                  fontSize: 14,
+                  textDecoration: 'none',
+                  maxWidth: '100%',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  borderRadius: 4,
+                  padding: '1px 0',
+                  transition: 'color .15s',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.color = C.teal; }}
+                onMouseLeave={e => { e.currentTarget.style.color = C.text; }}
+              >
+                <span style={{ overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>@{media.username}</span>
+                <span style={{ flexShrink:0, opacity:.5 }}>{Icon.externalLink(10)}</span>
+              </a>
               <div style={{ color:C.textMuted, fontSize:11, marginTop:1, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{media.category}</div>
             </div>
           </div>
@@ -587,7 +661,6 @@ export default function App() {
           </div>
 
           <SectionLabel>Upload data</SectionLabel>
-          {/* Upload grid: 1 col on mobile, 3 on desktop */}
           <div style={{ display:'grid', gridTemplateColumns:isMobile?'1fr':'1fr 1fr 1fr', gap:10, marginBottom:14 }}>
             <div style={{ background:C.bgGray, borderRadius:10, padding:12 }}>
               <div style={{ color:C.textSub, fontSize:10, fontWeight:700, letterSpacing:'.5px', marginBottom:8 }}>DATABASE KOL</div>
@@ -633,7 +706,6 @@ export default function App() {
               <Field label="Deskripsi">
                 <textarea style={{...INP,minHeight:72,resize:'vertical'}} placeholder="Tujuan dan pesan utama campaign..." value={form.campaign_description} onChange={e=>setForm(f=>({...f,campaign_description:e.target.value}))}/>
               </Field>
-              {/* Goals + Audience */}
               <div style={{ display:'grid', gridTemplateColumns:isMobile?'1fr':'1fr 1fr', gap:12 }}>
                 <Field label="Goals">
                   <select style={INP} value={form.goals} onChange={e=>setForm(f=>({...f,goals:e.target.value}))}>
@@ -653,7 +725,6 @@ export default function App() {
                   <input style={INP} placeholder="Pemuda 20–30 tahun, urban" value={form.target_audience} onChange={e=>setForm(f=>({...f,target_audience:e.target.value}))}/>
                 </Field>
               </div>
-              {/* Topik + Lokasi */}
               <div style={{ display:'grid', gridTemplateColumns:isMobile?'1fr':'1fr 1fr', gap:12 }}>
                 <Field label="Topik / Niche">
                   <select style={INP} value={form.topics} onChange={e=>setForm(f=>({...f,topics:e.target.value}))}>
@@ -734,7 +805,6 @@ export default function App() {
                 </select>
               </Field>
             </div>
-            {/* Counters */}
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
               {[{label:'Jumlah KOL',key:'num_kol',max:50,color:C.blue,total:meta.total_kol||0},{label:'Jumlah Media',key:'num_media',max:20,color:C.teal,total:hmCount}].map(({label,key,max,color,total})=>(
                 <div key={key}>
