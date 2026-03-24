@@ -1,18 +1,9 @@
 """
-parse_homeless_media.py
-FIXED: Format baru — Sheet1, kolom berbeda dari versi lama.
-
-Struktur kolom Sheet1:
-  0: No
-  1: Username
-  2: Social Media
-  3: Followers
-  4: General Brief (= Category)
-  5: PIC name
-  6: No PIC (= PIC contact)
-  7: Tier (= Location, misal 'Nasional', 'Jakarta', dll)
-  8: Rate Card (platform name)
-  9: Rate value (sudah dalam rupiah penuh)
+parse_homeless_media.py — FIXED VERSION
+Fixes:
+1. Category (col 4) may be None on first row of a record → carry forward last known category
+2. Rate values can be '-', '27-28Jt', 'Rp3.500.00' → robust parse_rate
+3. Handles all edge cases in the real HomelessMedia.xlsx
 """
 import sys, io
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
@@ -63,7 +54,8 @@ LOCATION_GROUPS = {
 
 
 def parse_followers(val):
-    if val is None or (isinstance(val, float) and np.isnan(val)): return 0
+    if val is None: return 0
+    if isinstance(val, float) and np.isnan(val): return 0
     s = str(val).strip().upper().replace(',', '.').replace(' ', '')
     try:
         if 'M' in s: return int(float(re.sub(r'[^0-9.]', '', s)) * 1_000_000)
@@ -76,25 +68,106 @@ def parse_followers(val):
 
 
 def parse_rate(val):
-    """Rate di sheet baru sudah rupiah penuh — tinggal ambil angkanya."""
+    """
+    Robust rate parser. Rate values in the file are already full rupiah.
+    Handles: int/float, '-', '27-28Jt', 'Rp3.500.00', 'Rp 3.500.000', etc.
+    Returns 0 if unparseable.
+    """
     if val is None: return 0
     if isinstance(val, (int, float)):
-        try: return int(val)
-        except: return 0
+        try:
+            v = int(val)
+            return v if v > 0 else 0
+        except:
+            return 0
+
     s = str(val).strip()
-    if s in ('', '-', 'nan', 'None', '#DIV/0!'): return 0
+    if s in ('', '-', 'nan', 'None', '#DIV/0!', 'N/A', 'n/a'):
+        return 0
+
+    s_lower = s.lower()
+
+    # Handle range like '27-28Jt' → take the lower bound
+    # Pattern: number-numberUnit or number-number
+    range_match = re.match(r'^([0-9.,]+)\s*[-–]\s*([0-9.,]+)\s*(jt|juta|rb|ribu|k|m)?$', s_lower)
+    if range_match:
+        try:
+            low_str = range_match.group(1).replace(',', '.')
+            unit = range_match.group(3) or ''
+            low = float(low_str)
+            if unit in ('jt', 'juta'):
+                low *= 1_000_000
+            elif unit in ('rb', 'ribu', 'k'):
+                low *= 1_000
+            elif unit == 'm':
+                low *= 1_000_000
+            return int(low)
+        except:
+            pass
+
+    # Handle 'Rp' prefix, dots as thousands separator, comma as decimal
+    # e.g. 'Rp3.500.00' → could be 3500 (typo) or 350000
+    s_clean = re.sub(r'[Rr][Pp]\.?\s*', '', s)  # remove Rp prefix
+
+    # Check for unit suffix
+    unit_match = re.search(r'(jt|juta|rb|ribu)$', s_clean.lower())
+    unit_mult = 1
+    if unit_match:
+        u = unit_match.group(1)
+        if u in ('jt', 'juta'):
+            unit_mult = 1_000_000
+        elif u in ('rb', 'ribu'):
+            unit_mult = 1_000
+        s_clean = s_clean[:unit_match.start()].strip()
+
+    # Remove non-numeric except dots and commas
+    # If has dots as thousands: 3.500.000 → 3500000
+    # If has comma as decimal: 3,5 → 3.5
+    s_clean = s_clean.strip().replace(' ', '')
+
+    # Count dots and commas
+    dot_count = s_clean.count('.')
+    comma_count = s_clean.count(',')
+
     try:
-        return int(re.sub(r'[^0-9]', '', s))
+        if dot_count > 1:
+            # Multiple dots → thousands separator (e.g. 3.500.000)
+            numeric = s_clean.replace('.', '').replace(',', '')
+            return int(float(numeric)) * unit_mult
+        elif dot_count == 1 and comma_count == 0:
+            # Single dot — could be decimal or thousands
+            parts = s_clean.split('.')
+            if len(parts[1]) <= 2 and int(parts[1]) == 0:
+                # Likely typo like '3.500.00' reduced → treat whole part as value
+                return int(parts[0]) * unit_mult
+            elif len(parts[1]) == 3:
+                # Thousands separator (e.g. 3.500)
+                return int(s_clean.replace('.', '')) * unit_mult
+            else:
+                return int(float(s_clean)) * unit_mult
+        elif comma_count == 1 and dot_count == 0:
+            # Comma as decimal or thousands
+            parts = s_clean.split(',')
+            if len(parts[1]) == 3:
+                return int(s_clean.replace(',', '')) * unit_mult
+            else:
+                return int(float(s_clean.replace(',', '.'))) * unit_mult
+        else:
+            # Just digits
+            numeric = re.sub(r'[^0-9]', '', s_clean)
+            return int(numeric) * unit_mult if numeric else 0
     except:
         return 0
 
 
 def parse_contact(val):
-    """Normalisasi nomor HP jadi string bersih."""
     if val is None: return ''
-    if isinstance(val, (int, float)):
+    if isinstance(val, float):
+        if np.isnan(val): return ''
         try: return str(int(val)).strip()
         except: return ''
+    if isinstance(val, int):
+        return str(val).strip()
     return str(val).strip()
 
 
@@ -127,26 +200,19 @@ def build_contact_action(contact_raw, username, social_media):
     return {'type': 'instagram', 'url': f'https://instagram.com/{uname}', 'label': f'DM @{uname}'}
 
 
-def parse_sheet1(filepath):
-    """
-    Parse Sheet1 dengan struktur baru:
-    col 0: No | 1: Username | 2: Social Media | 3: Followers
-    col 4: General Brief (category) | 5: PIC name | 6: No PIC (contact)
-    col 7: Tier (location) | 8: Rate Card platform | 9: Rate value
-    """
+def parse_sheet(filepath):
     import openpyxl
     wb = openpyxl.load_workbook(filepath, read_only=True)
 
-    # Coba Sheet1 dulu, fallback ke sheet pertama
     sheet_name = 'Sheet1' if 'Sheet1' in wb.sheetnames else wb.sheetnames[0]
     ws = wb[sheet_name]
     print(f"[*] Membaca sheet: '{sheet_name}'")
 
     records = []
     current = None
+    last_category = 'Media'  # fallback category
 
     for row in ws.iter_rows(min_row=2, values_only=True):
-        # Pastikan row punya cukup kolom
         row = list(row) + [None] * max(0, 10 - len(row))
 
         no_val = row[0]
@@ -156,20 +222,25 @@ def parse_sheet1(filepath):
             has_id = False
 
         if has_id:
-            # Simpan record sebelumnya
             if current and current.get('username', '').strip():
                 records.append(current)
 
+            # Category: use col 4, fallback to last known if None/empty
+            cat_raw = row[4]
+            if cat_raw is not None and str(cat_raw).strip() not in ('', 'None', 'nan'):
+                last_category = str(cat_raw).strip()
+            category = last_category
+
             rate_platform = str(row[8]).strip() if row[8] is not None else ''
-            rate_value    = parse_rate(row[9])
-            contact_raw   = parse_contact(row[6])
+            rate_value = parse_rate(row[9])
+            contact_raw = parse_contact(row[6])
 
             current = {
                 'id':            int(float(no_val)),
                 'username':      str(row[1]).strip() if row[1] is not None else '',
                 'social_media':  str(row[2]).strip() if row[2] is not None else 'Instagram',
                 'followers_raw': row[3],
-                'category':      str(row[4]).strip() if row[4] is not None else 'Media',
+                'category':      category,
                 'pic_name':      str(row[5]).strip() if row[5] is not None else '',
                 'pic_contact':   contact_raw,
                 'location_raw':  str(row[7]).strip() if row[7] is not None else 'Nasional',
@@ -179,13 +250,11 @@ def parse_sheet1(filepath):
                 current['rate_card'][rate_platform] = rate_value
 
         elif current is not None:
-            # Baris lanjutan — tambah rate card
             rate_platform = str(row[8]).strip() if row[8] is not None else ''
-            rate_value    = parse_rate(row[9])
+            rate_value = parse_rate(row[9])
             if rate_platform and rate_value > 0:
                 current['rate_card'][rate_platform] = rate_value
 
-    # Jangan lupa record terakhir
     if current and current.get('username', '').strip():
         records.append(current)
 
@@ -222,37 +291,26 @@ def enrich(records):
 
 
 def main():
-    os.makedirs(DATA_DIR, exist_ok=True)
-
     if not os.path.exists(HOMELESS_MEDIA_PATH):
         print(f"[ERROR] File tidak ditemukan: {HOMELESS_MEDIA_PATH}")
         sys.exit(1)
 
     print(f"[*] Parsing: {HOMELESS_MEDIA_PATH}")
-    records = parse_sheet1(HOMELESS_MEDIA_PATH)
+    records = parse_sheet(HOMELESS_MEDIA_PATH)
     enriched = enrich(records)
     print(f"[OK] {len(enriched)} Homeless Media accounts parsed")
 
-    # Debug: sample lokasi
-    print("\n  Sample location_norm:")
-    seen = set()
-    for r in enriched:
-        key = (r['location_raw'], r['location_norm'])
-        if key not in seen:
-            print(f"    '{r['location_raw']}' → '{r['location_norm']}'")
-            seen.add(key)
-            if len(seen) >= 20: break
-
-    # Debug: sample rate
-    print("\n  Sample rate card:")
+    # Sample output
+    print("\n  Sample rate card (first 5):")
     for r in enriched[:5]:
-        print(f"    @{r['username']}: {r['rate_card']} | min={r['rate_min']} max={r['rate_max']}")
+        print(f"    @{r['username']}: cat={r['category']} | {r['rate_card']} | min={r['rate_min']} max={r['rate_max']}")
 
-    with open(OUT_PATH, 'w', encoding='utf-8') as f:
+    out_path = OUT_PATH
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    with open(out_path, 'w', encoding='utf-8') as f:
         json.dump(enriched, f, ensure_ascii=False, indent=2)
-    print(f"\n[OK] Saved → {OUT_PATH}")
+    print(f"\n[OK] Saved → {out_path}")
 
-    # Summary
     cats = {}
     locs = {}
     for r in enriched:
