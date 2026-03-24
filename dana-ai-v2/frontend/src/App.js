@@ -4,6 +4,7 @@ import {
   uploadHomelessMedia, trainModel, getRecommendations, getLocations
 } from './services/apiService';
 import LocationDropdown from './components/LocationDropdown';
+import ShareView, { encodeShareData } from './components/ShareView'; // [PATCH]
 
 // ── Tokens ────────────────────────────────────────────────────
 const C = {
@@ -66,6 +67,7 @@ const Icon = {
   lightbulb: (s = 12) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0018 8 6 6 0 006 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 018.91 14"/></svg>,
   arrowLeft: (s = 14) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>,
   externalLink: (s = 11) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>,
+  share: (s = 13) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>,
 };
 
 // ── Helper: build social media profile URL ────────────────────
@@ -74,14 +76,10 @@ function getProfileUrl(username, socialMedia) {
   const sm = (socialMedia || '').toLowerCase();
   const clean = username.replace(/^@/, '').trim();
   if (sm.includes('tiktok')) return `https://www.tiktok.com/@${clean}`;
-  // Default to Instagram
   return `https://www.instagram.com/${clean}`;
 }
 
 // ── Formatters ────────────────────────────────────────────────
-// Format angka natural ala Indonesia — persis seperti di sheet
-// 300.000 → "Rp 300.000"  |  1.500.000 → "Rp 1,5 jt"  |  25.000.000 → "Rp 25 jt"
-// 1.200.000.000 → "Rp 1,2 M"
 const fmt = n => {
   if (!n || isNaN(n)) return 'Rp –';
   const v = Math.round(n);
@@ -91,15 +89,12 @@ const fmt = n => {
   }
   if (v >= 1_000_000) {
     const x = v / 1_000_000;
-    // Tampilkan desimal hanya kalau ada nilai berarti (mis 1,5 jt bukan 1,0 jt)
     const str = x % 1 === 0 ? x.toFixed(0) : x.toFixed(1);
     return `Rp ${str} jt`;
   }
-  // Di bawah 1 juta: tampilkan angka penuh dengan titik ribuan (300.000, 50.000, dll)
   return `Rp ${v.toLocaleString('id-ID')}`;
 };
 
-// Format followers: 1.200.000 → "1,2 M" | 500.000 → "500 K" | 12.000 → "12 K"
 const fmtF = n => {
   if (!n) return '–';
   if (n >= 1_000_000) return `${(n/1_000_000).toFixed(n % 1_000_000 === 0 ? 0 : 1)} M`;
@@ -107,14 +102,11 @@ const fmtF = n => {
   return String(n);
 };
 
-// Format rate card — data sudah rupiah penuh (hasil parse_homeless_media.py baru)
-// Tidak perlu × 1000 lagi. Langsung pakai fmt().
 const fmtRate = n => {
   if (!n || isNaN(n)) return 'Rp –';
   return fmt(Math.round(n));
 };
 
-// Format budget (lebih verbose, untuk label slider/alokasi)
 const fmtBudget = n => {
   if (!n || isNaN(n)) return 'Rp 0';
   const v = Math.round(n);
@@ -240,10 +232,8 @@ function KOLCard({ kol, rank }) {
   const cStyles={ whatsapp:{bg:'#F0FDF4',border:C.greenBorder,text:'#15803D',Ic:Icon.whatsapp}, instagram:{bg:'#FDF2F8',border:'#F9A8D4',text:'#BE185D',Ic:Icon.instagram}, tiktok:{bg:'#FFF1F2',border:'#FECDD3',text:'#BE123C',Ic:Icon.tiktok}, profile:{bg:'#FDF2F8',border:'#F9A8D4',text:'#BE185D',Ic:Icon.instagram} };
   const cc=cStyles[kol.contact_action?.type]||cStyles.instagram;
 
-  // Build profile URL for username click
   const profileUrl = getProfileUrl(kol.username, kol.social_media);
   const platformColor = isTK ? '#BE123C' : '#BE185D';
-  const platformBg = isTK ? '#FFF1F2' : '#FDF2F8';
 
   return (
     <div style={{ background:C.bg, border:`1px solid ${C.border}`, borderRadius:12, overflow:'hidden' }}>
@@ -253,31 +243,11 @@ function KOLCard({ kol, rank }) {
           <div style={{ display:'flex', gap:10, alignItems:'center', minWidth:0 }}>
             <div style={{ width:38, height:38, borderRadius:8, background:isTK?'#FFF1F2':C.blueLight, display:'flex', alignItems:'center', justifyContent:'center', color:isTK?'#BE123C':C.blue, flexShrink:0 }}>{isTK?Icon.tiktok(17):Icon.instagram(17)}</div>
             <div style={{ minWidth:0 }}>
-              {/* ── CLICKABLE USERNAME ── */}
-              <a
-                href={profileUrl}
-                target="_blank"
-                rel="noopener noreferrer"
+              <a href={profileUrl} target="_blank" rel="noopener noreferrer"
                 title={`Buka profil @${kol.username} di ${isTK ? 'TikTok' : 'Instagram'}`}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 4,
-                  fontWeight: 700,
-                  color: C.text,
-                  fontSize: 14,
-                  textDecoration: 'none',
-                  maxWidth: '100%',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                  borderRadius: 4,
-                  padding: '1px 0',
-                  transition: 'color .15s',
-                }}
+                style={{ display:'inline-flex', alignItems:'center', gap:4, fontWeight:700, color:C.text, fontSize:14, textDecoration:'none', maxWidth:'100%', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', borderRadius:4, padding:'1px 0', transition:'color .15s' }}
                 onMouseEnter={e => { e.currentTarget.style.color = platformColor; }}
-                onMouseLeave={e => { e.currentTarget.style.color = C.text; }}
-              >
+                onMouseLeave={e => { e.currentTarget.style.color = C.text; }}>
                 <span style={{ overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>@{kol.username}</span>
                 <span style={{ flexShrink:0, opacity:.5 }}>{Icon.externalLink(10)}</span>
               </a>
@@ -377,7 +347,6 @@ function HomelessMediaCard({ media, rank }) {
   const cStyles={ whatsapp:{bg:'#F0FDF4',border:C.greenBorder,text:'#15803D',Ic:Icon.whatsapp}, instagram:{bg:'#FDF2F8',border:'#F9A8D4',text:'#BE185D',Ic:Icon.instagram}, profile:{bg:'#FDF2F8',border:'#F9A8D4',text:'#BE185D',Ic:Icon.instagram} };
   const cc=cStyles[media.contact_action?.type]||cStyles.instagram;
 
-  // Build profile URL for username click
   const isTK = media.social_media?.toLowerCase().includes('tiktok');
   const profileUrl = getProfileUrl(media.username, media.social_media);
 
@@ -389,31 +358,11 @@ function HomelessMediaCard({ media, rank }) {
           <div style={{ display:'flex', gap:10, alignItems:'center', minWidth:0 }}>
             <div style={{ width:38, height:38, borderRadius:8, background:C.tealBg, display:'flex', alignItems:'center', justifyContent:'center', color:C.teal, flexShrink:0 }}>{Icon.newspaper(17)}</div>
             <div style={{ minWidth:0 }}>
-              {/* ── CLICKABLE USERNAME ── */}
-              <a
-                href={profileUrl}
-                target="_blank"
-                rel="noopener noreferrer"
+              <a href={profileUrl} target="_blank" rel="noopener noreferrer"
                 title={`Buka profil @${media.username} di ${isTK ? 'TikTok' : 'Instagram'}`}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 4,
-                  fontWeight: 700,
-                  color: C.text,
-                  fontSize: 14,
-                  textDecoration: 'none',
-                  maxWidth: '100%',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                  borderRadius: 4,
-                  padding: '1px 0',
-                  transition: 'color .15s',
-                }}
+                style={{ display:'inline-flex', alignItems:'center', gap:4, fontWeight:700, color:C.text, fontSize:14, textDecoration:'none', maxWidth:'100%', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', borderRadius:4, padding:'1px 0', transition:'color .15s' }}
                 onMouseEnter={e => { e.currentTarget.style.color = C.teal; }}
-                onMouseLeave={e => { e.currentTarget.style.color = C.text; }}
-              >
+                onMouseLeave={e => { e.currentTarget.style.color = C.text; }}>
                 <span style={{ overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>@{media.username}</span>
                 <span style={{ flexShrink:0, opacity:.5 }}>{Icon.externalLink(10)}</span>
               </a>
@@ -501,6 +450,92 @@ function HomelessMediaCard({ media, rank }) {
   );
 }
 
+// ── [PATCH] Share Modal ───────────────────────────────────────
+function ShareModal({ url, copied, onCopy, onClose, isMobile }) {
+  useEffect(() => {
+    const h = e => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', h);
+    return () => document.removeEventListener('keydown', h);
+  }, [onClose]);
+
+  const iconX = (s=14) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>;
+  const iconCopy = (s=14) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>;
+  const iconCheck = (s=14) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>;
+  const iconWA = (s=16) => <svg width={s} height={s} viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>;
+
+  const shareWhatsApp = () => {
+    const text = `Cek rekomendasi campaign DANA AI ini: ${url}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+  };
+
+  return (
+    <>
+      <div onClick={onClose} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.45)', zIndex:200, backdropFilter:'blur(2px)' }}/>
+      <div style={{
+        position:'fixed', zIndex:201, background:'#fff',
+        borderRadius: isMobile ? '16px 16px 0 0' : 16,
+        boxShadow:'0 20px 60px rgba(0,0,0,.18)',
+        padding: isMobile ? '24px 20px 32px' : '28px 28px',
+        width: isMobile ? '100%' : 480,
+        maxWidth:'100%',
+        ...(isMobile
+          ? { bottom:0, left:0, right:0 }
+          : { top:'50%', left:'50%', transform:'translate(-50%,-50%)' }),
+        animation:'modalIn .25s ease',
+      }}>
+        <style>{`@keyframes modalIn { from { opacity:0; transform: ${isMobile ? 'translateY(30px)' : 'translate(-50%,-48%)'} } to { opacity:1; transform: ${isMobile ? 'translateY(0)' : 'translate(-50%,-50%)'} } }`}</style>
+
+        {/* Header */}
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20 }}>
+          <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+            <div style={{ width:36, height:36, borderRadius:9, background:C.blueLight, display:'flex', alignItems:'center', justifyContent:'center', color:C.blue }}>
+              {Icon.share(16)}
+            </div>
+            <div>
+              <div style={{ fontWeight:800, fontSize:16, color:C.text, lineHeight:1.2 }}>Share Campaign</div>
+              <div style={{ color:C.textMuted, fontSize:12, marginTop:1 }}>Bagikan ke tim atau klien</div>
+            </div>
+          </div>
+          <button onClick={onClose} style={{ background:C.bgGray2, border:'none', borderRadius:8, width:32, height:32, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', color:C.textSub }}>
+            {iconX(14)}
+          </button>
+        </div>
+
+        {/* Info */}
+        <div style={{ background:C.greenBg, border:`1px solid ${C.greenBorder}`, borderRadius:10, padding:'10px 14px', marginBottom:16, display:'flex', gap:8, alignItems:'flex-start' }}>
+          <span style={{ color:C.green, display:'flex', marginTop:1 }}>{iconCheck(13)}</span>
+          <div style={{ color:'#065F46', fontSize:13, lineHeight:1.5 }}>
+            Siapa saja yang punya link ini bisa lihat hasil rekomendasi — <strong>tidak perlu login</strong>.
+          </div>
+        </div>
+
+        {/* URL */}
+        <div style={{ marginBottom:12 }}>
+          <div style={{ color:C.textMuted, fontSize:11, fontWeight:600, letterSpacing:'.5px', marginBottom:6 }}>LINK SHARE</div>
+          <div style={{ background:C.bgGray, border:`1px solid ${C.border}`, borderRadius:9, padding:'10px 12px', display:'flex', alignItems:'center', gap:8 }}>
+            <span style={{ flex:1, color:'#374151', fontSize:12, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', fontFamily:'monospace' }}>{url}</span>
+          </div>
+        </div>
+
+        {/* Copy */}
+        <button onClick={onCopy} style={{ width:'100%', background:copied?C.green:C.blue, border:'none', color:'#fff', borderRadius:10, padding:'13px', fontSize:15, fontWeight:700, cursor:'pointer', fontFamily:"'DM Sans','Segoe UI',sans-serif", display:'flex', alignItems:'center', justifyContent:'center', gap:8, marginBottom:10, transition:'background .2s' }}>
+          {copied ? iconCheck(15) : iconCopy(15)}
+          {copied ? 'Link Tersalin! ✓' : 'Copy Link'}
+        </button>
+
+        {/* WhatsApp */}
+        <button onClick={shareWhatsApp} style={{ width:'100%', background:'#F0FDF4', border:`1px solid ${C.greenBorder}`, color:'#15803D', borderRadius:10, padding:'11px', fontSize:14, fontWeight:700, cursor:'pointer', fontFamily:"'DM Sans','Segoe UI',sans-serif", display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
+          {iconWA(16)} Share via WhatsApp
+        </button>
+
+        <div style={{ marginTop:14, color:C.textMuted, fontSize:11, textAlign:'center', lineHeight:1.5 }}>
+          Link berlaku selama tidak ada perubahan campaign. Data tersimpan di URL, bukan server.
+        </div>
+      </div>
+    </>
+  );
+}
+
 // ── Loading ───────────────────────────────────────────────────
 const MSGS = ['Memproses campaign...','HuggingFace encoding query...','Semantic matching KOL...','Mencari Homeless Media...','Menyusun rekomendasi final...'];
 
@@ -536,6 +571,12 @@ export default function App() {
   const [training,setTraining] = useState(false);
   const [locations,setLocations] = useState([]);
   const [locLoading,setLocLoading] = useState(false);
+
+  // [PATCH] Share state
+  const [shareModal,  setShareModal]  = useState(false);
+  const [shareUrl,    setShareUrl]    = useState('');
+  const [shareCopied, setShareCopied] = useState(false);
+
   const [form,setForm] = useState({
     campaign_name:'', campaign_description:'', goals:'',
     target_audience:'', topics:'', location:'nasional',
@@ -564,7 +605,9 @@ export default function App() {
 
   const handleKOL = async e => { const f=e.target.files[0]; if(!f) return; setKolMsg('Uploading...'); try { await uploadKOL(f); setKolMsg('Upload berhasil. Klik Latih Model.'); } catch(err){setKolMsg('Error: '+err.message);} };
   const handleInsight = async e => { const f=e.target.files[0]; if(!f) return; setInsightMsg('Uploading...'); try { const r=await uploadInsight(f); setInsightMsg(r.er_extracted?'Upload berhasil, ER diekstrak.':'Upload berhasil.'); } catch(err){setInsightMsg('Error: '+err.message);} };
-const handleHomeless = async e => { const f=e.target.files[0]; if(!f) return; setHomelessMsg('Uploading...'); try { const r=await uploadHomelessMedia(f); if(r.parsed && r.homeless_media_count > 0){setHomelessMsg(`${r.homeless_media_count} media dimuat.`);const s=await checkStatus();setStatus(s);loadLocs();}else{ const logMsg = r.log ? r.log.trim().split('\n').pop() : 'Parsing gagal.'; setHomelessMsg(`Parsing gagal: ${logMsg}`); } } catch(err){setHomelessMsg('Error: '+err.message);} };  const handleTrain = async () => { setTraining(true); setKolMsg('Training... (HuggingFace ~100MB pertama kali)'); try { await trainModel(); const s=await checkStatus(); setStatus(s); const m=s.meta||{}; setKolMsg(`Model siap — ${m.total_kol||0} KOL`); loadLocs(); } catch(err){setKolMsg('Error: '+err.message);} setTraining(false); };
+  const handleHomeless = async e => { const f=e.target.files[0]; if(!f) return; setHomelessMsg('Uploading...'); try { const r=await uploadHomelessMedia(f); if(r.parsed && r.homeless_media_count > 0){setHomelessMsg(`${r.homeless_media_count} media dimuat.`);const s=await checkStatus();setStatus(s);loadLocs();}else{ const logMsg = r.log ? r.log.trim().split('\n').pop() : 'Parsing gagal.'; setHomelessMsg(`Parsing gagal: ${logMsg}`); } } catch(err){setHomelessMsg('Error: '+err.message);} };
+  const handleTrain = async () => { setTraining(true); setKolMsg('Training... (HuggingFace ~100MB pertama kali)'); try { await trainModel(); const s=await checkStatus(); setStatus(s); const m=s.meta||{}; setKolMsg(`Model siap — ${m.total_kol||0} KOL`); loadLocs(); } catch(err){setKolMsg('Error: '+err.message);} setTraining(false); };
+
   const handleSubmit = async () => {
     if(!form.campaign_name||!form.budget_min) return;
     setPage('loading'); msgIdx.current=0; setMsg(MSGS[0]);
@@ -572,6 +615,41 @@ const handleHomeless = async e => { const f=e.target.files[0]; if(!f) return; se
     try { const d=await getRecommendations({...form,budget:String(mid),budget_kol_pct:form.budget_kol_pct/100}); setResult(d); setPage('result'); }
     catch(err){ alert(err.message); setPage('form'); }
   };
+
+  // [PATCH] Generate share URL
+  const generateShareUrl = () => {
+    if (!result) return;
+    const dataToShare = { ...result, _sharedAt: new Date().toISOString() };
+    const encoded = encodeShareData(dataToShare);
+    if (!encoded) {
+      alert('Gagal membuat share link. Data terlalu besar atau ada error encoding.');
+      return;
+    }
+    const base = window.location.origin + window.location.pathname;
+    const url  = `${base}?share=${encoded}`;
+    setShareUrl(url);
+    setShareModal(true);
+    setShareCopied(false);
+  };
+
+  const handleCopyShareUrl = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+    } catch {
+      const el = document.createElement('textarea');
+      el.value = shareUrl;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+    }
+    setShareCopied(true);
+    setTimeout(() => setShareCopied(false), 2500);
+  };
+
+  // [PATCH] Route untuk shared campaign view
+  const isSharePage = new URLSearchParams(window.location.search).has('share');
+  if (isSharePage) return <ShareView />;
 
   if(page==='loading') return <LoadingScreen msg={msg}/>;
 
@@ -606,6 +684,13 @@ const handleHomeless = async e => { const f=e.target.files[0]; if(!f) return; se
           <div style={{ display:'flex', gap:6, alignItems:'center', flexShrink:0 }}>
             {!isMobile&&<Chip label={`${result.total_kol} KOL`}/>}
             {!isMobile&&hasHM&&<Chip label={`${hm.total_media} Media`} color={C.teal} bg={C.tealBg}/>}
+
+            {/* [PATCH] Tombol Share */}
+            <button onClick={generateShareUrl}
+              style={{ display:'flex', alignItems:'center', gap:5, background:C.blue, border:'none', color:'#fff', borderRadius:8, padding:isMobile?'8px 10px':'6px 14px', cursor:'pointer', fontSize:13, fontFamily:'inherit', fontWeight:600 }}>
+              {Icon.share(13)} {isMobile ? 'Share' : 'Share Link'}
+            </button>
+
             <button onClick={()=>setPage('form')} style={{ display:'flex', alignItems:'center', gap:5, background:C.bgGray2, border:`1px solid ${C.border}`, color:C.textSub, borderRadius:8, padding:isMobile?'8px 10px':'6px 14px', cursor:'pointer', fontSize:13, fontFamily:'inherit', fontWeight:600 }}>
               {Icon.arrowLeft(13)} {isMobile?'Baru':'Buat baru'}
             </button>
@@ -626,7 +711,6 @@ const handleHomeless = async e => { const f=e.target.files[0]; if(!f) return; se
               {hasHM&&<Chip label={`${hm.total_media} Media`} color={C.teal} bg={C.tealBg} icon={Icon.newspaper(10)}/>}
             </div>
 
-            {/* ── Cost breakdown ── */}
             {(() => {
               const kolMin  = result.estimated_cost_min  || 0;
               const kolMax  = result.estimated_cost_max  || 0;
@@ -639,8 +723,6 @@ const handleHomeless = async e => { const f=e.target.files[0]; if(!f) return; se
 
               return (
                 <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
-
-                  {/* Total biaya — hero number */}
                   <div style={{ background: overBudget ? C.redBg : C.greenBg, border:`1px solid ${overBudget ? C.redBorder : C.greenBorder}`, borderRadius:10, padding:'14px 16px', display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:8 }}>
                     <div>
                       <div style={{ color: overBudget ? C.red : C.green, fontSize:10, fontWeight:700, letterSpacing:'.8px', marginBottom:4 }}>TOTAL ESTIMASI BIAYA</div>
@@ -660,29 +742,22 @@ const handleHomeless = async e => { const f=e.target.files[0]; if(!f) return; se
                     )}
                   </div>
 
-                  {/* Breakdown KOL vs Media */}
                   <div style={{ display:'grid', gridTemplateColumns: hasHM ? '1fr 1fr' : '1fr', gap:8 }}>
                     <div style={{ background:C.goldBg, border:`1px solid ${C.goldBorder}`, borderRadius:8, padding:'10px 12px' }}>
-                      <div style={{ color:C.gold, fontSize:10, fontWeight:700, letterSpacing:'.6px', marginBottom:5, display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-                        <span>KOL ({result.total_kol} orang)</span>
-                      </div>
+                      <div style={{ color:C.gold, fontSize:10, fontWeight:700, letterSpacing:'.6px', marginBottom:5 }}>KOL ({result.total_kol} orang)</div>
                       <div style={{ color:C.text, fontWeight:800, fontSize:14 }}>{fmtRate(kolMin)}</div>
                       {kolMax > kolMin && <div style={{ color:C.textMuted, fontSize:11, marginTop:2 }}>s/d {fmtRate(kolMax)}</div>}
                       <div style={{ color:C.textMuted, fontSize:10, marginTop:4 }}>~{fmtRate(Math.round(kolMin / Math.max(result.total_kol,1)))} / KOL</div>
                     </div>
-
                     {hasHM && (
                       <div style={{ background:C.tealBg, border:`1px solid ${C.tealBorder}`, borderRadius:8, padding:'10px 12px' }}>
-                        <div style={{ color:C.teal, fontSize:10, fontWeight:700, letterSpacing:'.6px', marginBottom:5 }}>
-                          HOMELESS MEDIA ({hm.total_media} akun)
-                        </div>
+                        <div style={{ color:C.teal, fontSize:10, fontWeight:700, letterSpacing:'.6px', marginBottom:5 }}>HOMELESS MEDIA ({hm.total_media} akun)</div>
                         <div style={{ color:C.text, fontWeight:800, fontSize:14 }}>{fmtRate(medMin)}</div>
                         {medMax > medMin && <div style={{ color:C.textMuted, fontSize:11, marginTop:2 }}>s/d {fmtRate(medMax)}</div>}
                         <div style={{ color:C.textMuted, fontSize:10, marginTop:4 }}>~{fmtRate(Math.round(medMin / Math.max(hm.total_media,1)))} / akun</div>
                       </div>
                     )}
                   </div>
-
                 </div>
               );
             })()}
@@ -714,6 +789,17 @@ const handleHomeless = async e => { const f=e.target.files[0]; if(!f) return; se
             </div>
           )}
         </div>
+
+        {/* [PATCH] Share Modal */}
+        {shareModal && (
+          <ShareModal
+            url={shareUrl}
+            copied={shareCopied}
+            onCopy={handleCopyShareUrl}
+            onClose={() => setShareModal(false)}
+            isMobile={isMobile}
+          />
+        )}
       </div>
     );
   }
