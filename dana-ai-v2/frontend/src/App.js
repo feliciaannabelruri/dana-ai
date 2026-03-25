@@ -763,7 +763,9 @@ export default function App() {
               );
             })()}
           </div>
-
+          {/* ── Campaign Toolkit ── */}
+          <CampaignToolkit result={result} />
+          
           {/* KOL */}
           <div className="fu" style={{ animationDelay:'.08s', marginBottom:28 }}>
             <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:14 }}>
