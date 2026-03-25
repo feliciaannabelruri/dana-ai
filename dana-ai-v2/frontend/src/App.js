@@ -5,6 +5,7 @@ import {
 } from './services/apiService';
 import LocationDropdown from './components/LocationDropdown';
 import ShareView, { encodeShareData } from './components/ShareView'; // [PATCH]
+import CampaignToolkit from './components/CampaignToolkit';
 
 // ── Tokens ────────────────────────────────────────────────────
 const C = {
