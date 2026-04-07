@@ -1,0 +1,29 @@
+{
+  "audience_profile": "Perempuan muda urban dengan minat pada entrepreneurship dan bisnis, berusia 20-35 tahun, memiliki kebiasaan digital yang aktif dalam mencari informasi dan inspirasi tentang wirausaha",
+  "audience_dana_overlap": [
+    "UMKM-perempuan",
+    "pekerja-gajian",
+    "mahasiswa-terima-uang-saku"
+  ],
+  "content_style": "Lifestyle dan entrepreneurship",
+  "cross_niche_angle": "DANA dapat dipromosikan sebagai alat pembayaran digital yang memudahkan transaksi bisnis dan keuangan sehari-hari bagi perempuan UMKM",
+  "dana_use_cases": [
+    "transfer-uang",
+    "bayar-tagihan",
+    "cashback-belanja"
+  ],
+  "campaign_fit_reason": "KOL ini cocok untuk campaign brand awareness karena audiensnya memiliki minat pada entrepreneurship dan bisnis, yang sesuai dengan topik pemberdayaan UMKM perempuan",
+  "fit_score": 0.8,
+  "risk_flag": "",
+  "summary": "GO: Audiens KOL ini memiliki minat pada entrepreneurship dan bisnis yang sesuai dengan topik campaign",
+  "cross_topics": [
+    "transfer-uang",
+    "bayar-tagihan",
+    "cashback-belanja"
+  ],
+  "audience_overlap": [
+    "UMKM-perempuan",
+    "pekerja-gajian",
+    "mahasiswa-terima-uang-saku"
+  ]
+}
