@@ -1,0 +1,29 @@
+{
+  "audience_profile": "Audiensnya adalah wanita muda hingga dewasa, berusia 18-40 tahun, yang tertarik dengan konten hiburan dan memiliki minat pada pemberdayaan wanita dan UMKM",
+  "audience_dana_overlap": [
+    "ibu-RT-belanja-online",
+    "pekerja-gajian",
+    "UMKM-wanita"
+  ],
+  "content_style": "Hiburan dan inspiratif",
+  "cross_niche_angle": "DANA dapat dipromosikan sebagai alat pembayaran yang mudah dan aman untuk transaksi sehari-hari, terutama bagi wanita yang memiliki bisnis UMKM",
+  "dana_use_cases": [
+    "transfer-uang",
+    "bayar-tagihan",
+    "cashback-belanja"
+  ],
+  "campaign_fit_reason": "KOL ini cocok untuk campaign brand awareness karena audiensnya sesuai dengan target audience DANA dan memiliki minat pada pemberdayaan wanita dan UMKM, yang dapat dihubungkan dengan fitur-fitur DANA",
+  "fit_score": 0.8,
+  "risk_flag": "",
+  "summary": "GO: Audiensnya sesuai dengan target audience DANA dan memiliki potensi untuk menggunakan fitur-fitur DANA",
+  "cross_topics": [
+    "transfer-uang",
+    "bayar-tagihan",
+    "cashback-belanja"
+  ],
+  "audience_overlap": [
+    "ibu-RT-belanja-online",
+    "pekerja-gajian",
+    "UMKM-wanita"
+  ]
+}

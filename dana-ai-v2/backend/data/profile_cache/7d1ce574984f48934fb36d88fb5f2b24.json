@@ -1,0 +1,29 @@
+{
+  "audience_profile": "Masyarakat urban muda, terutama perempuan dan laki-laki berusia 18-35 tahun yang suka hiburan dan komedi di Jakarta",
+  "audience_dana_overlap": [
+    "pekerja-gajian",
+    "mahasiswa-terima-uang-saku",
+    "UMKM"
+  ],
+  "content_style": "Komedi hiburan",
+  "cross_niche_angle": "DANA dapat dipromosikan melalui konten komedi yang menampilkan kemudahan transfer uang, bayar tagihan, dan cashback",
+  "dana_use_cases": [
+    "transfer-uang",
+    "bayar-tagihan",
+    "cashback-belanja"
+  ],
+  "campaign_fit_reason": "KOL ini cocok untuk campaign brand awareness karena memiliki audiens yang luas dan dapat menjangkau target audience DANA, terutama perempuan dan laki-laki muda yang suka hiburan dan komedi",
+  "fit_score": 0.8,
+  "risk_flag": "",
+  "summary": "GO: Audiens KOL ini memiliki potensi besar untuk menggunakan DANA dan campaign ini dapat meningkatkan brand awareness",
+  "cross_topics": [
+    "transfer-uang",
+    "bayar-tagihan",
+    "cashback-belanja"
+  ],
+  "audience_overlap": [
+    "pekerja-gajian",
+    "mahasiswa-terima-uang-saku",
+    "UMKM"
+  ]
+}

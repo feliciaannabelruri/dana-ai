@@ -1,0 +1,29 @@
+{
+  "audience_profile": "Wanita muda urban dengan minat pada lifestyle dan hiburan, berusia 18-35 tahun, berdomisili di Jakarta dan sekitarnya, aktif di media sosial",
+  "audience_dana_overlap": [
+    "ibu-RT-belanja-online",
+    "mahasiswa-terima-uang-saku",
+    "pekerja-gajian"
+  ],
+  "content_style": "Lifestyle dan Hiburan",
+  "cross_niche_angle": "DANA dapat dipromosikan melalui konten lifestyle dan hiburan yang menampilkan kemudahan berbelanja dan melakukan transaksi keuangan",
+  "dana_use_cases": [
+    "transfer-uang",
+    "bayar-tagihan",
+    "cashback-belanja"
+  ],
+  "campaign_fit_reason": "KOL ini cocok untuk campaign brand awareness karena memiliki audiens yang sesuai dengan target DANA, yaitu wanita muda urban yang aktif di media sosial dan memiliki minat pada lifestyle dan hiburan",
+  "fit_score": 0.8,
+  "risk_flag": "",
+  "summary": "GO: Audiens KOL ini sesuai dengan target DANA dan memiliki potensi cross-niche yang baik",
+  "cross_topics": [
+    "transfer-uang",
+    "bayar-tagihan",
+    "cashback-belanja"
+  ],
+  "audience_overlap": [
+    "ibu-RT-belanja-online",
+    "mahasiswa-terima-uang-saku",
+    "pekerja-gajian"
+  ]
+}

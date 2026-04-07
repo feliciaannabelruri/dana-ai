@@ -1,6 +1,6 @@
 """
-recommender.py — Multi-Layer Scoring v3 + Company Profile
-==========================================================
+recommender.py — Multi-Layer Scoring v3 + Company Profile + Cross-Niche Enhanced
+==================================================================================
 FIXED: Hard exact location filter.
 - Nasional → semua KOL
 - Kota X   → hanya KOL location_norm == kota X (strict, no bleed)
@@ -15,12 +15,13 @@ from kol_profiler import batch_profile_kols
 try:
     from company_profile import (
         score_kol_fit, get_context_enriched_query, get_profile_summary,
-        COMPANY_PROFILE
+        COMPANY_PROFILE, get_kol_cross_niche_info
     )
     _PROFILE_LOADED = True
     print(f"[OK] Company profile loaded: {COMPANY_PROFILE['company_name']}")
 except ImportError:
     _PROFILE_LOADED = False
+    def get_kol_cross_niche_info(cat): return {}
     print("[WARN] company_profile.py tidak ditemukan — brand fit scoring dinonaktifkan")
 
 MODELS_DIR = os.path.join(os.path.dirname(__file__), 'models')
@@ -79,7 +80,7 @@ PRE_FILTER_MULT = 3
 _cache = {}
 
 
-# ── Type helpers ─────────────────────────────────────────────────
+# ── Type helpers ──────────────────────────────────────────────────────────────
 def to_int(v):
     try:
         if v is None or (isinstance(v, float) and np.isnan(v)): return 0
@@ -115,7 +116,7 @@ def build_contact(pic_contact, social_media, username):
     return None
 
 
-# ── Model loader ─────────────────────────────────────────────────
+# ── Model loader ──────────────────────────────────────────────────────────────
 def load_models():
     global _cache
     if _cache: return _cache
@@ -154,7 +155,7 @@ def load_models():
     return _cache
 
 
-# ── Location utils ───────────────────────────────────────────────
+# ── Location utils ────────────────────────────────────────────────────────────
 def normalize_location_query(loc):
     if not loc: return "nasional"
     loc_lower = loc.lower().strip()
@@ -165,24 +166,11 @@ def normalize_location_query(loc):
 
 
 def filter_by_location(df, target_loc):
-    """
-    HARD FILTER — strict exact match, zero bleed:
-    - target = 'nasional' → return semua KOL tanpa filter
-    - target = kota X     → return HANYA KOL dengan location_norm == kota X
-                            KOL nasional TIDAK ikut masuk
-    Kalau hasil filter < num_kol, frontend akan dapat lebih sedikit — itu wajar,
-    lebih baik sedikit tapi relevan daripada banyak tapi ngawur.
-    """
     if target_loc == 'nasional':
         return df
-
     mask = df['location_norm'] == target_loc
     filtered = df[mask]
-
     print(f"   [FILTER] Strict location '{target_loc}': {len(filtered)} KOL lolos dari {len(df)}")
-
-    # Kalau tidak ada KOL sama sekali untuk kota ini, kembalikan empty df
-    # (jangan fallback ke semua KOL — lebih baik kosong daripada ngawur)
     return filtered
 
 
@@ -257,7 +245,7 @@ def build_row_tabular(row, patterns, scaler):
     return feat_vec
 
 
-# ── Individual scorers ───────────────────────────────────────────
+# ── Individual scorers ────────────────────────────────────────────────────────
 def score_semantic(query_emb, kol_emb):
     sim = cosine_similarity(query_emb.reshape(1,-1), kol_emb.reshape(1,-1))[0][0]
     return float(max(0, sim))
@@ -293,7 +281,7 @@ def score_xgb_er(row, m):
         return min(er / 20.0, 1.0)
 
     try:
-        feat  = build_row_tabular(row, m.get('patterns'), m['scaler'])
+        feat    = build_row_tabular(row, m.get('patterns'), m['scaler'])
         er_pred = float(xgb.predict(feat)[0])
         return min(max(er_pred, 0) / 20.0, 1.0)
     except:
@@ -335,11 +323,6 @@ def score_budget(rate_min, rate_max, budget_per_kol):
 
 
 def score_location(kol_loc, target_loc):
-    """
-    Setelah hard filter, fungsi ini hanya dipakai untuk score internal.
-    Semua KOL yang tersisa sudah pasti exact match atau nasional (jika target nasional).
-    Kembalikan 1.0 untuk semua — filter sudah dilakukan sebelumnya.
-    """
     return 1.0
 
 
@@ -363,7 +346,19 @@ def score_tier(tier_score, preferred_tier):
     return max(0.0, 1.0 - abs(float(tier_score) - pref) * 0.3)
 
 
-# ── Main recommend function ──────────────────────────────────────
+# ── Parse go/no-go dari LLM summary ──────────────────────────────────────────
+def _parse_go_no_go(summary: str) -> str:
+    if not summary:
+        return "UNKNOWN"
+    s = summary.upper()
+    if "NO-GO" in s or "NOGO" in s:
+        return "NO-GO"
+    if "GO:" in s or s.startswith("GO"):
+        return "GO"
+    return "REVIEW"
+
+
+# ── Main recommend function ───────────────────────────────────────────────────
 def recommend(topics, goals, campaign_description, location,
               budget_total, num_kol, content_type="semua", preferred_tier="semua"):
 
@@ -377,10 +372,9 @@ def recommend(topics, goals, campaign_description, location,
 
     print(f"   [LOC] Input: '{location}' → normalized: '{target_loc}'")
 
-    # ── STEP 1: Hard filter lokasi SEBELUM scoring ───────────────
+    # ── STEP 1: Hard filter lokasi ────────────────────────────────────────────
     df = filter_by_location(df, target_loc)
 
-    # Kalau tidak ada KOL yang lolos filter, kembalikan empty result
     if len(df) == 0:
         print(f"   [WARN] Tidak ada KOL untuk lokasi '{target_loc}'")
         return {
@@ -401,14 +395,14 @@ def recommend(topics, goals, campaign_description, location,
     print(f"   [NLP] Encoding query: '{topics} {goals}' (with company context)")
     query_emb = encode_query(topics, goals, campaign_description, m['st_model'], target_audience="")
 
-    # ── STEP 2: Filter platform ──────────────────────────────────
+    # ── STEP 2: Filter platform ───────────────────────────────────────────────
     if content_type.lower() not in ('semua','all',''):
         mask = df['social_media'].str.lower().str.contains(content_type.lower(), na=False)
         df_f = df[mask] if mask.sum() >= 1 else df
     else:
         df_f = df.copy()
 
-    # ── STEP 3: Pre-filter kandidat & LLM profiling ─────────────
+    # ── STEP 3: Pre-filter + LLM profiling ───────────────────────────────────
     pre_candidate_df = df_f.head(num_kol * PRE_FILTER_MULT)
     kol_dicts = pre_candidate_df.to_dict(orient="records")
     campaign_params = {
@@ -421,12 +415,11 @@ def recommend(topics, goals, campaign_description, location,
     llm_profiles = batch_profile_kols(kol_dicts, campaign_params)
 
     cat_embs   = m['cat_embeddings']
-    df_full    = m['df']  # df asli (sebelum filter) untuk index cat_embeddings
+    df_full    = m['df']
     results    = []
 
     for idx in df_f.index.tolist():
         row     = df_f.loc[idx]
-        # abs_idx untuk cat_embeddings harus pakai df asli (bukan df yang sudah difilter)
         abs_idx = df_full.index.get_loc(idx)
         kol_emb = cat_embs[abs_idx]
 
@@ -436,11 +429,10 @@ def recommend(topics, goals, campaign_description, location,
         s_xgb     = score_xgb_er(row, m)
         s_rbm     = score_rbm(abs_idx, m)
         s_budget  = score_budget(row['rate_min'], row['rate_max'], budget_per_kol)
-        s_loc     = score_location(row['location_norm'], target_loc)  # selalu 1.0 post-filter
+        s_loc     = score_location(row['location_norm'], target_loc)
         s_pattern = score_pattern(row, patterns)
         s_tier    = score_tier(row['tier_score'], preferred_tier)
 
-        # ── LLM profile score ────────────────────────────────────
         profile = llm_profiles.get(to_str(row.get("username", "")), {})
         s_llm   = float(profile.get("fit_score", 0.5))
 
@@ -462,17 +454,41 @@ def recommend(topics, goals, campaign_description, location,
         if to_int(row['rate_ig']) > 0:       rate_card['IG Reels'] = to_int(row['rate_ig'])
         if to_int(row['rate_bundling']) > 0: rate_card['Bundling'] = to_int(row['rate_bundling'])
 
+        # ── Enhanced reasons dengan cross-niche ──────────────────────────────
         reasons = []
+
+        # 1. Semantic relevance
         if s_sem >= 0.6:
             reasons.append(f"konten relevan dengan topik campaign (semantic {round(s_sem*100)}%)")
-        if s_rf >= 0.7:
-            reasons.append(f"RF quality score tinggi ({round(s_rf*100)}%)")
+
+        # 2. Cross-niche insight dari company_profile
+        if _PROFILE_LOADED:
+            try:
+                cross_info = get_kol_cross_niche_info(to_str(row.get('category', '')))
+                why        = cross_info.get('why', '')
+                dana_segs  = cross_info.get('dana_segments', [])
+                dana_feats = cross_info.get('best_dana_features', [])
+                if why and s_brand >= 0.55:
+                    reasons.append(why)
+                if dana_segs and s_brand >= 0.55:
+                    reasons.append(f"Audience match: {' & '.join(dana_segs[:2])}")
+                if dana_feats:
+                    reasons.append(f"Relevan untuk: {', '.join(dana_feats[:2])}")
+            except Exception:
+                if s_brand >= 0.6:
+                    reasons.append("kategori KOL cocok dengan topik campaign")
+
+        # 3. Budget
         if s_budget >= 0.8:
             reasons.append("rate card sesuai budget")
         elif s_budget >= 0.5:
             reasons.append("rate bisa dinegosiasikan")
+
+        # 4. Lokasi
         if target_loc != 'nasional':
             reasons.append(f"berlokasi di {to_str(row['location_raw']) or row['location_norm']}")
+
+        # 5. ER data
         if row['has_er_data']:
             try:
                 er_val = row.get('avg_er_pct')
@@ -481,17 +497,33 @@ def recommend(topics, goals, campaign_description, location,
             except: pass
         elif s_xgb >= 0.6:
             reasons.append(f"ER diprediksi tinggi oleh XGBoost ({round(s_xgb*20,1)}%)")
-        if _PROFILE_LOADED and s_brand >= 0.6:
-            reasons.append(f"kategori KOL cocok dengan topik campaign")
-        if patterns and s_pattern >= 0.7:
+
+        # 6. RF score
+        if s_rf >= 0.7:
+            reasons.append(f"RF quality score tinggi ({round(s_rf*100)}%)")
+
+        # 7. Campaign patterns
+        if patterns:
             tier_name = TIER_NAME_MAP.get(to_int(row.get('tier_score',2)), 'mikro')
             ts = patterns.get('tier_stats', {}).get(tier_name, {})
-            if ts:
-                reasons.append(f"tier {tier_name} avg ER {ts.get('avg_er',0):.1f}% di campaign sebelumnya")
-        if s_llm >= 0.7 and profile.get('campaign_fit_reason'):
-            reasons.append(f"LLM: {profile['campaign_fit_reason'][:80]}")
+            if ts and ts.get('avg_er', 0) > 5:
+                reasons.append(f"Tier {tier_name} avg ER {ts.get('avg_er',0):.1f}% di campaign sebelumnya")
 
-        er_display = None
+        # 8. LLM insights — paling specific, taruh terakhir
+        llm_summary = profile.get('summary', '')
+        llm_cross   = profile.get('cross_niche_angle', '')
+        llm_fit     = profile.get('campaign_fit_reason', '')
+
+        if llm_summary and s_llm >= 0.65:
+            if 'NO-GO' not in llm_summary.upper():
+                reasons.append(f"AI: {llm_summary[:100]}")
+        if llm_cross and s_llm >= 0.60 and len(reasons) < 5:
+            reasons.append(f"Cross-niche: {llm_cross[:80]}")
+        if len(reasons) <= 2 and llm_fit:
+            reasons.append(f"LLM: {llm_fit[:80]}")
+
+        # ── ER display ────────────────────────────────────────────────────────
+        er_display  = None
         xgb_er_pred = None
         try:
             er_val = row.get('avg_er_pct')
@@ -538,13 +570,24 @@ def recommend(topics, goals, campaign_description, location,
             'reasoning':      ' & '.join(reasons) if reasons else 'Profil sesuai parameter campaign',
             'pic_contact':    to_str(row.get('pic_contact', '')),
             'contact_action': build_contact(row.get('pic_contact',''), row['social_media'], row['username']),
+            # ── Enhanced llm_profile dengan cross-niche fields ────────────────
             'llm_profile': {
-                'summary':           profile.get('summary', ''),
-                'audience_profile':  profile.get('audience_profile', ''),
-                'cross_topics':      profile.get('cross_topics', []),
-                'fit_reason':        profile.get('campaign_fit_reason', ''),
-                'audience_overlap':  profile.get('audience_overlap', []),
-                'risk_flag':         profile.get('risk_flag', ''),
+                # Backward compatible
+                'summary':          profile.get('summary', ''),
+                'audience_profile': profile.get('audience_profile', ''),
+                'cross_topics':     profile.get('cross_topics', []) or profile.get('dana_use_cases', []),
+                'fit_reason':       profile.get('campaign_fit_reason', ''),
+                'audience_overlap': profile.get('audience_overlap', []) or profile.get('audience_dana_overlap', []),
+                'risk_flag':        profile.get('risk_flag', ''),
+                # New fields
+                'audience_dana_overlap': profile.get('audience_dana_overlap', []),
+                'cross_niche_angle':     profile.get('cross_niche_angle', ''),
+                'dana_use_cases':        profile.get('dana_use_cases', []),
+                'go_no_go': (
+                    'NO-GO' if 'NO-GO' in profile.get('summary','').upper()
+                    else 'GO' if s_llm >= 0.65
+                    else 'REVIEW'
+                ),
             },
         })
 

@@ -1,0 +1,29 @@
+{
+  "audience_profile": "Wanita muda hingga dewasa, berusia 18-40 tahun, yang tertarik dengan pemberdayaan dan pengembangan diri, serta memiliki minat pada bisnis dan keuangan.",
+  "audience_dana_overlap": [
+    "ibu-RT-manage-keuangan",
+    "pekerja-wanita-UMKM",
+    "mahasiswa-terima-uang-saku"
+  ],
+  "content_style": "Edukatif dan menghibur",
+  "cross_niche_angle": "DANA dapat dipromosikan sebagai alat untuk mempermudah transaksi bisnis dan keuangan bagi wanita UMKM",
+  "dana_use_cases": [
+    "transfer-uang",
+    "bayar-tagihan",
+    "cashback-belanja"
+  ],
+  "campaign_fit_reason": "Konten edutaiment dan storyteller yang fokus pada pemberdayaan wanita dan UMKM sangat sesuai dengan tujuan campaign brand awareness DANA untuk meningkatkan kesadaran akan pentingnya keuangan digital bagi wanita dan UMKM",
+  "fit_score": 0.8,
+  "risk_flag": "",
+  "summary": "GO: Audiensnya sesuai dengan target DANA dan konten edutaiment yang disajikan dapat meningkatkan kesadaran akan pentingnya keuangan digital",
+  "cross_topics": [
+    "transfer-uang",
+    "bayar-tagihan",
+    "cashback-belanja"
+  ],
+  "audience_overlap": [
+    "ibu-RT-manage-keuangan",
+    "pekerja-wanita-UMKM",
+    "mahasiswa-terima-uang-saku"
+  ]
+}
