@@ -1,0 +1,15 @@
+{
+  "audience_profile": "Ibu-ibu muda dan keluarga yang tertarik dengan konten parenting dan kehidupan sehari-hari",
+  "content_style": "Gaya konten yang ringan dan menghibur",
+  "cross_topics": [
+    "Lifestyle",
+    "Kesehatan"
+  ],
+  "campaign_fit_reason": "Konten KOL ini tidak secara langsung terkait dengan topik keuangan, tetapi memiliki potensi untuk mempromosikan pemberdayaan UMKM perempuan melalui konten parenting dan lifestyle",
+  "fit_score": 0.4,
+  "audience_overlap": [
+    "Ibu-ibu muda"
+  ],
+  "risk_flag": "Mismatch antara kategori konten utama KOL dengan topik campaign",
+  "summary": "KOL ini memiliki potensi untuk mempromosikan pemberdayaan UMKM perempuan, tetapi perlu penyesuaian konten untuk memastikan kesesuaian dengan campaign"
+}

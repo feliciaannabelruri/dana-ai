@@ -11,11 +11,11 @@
     "location_raw": "Nasional",
     "location_norm": "nasional",
     "rate_card": {
-      "IG Story": 300,
+      "IG Story": 300000,
       "Reels": 2000000,
       "Feeds": 1500000
     },
-    "rate_min": 300,
+    "rate_min": 300000,
     "rate_max": 2000000,
     "contact_action": {
       "type": "whatsapp",
@@ -35,12 +35,12 @@
     "location_raw": "Nasional",
     "location_norm": "nasional",
     "rate_card": {
-      "1 IGS": 180,
-      "2 IGS": 360,
-      "3 IGS": 430
+      "1 IGS": 180000,
+      "2 IGS": 360000,
+      "3 IGS": 430000
     },
-    "rate_min": 180,
-    "rate_max": 430,
+    "rate_min": 180000,
+    "rate_max": 430000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6282186101480",
@@ -59,12 +59,12 @@
     "location_raw": "Nasional",
     "location_norm": "nasional",
     "rate_card": {
-      "1 IGS": 150,
-      "2 IGS": 340,
-      "3 IGS": 390
+      "1 IGS": 150000,
+      "2 IGS": 340000,
+      "3 IGS": 390000
     },
-    "rate_min": 150,
-    "rate_max": 390,
+    "rate_min": 150000,
+    "rate_max": 390000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6282186101480",
@@ -179,12 +179,12 @@
     "location_raw": "Nasional",
     "location_norm": "nasional",
     "rate_card": {
-      "Feeds": 600,
-      "Reels": 600,
-      "IG Story": 400
+      "Feeds": 600000,
+      "Reels": 600000,
+      "IG Story": 400000
     },
-    "rate_min": 400,
-    "rate_max": 600,
+    "rate_min": 400000,
+    "rate_max": 600000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6281388308870",
@@ -203,12 +203,12 @@
     "location_raw": "Nasional",
     "location_norm": "nasional",
     "rate_card": {
-      "Feeds": 300,
-      "Reels": 400,
-      "IG Story": 200
+      "Feeds": 300000,
+      "Reels": 400000,
+      "IG Story": 200000
     },
-    "rate_min": 200,
-    "rate_max": 400,
+    "rate_min": 200000,
+    "rate_max": 400000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6281388308870",
@@ -227,12 +227,12 @@
     "location_raw": "Nasional",
     "location_norm": "nasional",
     "rate_card": {
-      "Feeds": 700,
-      "Reels": 700,
-      "IG Story": 400
+      "Feeds": 700000,
+      "Reels": 700000,
+      "IG Story": 400000
     },
-    "rate_min": 400,
-    "rate_max": 700,
+    "rate_min": 400000,
+    "rate_max": 700000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6285892487894",
@@ -251,12 +251,12 @@
     "location_raw": "Nasional",
     "location_norm": "nasional",
     "rate_card": {
-      "Feeds": 400,
-      "Reels": 400,
-      "IG Story": 200
+      "Feeds": 400000,
+      "Reels": 400000,
+      "IG Story": 200000
     },
-    "rate_min": 200,
-    "rate_max": 400,
+    "rate_min": 200000,
+    "rate_max": 400000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6285892487894",
@@ -275,11 +275,11 @@
     "location_raw": "Nasional",
     "location_norm": "nasional",
     "rate_card": {
-      "Feeds": 200,
-      "Reels": 200
+      "Feeds": 200000,
+      "Reels": 200000
     },
-    "rate_min": 200,
-    "rate_max": 200,
+    "rate_min": 200000,
+    "rate_max": 200000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6285892487894",
@@ -298,11 +298,11 @@
     "location_raw": "Nasional",
     "location_norm": "nasional",
     "rate_card": {
-      "Feeds": 150,
-      "Reels": 150
+      "Feeds": 150000,
+      "Reels": 150000
     },
-    "rate_min": 150,
-    "rate_max": 150,
+    "rate_min": 150000,
+    "rate_max": 150000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6285892487894",
@@ -323,9 +323,9 @@
     "rate_card": {
       "Feeds": 2500000,
       "Reels": 2500000,
-      "IG Story": 500
+      "IG Story": 500000
     },
-    "rate_min": 500,
+    "rate_min": 500000,
     "rate_max": 2500000,
     "contact_action": {
       "type": "whatsapp",
@@ -345,12 +345,12 @@
     "location_raw": "Nasional",
     "location_norm": "nasional",
     "rate_card": {
-      "Feeds": 300,
-      "Reels": 300,
-      "IG Story": 50
+      "Feeds": 300000,
+      "Reels": 300000,
+      "IG Story": 50000
     },
-    "rate_min": 50,
-    "rate_max": 300,
+    "rate_min": 50000,
+    "rate_max": 300000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6285376849515",
@@ -371,9 +371,9 @@
     "rate_card": {
       "Feeds": 2500000,
       "Reels": 2500000,
-      "IG Story": 500
+      "IG Story": 500000
     },
-    "rate_min": 500,
+    "rate_min": 500000,
     "rate_max": 2500000,
     "contact_action": {
       "type": "whatsapp",
@@ -395,9 +395,9 @@
     "rate_card": {
       "Feeds": 4300000,
       "Reels": 4500000,
-      "IG Story": 750
+      "IG Story": 750000
     },
-    "rate_min": 750,
+    "rate_min": 750000,
     "rate_max": 4500000,
     "contact_action": {
       "type": "whatsapp",
@@ -419,9 +419,9 @@
     "rate_card": {
       "Feeds": 3000000,
       "Reels": 3000000,
-      "IG Story": 500
+      "IG Story": 500000
     },
-    "rate_min": 500,
+    "rate_min": 500000,
     "rate_max": 3000000,
     "contact_action": {
       "type": "whatsapp",
@@ -443,9 +443,9 @@
     "rate_card": {
       "Feeds": 1500000,
       "Reels": 1500000,
-      "IG Story": 350
+      "IG Story": 350000
     },
-    "rate_min": 350,
+    "rate_min": 350000,
     "rate_max": 1500000,
     "contact_action": {
       "type": "whatsapp",
@@ -489,12 +489,12 @@
     "location_raw": "Nasional",
     "location_norm": "nasional",
     "rate_card": {
-      "Feeds": 800,
-      "Reels": 800,
-      "IG Story": 350
+      "Feeds": 800000,
+      "Reels": 800000,
+      "IG Story": 350000
     },
-    "rate_min": 350,
-    "rate_max": 800,
+    "rate_min": 350000,
+    "rate_max": 800000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6285376849515",
@@ -515,9 +515,9 @@
     "rate_card": {
       "Feeds": 2700000,
       "Reels": 2700000,
-      "IG Story": 500
+      "IG Story": 500000
     },
-    "rate_min": 500,
+    "rate_min": 500000,
     "rate_max": 2700000,
     "contact_action": {
       "type": "whatsapp",
@@ -537,12 +537,12 @@
     "location_raw": "Nasional",
     "location_norm": "nasional",
     "rate_card": {
-      "Feeds": 750,
-      "Reels": 750,
-      "IG Story": 200
+      "Feeds": 750000,
+      "Reels": 750000,
+      "IG Story": 200000
     },
-    "rate_min": 200,
-    "rate_max": 750,
+    "rate_min": 200000,
+    "rate_max": 750000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6285376849515",
@@ -561,12 +561,12 @@
     "location_raw": "Nasional",
     "location_norm": "nasional",
     "rate_card": {
-      "Feeds": 800,
-      "Reels": 800,
-      "IG Story": 250
+      "Feeds": 800000,
+      "Reels": 800000,
+      "IG Story": 250000
     },
-    "rate_min": 250,
-    "rate_max": 800,
+    "rate_min": 250000,
+    "rate_max": 800000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6285376849515",
@@ -585,12 +585,12 @@
     "location_raw": "Nasional",
     "location_norm": "nasional",
     "rate_card": {
-      "Feeds": 750,
-      "Reels": 750,
-      "IG Story": 150
+      "Feeds": 750000,
+      "Reels": 750000,
+      "IG Story": 150000
     },
-    "rate_min": 150,
-    "rate_max": 750,
+    "rate_min": 150000,
+    "rate_max": 750000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6285376849515",
@@ -635,9 +635,9 @@
     "rate_card": {
       "Feeds": 2500000,
       "Reels": 2500000,
-      "IG Story": 500
+      "IG Story": 500000
     },
-    "rate_min": 500,
+    "rate_min": 500000,
     "rate_max": 2500000,
     "contact_action": {
       "type": "whatsapp",
@@ -657,12 +657,12 @@
     "location_raw": "Jakarta",
     "location_norm": "jakarta",
     "rate_card": {
-      "Feeds": 650,
-      "Reels": 650,
-      "IG Story": 150
+      "Feeds": 650000,
+      "Reels": 650000,
+      "IG Story": 150000
     },
-    "rate_min": 150,
-    "rate_max": 650,
+    "rate_min": 150000,
+    "rate_max": 650000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6285376849515",
@@ -683,9 +683,9 @@
     "rate_card": {
       "Feeds": 1500000,
       "Reels": 1500000,
-      "IG Story": 350
+      "IG Story": 350000
     },
-    "rate_min": 350,
+    "rate_min": 350000,
     "rate_max": 1500000,
     "contact_action": {
       "type": "whatsapp",
@@ -705,12 +705,12 @@
     "location_raw": "Jakarta",
     "location_norm": "jakarta",
     "rate_card": {
-      "Feeds": 800,
-      "Reels": 800,
-      "IG Story": 250
+      "Feeds": 800000,
+      "Reels": 800000,
+      "IG Story": 250000
     },
-    "rate_min": 250,
-    "rate_max": 800,
+    "rate_min": 250000,
+    "rate_max": 800000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6285376849515",
@@ -731,9 +731,9 @@
     "rate_card": {
       "Feeds": 2000000,
       "Reels": 2000000,
-      "IG Story": 300
+      "IG Story": 300000
     },
-    "rate_min": 300,
+    "rate_min": 300000,
     "rate_max": 2000000,
     "contact_action": {
       "type": "whatsapp",
@@ -753,12 +753,12 @@
     "location_raw": "Nasional",
     "location_norm": "nasional",
     "rate_card": {
-      "Feeds": 350,
-      "IG Story": 200,
-      "Bundling": 400
+      "Feeds": 350000,
+      "IG Story": 200000,
+      "Bundling": 400000
     },
-    "rate_min": 200,
-    "rate_max": 400,
+    "rate_min": 200000,
+    "rate_max": 400000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6285822241265",
@@ -777,12 +777,12 @@
     "location_raw": "Nasional",
     "location_norm": "nasional",
     "rate_card": {
-      "Feeds": 100,
-      "IG Story": 50,
-      "Bundling": 120
+      "Feeds": 100000,
+      "IG Story": 50000,
+      "Bundling": 120000
     },
-    "rate_min": 50,
-    "rate_max": 120,
+    "rate_min": 50000,
+    "rate_max": 120000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6285822241265",
@@ -793,7 +793,7 @@
     "id": 34,
     "username": "Skrinsit",
     "social_media": "Instagram",
-    "followers_raw": "nan",
+    "followers_raw": "0",
     "followers_num": 0,
     "category": "Akun Gossip",
     "pic_name": "admin",
@@ -801,12 +801,12 @@
     "location_raw": "Nasional",
     "location_norm": "nasional",
     "rate_card": {
-      "Feeds": 250,
-      "Reels": 250,
-      "IG Story": 50
+      "Feeds": 250000,
+      "Reels": 250000,
+      "IG Story": 50000
     },
-    "rate_min": 50,
-    "rate_max": 250,
+    "rate_min": 50000,
+    "rate_max": 250000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6282334806095",
@@ -817,7 +817,7 @@
     "id": 35,
     "username": "tekniksyit",
     "social_media": "Instagram",
-    "followers_raw": "nan",
+    "followers_raw": "0",
     "followers_num": 0,
     "category": "Akun Meme/Lucu, Viral",
     "pic_name": "admin",
@@ -825,12 +825,12 @@
     "location_raw": "Nasional",
     "location_norm": "nasional",
     "rate_card": {
-      "Feeds": 100,
-      "Reels": 100,
-      "IG Story": 20
+      "Feeds": 100000,
+      "Reels": 100000,
+      "IG Story": 20000
     },
-    "rate_min": 20,
-    "rate_max": 100,
+    "rate_min": 20000,
+    "rate_max": 100000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6282334806095",
@@ -841,7 +841,7 @@
     "id": 36,
     "username": "awshitpostid",
     "social_media": "Instagram",
-    "followers_raw": "nan",
+    "followers_raw": "0",
     "followers_num": 0,
     "category": "Akun Meme/Lucu, Viral",
     "pic_name": "admin",
@@ -849,12 +849,12 @@
     "location_raw": "Nasional",
     "location_norm": "nasional",
     "rate_card": {
-      "Feeds": 250,
-      "Reels": 250,
-      "IG Story": 150
+      "Feeds": 250000,
+      "Reels": 250000,
+      "IG Story": 150000
     },
-    "rate_min": 150,
-    "rate_max": 250,
+    "rate_min": 150000,
+    "rate_max": 250000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6281377708364",
@@ -865,7 +865,7 @@
     "id": 37,
     "username": "lambegosiip",
     "social_media": "Instagram",
-    "followers_raw": "nan",
+    "followers_raw": "0",
     "followers_num": 0,
     "category": "Akun Gossip",
     "pic_name": "admin",
@@ -873,12 +873,12 @@
     "location_raw": "Nasional",
     "location_norm": "nasional",
     "rate_card": {
-      "Feeds": 710,
-      "Reels": 800,
-      "IG Story": 130
+      "Feeds": 710000,
+      "Reels": 800000,
+      "IG Story": 130000
     },
-    "rate_min": 130,
-    "rate_max": 800,
+    "rate_min": 130000,
+    "rate_max": 800000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6281370859276",
@@ -897,12 +897,12 @@
     "location_raw": "Nasional",
     "location_norm": "nasional",
     "rate_card": {
-      "Feeds": 500,
-      "Reels": 500,
-      "IG Story": 500
+      "Feeds": 500000,
+      "Reels": 500000,
+      "IG Story": 500000
     },
-    "rate_min": 500,
-    "rate_max": 500,
+    "rate_min": 500000,
+    "rate_max": 500000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6285648135606",
@@ -921,12 +921,12 @@
     "location_raw": "Bandung",
     "location_norm": "bandung",
     "rate_card": {
-      "Feeds": 300,
-      "Reels": 300,
-      "IG Story": 200
+      "Feeds": 300000,
+      "Reels": 300000,
+      "IG Story": 200000
     },
-    "rate_min": 200,
-    "rate_max": 300,
+    "rate_min": 200000,
+    "rate_max": 300000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6285780407911",
@@ -945,12 +945,12 @@
     "location_raw": "Bandung",
     "location_norm": "bandung",
     "rate_card": {
-      "Feeds/Reels": 299,
-      "Tiktok": 239,
-      "IG Story": 159
+      "Feeds/Reels": 299000,
+      "Tiktok": 239000,
+      "IG Story": 159000
     },
-    "rate_min": 159,
-    "rate_max": 299,
+    "rate_min": 159000,
+    "rate_max": 299000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6281283652828",
@@ -967,14 +967,14 @@
     "pic_name": "admin",
     "pic_contact": "81221636005",
     "location_raw": "Cirebon",
-    "location_norm": "bandung",
+    "location_norm": "cirebon",
     "rate_card": {
-      "Feeds": 150,
-      "Reels": 200,
-      "IG Story": 100
+      "Feeds": 150000,
+      "Reels": 200000,
+      "IG Story": 100000
     },
-    "rate_min": 100,
-    "rate_max": 200,
+    "rate_min": 100000,
+    "rate_max": 200000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6281221636005",
@@ -994,10 +994,10 @@
     "location_norm": "jakarta",
     "rate_card": {
       "Visit (reels,tiktok,3 igs)": 1200000,
-      "Paid Promote ( 1 posting video dari kita, 4 igs)": 700,
+      "Paid Promote ( 1 posting video dari kita, 4 igs)": 700000,
       "Special Deal ( 2x reels,2x tiktok mirror, 10 igs , pin post 25 hari)": 3000000
     },
-    "rate_min": 700,
+    "rate_min": 700000,
     "rate_max": 3000000,
     "contact_action": {
       "type": "whatsapp",
@@ -1017,12 +1017,12 @@
     "location_raw": "Bandung",
     "location_norm": "bandung",
     "rate_card": {
-      "Feeds": 200,
-      "Reels": 250,
-      "IG Story": 70
+      "Feeds": 200000,
+      "Reels": 250000,
+      "IG Story": 70000
     },
-    "rate_min": 70,
-    "rate_max": 250,
+    "rate_min": 70000,
+    "rate_max": 250000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6285161209025",
@@ -1041,12 +1041,12 @@
     "location_raw": "Bandung",
     "location_norm": "bandung",
     "rate_card": {
-      "Feeds": 850,
-      "Threads (60K followers)": 150,
-      "IG Story": 400
+      "Feeds": 850000,
+      "Threads (60K followers)": 150000,
+      "IG Story": 400000
     },
-    "rate_min": 150,
-    "rate_max": 850,
+    "rate_min": 150000,
+    "rate_max": 850000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6285798829338",
@@ -1065,12 +1065,12 @@
     "location_raw": "Nasional",
     "location_norm": "nasional",
     "rate_card": {
-      "Feeds/Reels": 2728,
+      "Feeds/Reels": 27000000,
       "Tiktok": 15000000,
       "IG Story": 15000000
     },
-    "rate_min": 2728,
-    "rate_max": 15000000,
+    "rate_min": 15000000,
+    "rate_max": 27000000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6282193639442",
@@ -1089,12 +1089,12 @@
     "location_raw": "Jakarta",
     "location_norm": "jakarta",
     "rate_card": {
-      "Feeds": 700,
-      "Reels": 750,
-      "IG Story": 350
+      "Feeds": 700000,
+      "Reels": 750000,
+      "IG Story": 350000
     },
-    "rate_min": 350,
-    "rate_max": 750,
+    "rate_min": 350000,
+    "rate_max": 750000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6288226365120",
@@ -1113,12 +1113,12 @@
     "location_raw": "Jakarta",
     "location_norm": "jakarta",
     "rate_card": {
-      "Feeds": 500,
-      "Reels": 500,
-      "IG Story": 185
+      "Feeds": 500000,
+      "Reels": 500000,
+      "IG Story": 185000
     },
-    "rate_min": 185,
-    "rate_max": 500,
+    "rate_min": 185000,
+    "rate_max": 500000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6288226365120",
@@ -1137,12 +1137,12 @@
     "location_raw": "Bekasi",
     "location_norm": "jakarta",
     "rate_card": {
-      "Feeds": 350,
-      "Reels": 350,
-      "IG Story": 150
+      "Feeds": 350000,
+      "Reels": 350000,
+      "IG Story": 150000
     },
-    "rate_min": 150,
-    "rate_max": 350,
+    "rate_min": 150000,
+    "rate_max": 350000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6288226365120",
@@ -1161,12 +1161,12 @@
     "location_raw": "Jakarta",
     "location_norm": "jakarta",
     "rate_card": {
-      "Feeds": 250,
-      "Reels": 250,
-      "IG Story": 150
+      "Feeds": 250000,
+      "Reels": 250000,
+      "IG Story": 150000
     },
-    "rate_min": 150,
-    "rate_max": 250,
+    "rate_min": 150000,
+    "rate_max": 250000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6288226365120",
@@ -1185,12 +1185,12 @@
     "location_raw": "Jabodetabek",
     "location_norm": "other",
     "rate_card": {
-      "Feeds": 250,
-      "Reels": 250,
-      "IG Story": 100
+      "Feeds": 250000,
+      "Reels": 250000,
+      "IG Story": 100000
     },
-    "rate_min": 100,
-    "rate_max": 250,
+    "rate_min": 100000,
+    "rate_max": 250000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6288226365120",
@@ -1209,12 +1209,12 @@
     "location_raw": "Tangerang",
     "location_norm": "jakarta",
     "rate_card": {
-      "Feeds": 250,
-      "Reels": 250,
-      "IG Story": 100
+      "Feeds": 250000,
+      "Reels": 250000,
+      "IG Story": 100000
     },
-    "rate_min": 100,
-    "rate_max": 250,
+    "rate_min": 100000,
+    "rate_max": 250000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6288226365120",
@@ -1233,12 +1233,12 @@
     "location_raw": "Bogor",
     "location_norm": "jakarta",
     "rate_card": {
-      "Feeds": 200,
-      "Reels": 200,
-      "IG Story": 85
+      "Feeds": 200000,
+      "Reels": 200000,
+      "IG Story": 85000
     },
-    "rate_min": 85,
-    "rate_max": 200,
+    "rate_min": 85000,
+    "rate_max": 200000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6288226365120",
@@ -1257,12 +1257,12 @@
     "location_raw": "Depok",
     "location_norm": "jakarta",
     "rate_card": {
-      "Feeds": 150,
-      "Reels": 150,
-      "IG Story": 75
+      "Feeds": 150000,
+      "Reels": 150000,
+      "IG Story": 75000
     },
-    "rate_min": 75,
-    "rate_max": 150,
+    "rate_min": 75000,
+    "rate_max": 150000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6288226365120",
@@ -1281,12 +1281,12 @@
     "location_raw": "Bekasi",
     "location_norm": "jakarta",
     "rate_card": {
-      "Feeds": 125,
-      "Reels": 125,
-      "IG Story": 85
+      "Feeds": 125000,
+      "Reels": 125000,
+      "IG Story": 85000
     },
-    "rate_min": 85,
-    "rate_max": 125,
+    "rate_min": 85000,
+    "rate_max": 125000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6288226365120",
@@ -1305,12 +1305,12 @@
     "location_raw": "Jakarta",
     "location_norm": "jakarta",
     "rate_card": {
-      "Feeds": 115,
-      "Reels": 115,
-      "IG Story": 50
+      "Feeds": 115000,
+      "Reels": 115000,
+      "IG Story": 50000
     },
-    "rate_min": 50,
-    "rate_max": 115,
+    "rate_min": 50000,
+    "rate_max": 115000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6288226365120",
@@ -1329,12 +1329,12 @@
     "location_raw": "Surabaya",
     "location_norm": "surabaya",
     "rate_card": {
-      "Feeds": 350,
-      "Reels": 350,
-      "IG Story": 150
+      "Feeds": 350000,
+      "Reels": 350000,
+      "IG Story": 150000
     },
-    "rate_min": 150,
-    "rate_max": 350,
+    "rate_min": 150000,
+    "rate_max": 350000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6288226365120",
@@ -1353,12 +1353,12 @@
     "location_raw": "Bandung",
     "location_norm": "bandung",
     "rate_card": {
-      "Feeds": 300,
-      "Reels": 300,
-      "IG Story": 150
+      "Feeds": 300000,
+      "Reels": 300000,
+      "IG Story": 150000
     },
-    "rate_min": 150,
-    "rate_max": 300,
+    "rate_min": 150000,
+    "rate_max": 300000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6288226365120",
@@ -1377,12 +1377,12 @@
     "location_raw": "Jogja",
     "location_norm": "yogyakarta",
     "rate_card": {
-      "Feeds": 250,
-      "Reels": 250,
-      "IG Story": 135
+      "Feeds": 250000,
+      "Reels": 250000,
+      "IG Story": 135000
     },
-    "rate_min": 135,
-    "rate_max": 250,
+    "rate_min": 135000,
+    "rate_max": 250000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6288226365120",
@@ -1401,12 +1401,12 @@
     "location_raw": "Bandung",
     "location_norm": "bandung",
     "rate_card": {
-      "Feeds": 100,
-      "Reels": 100,
-      "IG Story": 50
+      "Feeds": 100000,
+      "Reels": 100000,
+      "IG Story": 50000
     },
-    "rate_min": 50,
-    "rate_max": 100,
+    "rate_min": 50000,
+    "rate_max": 100000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6288226365120",
@@ -1425,12 +1425,12 @@
     "location_raw": "Bali",
     "location_norm": "bali",
     "rate_card": {
-      "Feeds": 110,
-      "Reels": 125,
-      "IG Story": 75
+      "Feeds": 110000,
+      "Reels": 125000,
+      "IG Story": 75000
     },
-    "rate_min": 75,
-    "rate_max": 125,
+    "rate_min": 75000,
+    "rate_max": 125000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6288226365120",
@@ -1449,12 +1449,12 @@
     "location_raw": "Nasional",
     "location_norm": "nasional",
     "rate_card": {
-      "Feeds": 500,
-      "Reels": 500,
-      "IG Story": 250
+      "Feeds": 500000,
+      "Reels": 500000,
+      "IG Story": 250000
     },
-    "rate_min": 250,
-    "rate_max": 500,
+    "rate_min": 250000,
+    "rate_max": 500000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6288226365120",
@@ -1473,12 +1473,12 @@
     "location_raw": "Nasional",
     "location_norm": "nasional",
     "rate_card": {
-      "Feeds": 300,
-      "Reels": 300,
-      "IG Story": 150
+      "Feeds": 300000,
+      "Reels": 300000,
+      "IG Story": 150000
     },
-    "rate_min": 150,
-    "rate_max": 300,
+    "rate_min": 150000,
+    "rate_max": 300000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6288226365120",
@@ -1499,9 +1499,9 @@
     "rate_card": {
       "Feeds": 2500000,
       "Reels": 2500000,
-      "IG Story": 500
+      "IG Story": 500000
     },
-    "rate_min": 500,
+    "rate_min": 500000,
     "rate_max": 2500000,
     "contact_action": {
       "type": "whatsapp",
@@ -1523,9 +1523,9 @@
     "rate_card": {
       "Feeds": 2500000,
       "Reels": 2500000,
-      "IG Story": 500
+      "IG Story": 500000
     },
-    "rate_min": 500,
+    "rate_min": 500000,
     "rate_max": 2500000,
     "contact_action": {
       "type": "whatsapp",
@@ -1547,9 +1547,9 @@
     "rate_card": {
       "Feeds": 2500000,
       "Reels": 2500000,
-      "IG Story": 350
+      "IG Story": 350000
     },
-    "rate_min": 350,
+    "rate_min": 350000,
     "rate_max": 2500000,
     "contact_action": {
       "type": "whatsapp",
@@ -1571,9 +1571,9 @@
     "rate_card": {
       "Feeds": 1800000,
       "Reels": 1800000,
-      "IG Story": 450
+      "IG Story": 450000
     },
-    "rate_min": 450,
+    "rate_min": 450000,
     "rate_max": 1800000,
     "contact_action": {
       "type": "whatsapp",
@@ -1595,9 +1595,9 @@
     "rate_card": {
       "Feeds": 1700000,
       "Reels": 1700000,
-      "IG Story": 450
+      "IG Story": 450000
     },
-    "rate_min": 450,
+    "rate_min": 450000,
     "rate_max": 1700000,
     "contact_action": {
       "type": "whatsapp",
@@ -1619,9 +1619,9 @@
     "rate_card": {
       "Feeds": 1300000,
       "Reels": 1300000,
-      "IG Story": 300
+      "IG Story": 300000
     },
-    "rate_min": 300,
+    "rate_min": 300000,
     "rate_max": 1300000,
     "contact_action": {
       "type": "whatsapp",
@@ -1643,9 +1643,9 @@
     "rate_card": {
       "Feeds": 1000000,
       "Reels": 1000000,
-      "IG Story": 300
+      "IG Story": 300000
     },
-    "rate_min": 300,
+    "rate_min": 300000,
     "rate_max": 1000000,
     "contact_action": {
       "type": "whatsapp",
@@ -1667,9 +1667,9 @@
     "rate_card": {
       "Feeds": 1000000,
       "Reels": 1000000,
-      "IG Story": 200
+      "IG Story": 200000
     },
-    "rate_min": 200,
+    "rate_min": 200000,
     "rate_max": 1000000,
     "contact_action": {
       "type": "whatsapp",
@@ -1689,12 +1689,12 @@
     "location_raw": "Nasional",
     "location_norm": "nasional",
     "rate_card": {
-      "Feeds": 800,
-      "Reels": 800,
-      "IG Story": 200
+      "Feeds": 800000,
+      "Reels": 800000,
+      "IG Story": 200000
     },
-    "rate_min": 200,
-    "rate_max": 800,
+    "rate_min": 200000,
+    "rate_max": 800000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6285646177771",
@@ -1713,12 +1713,12 @@
     "location_raw": "Nasional",
     "location_norm": "nasional",
     "rate_card": {
-      "Feeds": 500,
-      "Reels": 500,
-      "IG Story": 100
+      "Feeds": 500000,
+      "Reels": 500000,
+      "IG Story": 100000
     },
-    "rate_min": 100,
-    "rate_max": 500,
+    "rate_min": 100000,
+    "rate_max": 500000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6285646177771",
@@ -1737,12 +1737,12 @@
     "location_raw": "Nasional",
     "location_norm": "nasional",
     "rate_card": {
-      "Feeds": 500,
-      "Reels": 500,
-      "IG Story": 100
+      "Feeds": 500000,
+      "Reels": 500000,
+      "IG Story": 100000
     },
-    "rate_min": 100,
-    "rate_max": 500,
+    "rate_min": 100000,
+    "rate_max": 500000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6285646177771",
@@ -1827,10 +1827,10 @@
     "location_raw": "Nasional",
     "location_norm": "nasional",
     "rate_card": {
-      "Tiktok": 500
+      "Tiktok": 500000
     },
-    "rate_min": 500,
-    "rate_max": 500,
+    "rate_min": 500000,
+    "rate_max": 500000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6285646177771",
@@ -1849,10 +1849,10 @@
     "location_raw": "Nasional",
     "location_norm": "nasional",
     "rate_card": {
-      "Tiktok": 350
+      "Tiktok": 350000
     },
-    "rate_min": 350,
-    "rate_max": 350,
+    "rate_min": 350000,
+    "rate_max": 350000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6285646177771",
@@ -1871,10 +1871,10 @@
     "location_raw": "Nasional",
     "location_norm": "nasional",
     "rate_card": {
-      "Tiktok": 350
+      "Tiktok": 350000
     },
-    "rate_min": 350,
-    "rate_max": 350,
+    "rate_min": 350000,
+    "rate_max": 350000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6285646177771",
@@ -1893,10 +1893,10 @@
     "location_raw": "Nasional",
     "location_norm": "nasional",
     "rate_card": {
-      "Tiktok": 350
+      "Tiktok": 350000
     },
-    "rate_min": 350,
-    "rate_max": 350,
+    "rate_min": 350000,
+    "rate_max": 350000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6285646177771",
@@ -1961,10 +1961,10 @@
     "location_raw": "Manado",
     "location_norm": "sulawesi",
     "rate_card": {
-      "post feeds and story": 100
+      "post feeds and story": 100000
     },
-    "rate_min": 100,
-    "rate_max": 100,
+    "rate_min": 100000,
+    "rate_max": 100000,
     "contact_action": {
       "type": "instagram",
       "url": "https://instagram.com/info_mdo",
@@ -1983,10 +1983,10 @@
     "location_raw": "Sulawesi Selatan",
     "location_norm": "sulawesi",
     "rate_card": {
-      "Reels": 250
+      "Reels": 250000
     },
-    "rate_min": 250,
-    "rate_max": 250,
+    "rate_min": 250000,
+    "rate_max": 250000,
     "contact_action": {
       "type": "instagram",
       "url": "https://instagram.com/rakyat.sulsel",
@@ -2005,11 +2005,11 @@
     "location_raw": "Kalimantan Timur",
     "location_norm": "kalimantan",
     "rate_card": {
-      "Feeds 1x": 400,
+      "Feeds 1x": 400000,
       "Feeds 3x": 1100000,
       "Feeds 5x": 1750000
     },
-    "rate_min": 400,
+    "rate_min": 400000,
     "rate_max": 1750000,
     "contact_action": {
       "type": "instagram",
@@ -2029,12 +2029,12 @@
     "location_raw": "Kalimantan",
     "location_norm": "kalimantan",
     "rate_card": {
-      "Feeds": 650,
-      "Reels": 650,
-      "IG Story": 100
+      "Feeds": 650000,
+      "Reels": 650000,
+      "IG Story": 100000
     },
-    "rate_min": 100,
-    "rate_max": 650,
+    "rate_min": 100000,
+    "rate_max": 650000,
     "contact_action": {
       "type": "instagram",
       "url": "https://instagram.com/info_banjarmasin",
@@ -2055,9 +2055,9 @@
     "rate_card": {
       "Feeds": 1500000,
       "Reels": 1500000,
-      "IG Story": 500
+      "IG Story": 500000
     },
-    "rate_min": 500,
+    "rate_min": 500000,
     "rate_max": 1500000,
     "contact_action": {
       "type": "instagram",
@@ -2121,10 +2121,10 @@
     "location_raw": "Kalimantan",
     "location_norm": "kalimantan",
     "rate_card": {
-      "1x IG Reels/Carousel/Feeds": 750
+      "1x IG Reels/Carousel/Feeds": 750000
     },
-    "rate_min": 750,
-    "rate_max": 750,
+    "rate_min": 750000,
+    "rate_max": 750000,
     "contact_action": {
       "type": "instagram",
       "url": "https://instagram.com/info_kejadian_banjarmasin",
@@ -2143,12 +2143,12 @@
     "location_raw": "Kalimantan Barat",
     "location_norm": "kalimantan",
     "rate_card": {
-      "Feeds": 250,
-      "Reels": 300,
-      "IG Story": 100
+      "Feeds": 250000,
+      "Reels": 300000,
+      "IG Story": 100000
     },
-    "rate_min": 100,
-    "rate_max": 300,
+    "rate_min": 100000,
+    "rate_max": 300000,
     "contact_action": {
       "type": "instagram",
       "url": "https://instagram.com/kalbar_info",
@@ -2167,12 +2167,12 @@
     "location_raw": "Makassar",
     "location_norm": "sulawesi",
     "rate_card": {
-      "Feeds": 800,
-      "Reels": 800,
-      "IG Story": 350
+      "Feeds": 800000,
+      "Reels": 800000,
+      "IG Story": 350000
     },
-    "rate_min": 350,
-    "rate_max": 800,
+    "rate_min": 350000,
+    "rate_max": 800000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6285756410742",
@@ -2191,10 +2191,10 @@
     "location_raw": "Tangerang",
     "location_norm": "jakarta",
     "rate_card": {
-      "1x IG Reels/Carousel/Feeds": 150
+      "1x IG Reels/Carousel/Feeds": 150000
     },
-    "rate_min": 150,
-    "rate_max": 150,
+    "rate_min": 150000,
+    "rate_max": 150000,
     "contact_action": {
       "type": "instagram",
       "url": "https://instagram.com/info_gading_serpong",
@@ -2263,9 +2263,9 @@
     "rate_card": {
       "Feeds": 3000000,
       "Reels": 3500000,
-      "IG Story": 750
+      "IG Story": 750000
     },
-    "rate_min": 750,
+    "rate_min": 750000,
     "rate_max": 3500000,
     "contact_action": {
       "type": "whatsapp",
@@ -2287,9 +2287,9 @@
     "rate_card": {
       "Feeds": 2000000,
       "Reels": 3000000,
-      "IG Story": 750
+      "IG Story": 750000
     },
-    "rate_min": 750,
+    "rate_min": 750000,
     "rate_max": 3000000,
     "contact_action": {
       "type": "whatsapp",
@@ -2311,9 +2311,9 @@
     "rate_card": {
       "Feeds": 2000000,
       "Reels": 3000000,
-      "IG Story": 750
+      "IG Story": 750000
     },
-    "rate_min": 750,
+    "rate_min": 750000,
     "rate_max": 3000000,
     "contact_action": {
       "type": "whatsapp",
@@ -2331,13 +2331,13 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Magelang",
-    "location_norm": "yogyakarta",
+    "location_norm": "jawa_tengah",
     "rate_card": {
       "Feeds": 3000000,
       "Reels": 3500000,
-      "IG Story": 750
+      "IG Story": 750000
     },
-    "rate_min": 750,
+    "rate_min": 750000,
     "rate_max": 3500000,
     "contact_action": {
       "type": "whatsapp",
@@ -2355,14 +2355,14 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Magelang",
-    "location_norm": "yogyakarta",
+    "location_norm": "jawa_tengah",
     "rate_card": {
-      "Feeds": 600,
-      "Reels": 700,
-      "IG Story": 150
+      "Feeds": 600000,
+      "Reels": 700000,
+      "IG Story": 150000
     },
-    "rate_min": 150,
-    "rate_max": 700,
+    "rate_min": 150000,
+    "rate_max": 700000,
     "contact_action": {
       "type": "whatsapp",
       "url": "https://wa.me/6285719401440",
@@ -2379,13 +2379,13 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Magelang",
-    "location_norm": "yogyakarta",
+    "location_norm": "jawa_tengah",
     "rate_card": {
       "Feeds": 2000000,
       "Reels": 3000000,
-      "IG Story": 750
+      "IG Story": 750000
     },
-    "rate_min": 750,
+    "rate_min": 750000,
     "rate_max": 3000000,
     "contact_action": {
       "type": "whatsapp",
@@ -2403,13 +2403,13 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Magelang",
-    "location_norm": "yogyakarta",
+    "location_norm": "jawa_tengah",
     "rate_card": {
       "Feeds": 3000000,
       "Reels": 3500000,
-      "IG Story": 750
+      "IG Story": 750000
     },
-    "rate_min": 750,
+    "rate_min": 750000,
     "rate_max": 3500000,
     "contact_action": {
       "type": "whatsapp",
@@ -2550,10 +2550,10 @@
     "location_norm": "sumatra",
     "rate_card": {
       "Feeds": 3000000,
-      "Reels": 35000,
+      "Reels": 350000,
       "IG Story": 750000
     },
-    "rate_min": 35000,
+    "rate_min": 350000,
     "rate_max": 3000000,
     "contact_action": {
       "type": "whatsapp",
@@ -2643,7 +2643,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Banten",
-    "location_norm": "banten",
+    "location_norm": "other",
     "rate_card": {
       "Feeds": 500000,
       "Reels": 500000,
@@ -2667,7 +2667,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Banten",
-    "location_norm": "banten",
+    "location_norm": "other",
     "rate_card": {
       "Feeds": 1000000,
       "Reels": 2000000,
@@ -2687,11 +2687,11 @@
     "social_media": "Instagram",
     "followers_raw": "16,2K",
     "followers_num": 16200,
-    "category": "Media",
+    "category": "Trending News",
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Banten",
-    "location_norm": "banten",
+    "location_norm": "other",
     "rate_card": {
       "Feeds": 500000,
       "Reels": 500000,
@@ -2715,7 +2715,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Banten",
-    "location_norm": "banten",
+    "location_norm": "other",
     "rate_card": {
       "Feeds": 3000000,
       "Reels": 3000000,
@@ -2739,7 +2739,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Banten",
-    "location_norm": "banten",
+    "location_norm": "other",
     "rate_card": {
       "Feeds": 2000000,
       "Reels": 3000000,
@@ -2763,7 +2763,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Banten",
-    "location_norm": "banten",
+    "location_norm": "other",
     "rate_card": {
       "Feeds": 2000000,
       "Reels": 3000000,
@@ -2805,7 +2805,7 @@
     "id": 120,
     "username": "depok.update",
     "social_media": "Instagram",
-    "followers_raw": "nan",
+    "followers_raw": "0",
     "followers_num": 0,
     "category": "Trending News",
     "pic_name": "admin",
@@ -2973,7 +2973,7 @@
     "id": 127,
     "username": "jktsekarang",
     "social_media": "Instagram",
-    "followers_raw": "nan",
+    "followers_raw": "0",
     "followers_num": 0,
     "category": "Trending News",
     "pic_name": "admin",
@@ -3555,7 +3555,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Jawa Barat",
-    "location_norm": "jawa_barat",
+    "location_norm": "other",
     "rate_card": {
       "Feeds": 8000000,
       "Reels": 8000000,
@@ -3579,7 +3579,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Semarang",
-    "location_norm": "yogyakarta",
+    "location_norm": "semarang",
     "rate_card": {
       "Feeds": 4500000,
       "Reels": 5000000,
@@ -3603,7 +3603,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Semarang",
-    "location_norm": "yogyakarta",
+    "location_norm": "semarang",
     "rate_card": {
       "Feeds": 4000000,
       "Reels": 4500000,
@@ -3627,7 +3627,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Semarang",
-    "location_norm": "yogyakarta",
+    "location_norm": "semarang",
     "rate_card": {
       "Feeds": 4000000,
       "Reels": 4500000,
@@ -3651,7 +3651,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Semarang",
-    "location_norm": "yogyakarta",
+    "location_norm": "semarang",
     "rate_card": {
       "Feeds": 3000000,
       "Reels": 3500000,
@@ -3675,7 +3675,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Semarang",
-    "location_norm": "yogyakarta",
+    "location_norm": "semarang",
     "rate_card": {
       "Feeds": 1500000,
       "Reels": 2000000,
@@ -3699,7 +3699,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Semarang",
-    "location_norm": "yogyakarta",
+    "location_norm": "semarang",
     "rate_card": {
       "Feeds": 600000,
       "Reels": 700000,
@@ -3723,7 +3723,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Malang",
-    "location_norm": "surabaya",
+    "location_norm": "malang",
     "rate_card": {
       "Feeds": 3000000,
       "Reels": 3500000,
@@ -3747,7 +3747,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Malang",
-    "location_norm": "surabaya",
+    "location_norm": "malang",
     "rate_card": {
       "Feeds": 6000000,
       "Reels": 6000000,
@@ -3771,7 +3771,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Malang",
-    "location_norm": "surabaya",
+    "location_norm": "malang",
     "rate_card": {
       "Feeds": 4000000,
       "Reels": 4500000,
@@ -3795,7 +3795,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Malang",
-    "location_norm": "surabaya",
+    "location_norm": "malang",
     "rate_card": {
       "Feeds": 5500000,
       "Reels": 6000000,
@@ -3819,7 +3819,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Malang",
-    "location_norm": "surabaya",
+    "location_norm": "malang",
     "rate_card": {
       "Feeds": 4000000,
       "Reels": 4500000,
@@ -3843,7 +3843,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Malang",
-    "location_norm": "surabaya",
+    "location_norm": "malang",
     "rate_card": {
       "Feeds": 600000,
       "Reels": 700000,
@@ -3867,7 +3867,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Malang",
-    "location_norm": "surabaya",
+    "location_norm": "malang",
     "rate_card": {
       "Feeds": 1500000,
       "Reels": 2000000,
@@ -3909,8 +3909,8 @@
     "id": 166,
     "username": "palembanginfodotcom",
     "social_media": "Instagram",
-    "followers_raw": "5.882",
-    "followers_num": 5,
+    "followers_raw": "5882",
+    "followers_num": 5882,
     "category": "Trending News",
     "pic_name": "admin",
     "pic_contact": "85719401440",
@@ -4179,7 +4179,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Jember",
-    "location_norm": "surabaya",
+    "location_norm": "jawa_timur",
     "rate_card": {
       "Feeds": 2000000,
       "Reels": 3000000,
@@ -4203,7 +4203,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Jember",
-    "location_norm": "surabaya",
+    "location_norm": "jawa_timur",
     "rate_card": {
       "Feeds": 2000000,
       "Reels": 3000000,
@@ -4227,7 +4227,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Jember",
-    "location_norm": "surabaya",
+    "location_norm": "jawa_timur",
     "rate_card": {
       "Feeds": 2000000,
       "Reels": 3000000,
@@ -4251,7 +4251,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Jember",
-    "location_norm": "surabaya",
+    "location_norm": "jawa_timur",
     "rate_card": {
       "Feeds": 2000000,
       "Reels": 3000000,
@@ -4275,7 +4275,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Jember",
-    "location_norm": "surabaya",
+    "location_norm": "jawa_timur",
     "rate_card": {
       "Feeds": 200000,
       "Reels": 300000,
@@ -4299,7 +4299,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Jember",
-    "location_norm": "surabaya",
+    "location_norm": "jawa_timur",
     "rate_card": {
       "Feeds": 2000000,
       "Reels": 3000000,
@@ -4323,7 +4323,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Solo",
-    "location_norm": "yogyakarta",
+    "location_norm": "solo",
     "rate_card": {
       "Feeds": 2000000,
       "Reels": 3000000,
@@ -4347,7 +4347,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Solo",
-    "location_norm": "yogyakarta",
+    "location_norm": "solo",
     "rate_card": {
       "Feeds": 2000000,
       "Reels": 3000000,
@@ -4371,7 +4371,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Solo",
-    "location_norm": "yogyakarta",
+    "location_norm": "solo",
     "rate_card": {
       "Feeds": 4500000,
       "Reels": 5000000,
@@ -4395,7 +4395,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Solo",
-    "location_norm": "yogyakarta",
+    "location_norm": "solo",
     "rate_card": {
       "Feeds": 600000,
       "Reels": 700000,
@@ -4419,7 +4419,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Surakarta",
-    "location_norm": "other",
+    "location_norm": "solo",
     "rate_card": {
       "Feeds": 600000,
       "Reels": 700000,
@@ -4443,7 +4443,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Banyuwangi",
-    "location_norm": "surabaya",
+    "location_norm": "jawa_timur",
     "rate_card": {
       "Feeds": 600000,
       "Reels": 700000,
@@ -4461,13 +4461,13 @@
     "id": 189,
     "username": "banyuwangi_hitsss",
     "social_media": "Instagram",
-    "followers_raw": "nan",
+    "followers_raw": "0",
     "followers_num": 0,
     "category": "Trending News",
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Banyuwangi",
-    "location_norm": "surabaya",
+    "location_norm": "jawa_timur",
     "rate_card": {
       "Feeds": 3000000,
       "Reels": 3500000,
@@ -4491,7 +4491,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Banyuwangi",
-    "location_norm": "surabaya",
+    "location_norm": "jawa_timur",
     "rate_card": {
       "Feeds": 3000000,
       "Reels": 3500000,
@@ -4515,7 +4515,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Banyuwangi",
-    "location_norm": "surabaya",
+    "location_norm": "jawa_timur",
     "rate_card": {
       "Feeds": 600000,
       "Reels": 700000,
@@ -4539,7 +4539,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Banyuwangi",
-    "location_norm": "surabaya",
+    "location_norm": "jawa_timur",
     "rate_card": {
       "Feeds": 3000000,
       "Reels": 3500000,
@@ -4563,7 +4563,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Banyuwangi",
-    "location_norm": "surabaya",
+    "location_norm": "jawa_timur",
     "rate_card": {
       "Feeds": 600000,
       "Reels": 700000,
@@ -4587,7 +4587,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Banyuwangi",
-    "location_norm": "surabaya",
+    "location_norm": "jawa_timur",
     "rate_card": {
       "Feeds": 600000,
       "Reels": 700000,
@@ -4755,7 +4755,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Madiun",
-    "location_norm": "other",
+    "location_norm": "jawa_timur",
     "rate_card": {
       "Feeds": 3000000,
       "Reels": 3500000,
@@ -4779,7 +4779,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Madiun",
-    "location_norm": "other",
+    "location_norm": "jawa_timur",
     "rate_card": {
       "Feeds": 3000000,
       "Reels": 3500000,
@@ -4803,7 +4803,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Madiun",
-    "location_norm": "other",
+    "location_norm": "jawa_timur",
     "rate_card": {
       "Feeds": 600000,
       "Reels": 700000,
@@ -4827,7 +4827,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Madiun",
-    "location_norm": "other",
+    "location_norm": "jawa_timur",
     "rate_card": {
       "Feeds": 600000,
       "Reels": 700000,
@@ -4869,7 +4869,7 @@
     "id": 206,
     "username": "infobali.terbaru",
     "social_media": "Instagram",
-    "followers_raw": "nan",
+    "followers_raw": "0",
     "followers_num": 0,
     "category": "Trending News",
     "pic_name": "admin",
@@ -5013,7 +5013,7 @@
     "id": 212,
     "username": "jogja_today",
     "social_media": "Instagram",
-    "followers_raw": "nan",
+    "followers_raw": "0",
     "followers_num": 0,
     "category": "Trending News",
     "pic_name": "admin",
@@ -5043,7 +5043,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Cirebon",
-    "location_norm": "bandung",
+    "location_norm": "cirebon",
     "rate_card": {
       "Feeds": 3000000,
       "Reels": 3000000,
@@ -5067,7 +5067,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Cirebon",
-    "location_norm": "bandung",
+    "location_norm": "cirebon",
     "rate_card": {
       "Feeds": 3750000,
       "Reels": 3750000,
@@ -5091,7 +5091,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Cirebon",
-    "location_norm": "bandung",
+    "location_norm": "cirebon",
     "rate_card": {
       "Feeds": 600000,
       "Reels": 700000,
@@ -5115,7 +5115,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Cirebon",
-    "location_norm": "bandung",
+    "location_norm": "cirebon",
     "rate_card": {
       "Feeds": 2000000,
       "Reels": 3000000,
@@ -5139,7 +5139,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Cirebon",
-    "location_norm": "bandung",
+    "location_norm": "cirebon",
     "rate_card": {
       "Feeds": 2000000,
       "Reels": 3000000,
@@ -5163,7 +5163,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Cirebon",
-    "location_norm": "bandung",
+    "location_norm": "cirebon",
     "rate_card": {
       "Feeds": 600000,
       "Reels": 700000,
@@ -5187,7 +5187,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Cirebon",
-    "location_norm": "bandung",
+    "location_norm": "cirebon",
     "rate_card": {
       "Feeds": 600000,
       "Reels": 700000,
@@ -5211,7 +5211,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Cirebon",
-    "location_norm": "bandung",
+    "location_norm": "cirebon",
     "rate_card": {
       "Feeds": 600000,
       "Reels": 700000,
@@ -5235,7 +5235,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Cirebon",
-    "location_norm": "bandung",
+    "location_norm": "cirebon",
     "rate_card": {
       "Feeds": 2000000,
       "Reels": 3000000,
@@ -5325,7 +5325,7 @@
     "id": 225,
     "username": "infomedan",
     "social_media": "Instagram",
-    "followers_raw": "nan",
+    "followers_raw": "0",
     "followers_num": 0,
     "category": "Trending News",
     "pic_name": "admin",
@@ -5349,7 +5349,7 @@
     "id": 226,
     "username": "infomedia_medan",
     "social_media": "Instagram",
-    "followers_raw": "nan",
+    "followers_raw": "0",
     "followers_num": 0,
     "category": "Trending News",
     "pic_name": "admin",
@@ -5737,7 +5737,7 @@
     "pic_name": "admin",
     "pic_contact": "85719401440",
     "location_raw": "Palopo",
-    "location_norm": "other",
+    "location_norm": "sulawesi",
     "rate_card": {
       "Feeds": 300000,
       "Reels": 350000,
@@ -5779,8 +5779,8 @@
     "id": 244,
     "username": "public says",
     "social_media": "Tiktok",
-    "followers_raw": "2.585",
-    "followers_num": 2,
+    "followers_raw": "2585",
+    "followers_num": 2585,
     "category": "entertainment,News",
     "pic_name": "admin",
     "pic_contact": "8127381003",

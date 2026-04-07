@@ -1,0 +1,16 @@
+{
+  "audience_profile": "Wanita muda di Jakarta yang tertarik dengan gaya hidup dan hubungan",
+  "content_style": "Konten singkat dan menarik tentang kehidupan sehari-hari",
+  "cross_topics": [
+    "Motivasi",
+    "Kewirausahaan"
+  ],
+  "campaign_fit_reason": "KOL ini cocok untuk campaign karena memiliki audiens yang sesuai dengan target audience UMKM Perempuan di Indonesia, namun konten utamanya tidak secara langsung terkait dengan finance keuangan investasi",
+  "fit_score": 0.4,
+  "audience_overlap": [
+    "Ibu muda",
+    "Wanita karier"
+  ],
+  "risk_flag": "Tidak ada konten yang terkait langsung dengan finance keuangan investasi",
+  "summary": "KOL ini memiliki audiens yang potensial untuk campaign UMKM Perempuan, namun perlu penyesuaian konten untuk meningkatkan kesesuaian"
+}

@@ -1,0 +1,15 @@
+{
+  "audience_profile": "Pemuda dan pemudi muda di Indonesia yang suka hiburan dan tren terkini",
+  "content_style": "Konten hiburan yang ringan dan menyenangkan",
+  "cross_topics": [
+    "Lifestyle",
+    "Tren"
+  ],
+  "campaign_fit_reason": "KOL ini tidak sepenuhnya cocok untuk campaign karena konten utamanya adalah hiburan, namun masih memiliki potensi untuk mempromosikan topik keuangan dan investasi kepada audiens muda",
+  "fit_score": 0.4,
+  "audience_overlap": [
+    "Gen-Z"
+  ],
+  "risk_flag": "Mismatch antara kategori konten utama KOL dengan topik campaign",
+  "summary": "KOL hiburan dengan audiens muda yang potensial, namun perlu penyesuaian untuk mempromosikan topik keuangan dan investasi"
+}

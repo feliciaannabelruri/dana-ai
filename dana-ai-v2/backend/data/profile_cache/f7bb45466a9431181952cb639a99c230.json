@@ -1,0 +1,12 @@
+{
+  "audience_profile": "Pemuda dan pemudi Jakarta yang suka hiburan dan memiliki minat pada konten entertainment",
+  "content_style": "Konten singkat dan menarik",
+  "cross_topics": [],
+  "campaign_fit_reason": "KOL ini tidak memiliki topik yang relevan dengan finance keuangan investasi, sehingga kurang cocok untuk campaign ini",
+  "fit_score": 0.2,
+  "audience_overlap": [
+    "gen-z"
+  ],
+  "risk_flag": "Mismatch antara topik konten KOL dengan topik campaign",
+  "summary": "KOL ini kurang cocok untuk campaign pemberdayaan UMKM perempuan karena tidak memiliki topik yang relevan"
+}

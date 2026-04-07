@@ -10,6 +10,7 @@ import pandas as pd
 import joblib, os, json
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import MinMaxScaler
+from kol_profiler import batch_profile_kols
 
 try:
     from company_profile import (
@@ -61,16 +62,19 @@ LOCATION_LIST  = ['jakarta','bandung','cirebon','surabaya','malang','jawa_timur'
                   'bali','sumatra','kalimantan','sulawesi','nasional','other','unknown']
 
 WEIGHTS = {
-    'semantic':   0.25,
-    'rf':         0.17,
-    'xgb_er':     0.14,
-    'rbm':        0.09,
-    'budget':     0.12,
-    'location':   0.09,
-    'brand_fit':  0.10,
-    'pattern':    0.03,
-    'tier':       0.01,
+    'semantic':    0.20,
+    'rf':          0.15,
+    'xgb_er':      0.12,
+    'rbm':         0.08,
+    'budget':      0.12,
+    'location':    0.08,
+    'brand_fit':   0.08,
+    'pattern':     0.03,
+    'tier':        0.01,
+    'llm_profile': 0.13,
 }
+
+PRE_FILTER_MULT = 3
 
 _cache = {}
 
@@ -404,6 +408,18 @@ def recommend(topics, goals, campaign_description, location,
     else:
         df_f = df.copy()
 
+    # ── STEP 3: Pre-filter kandidat & LLM profiling ─────────────
+    pre_candidate_df = df_f.head(num_kol * PRE_FILTER_MULT)
+    kol_dicts = pre_candidate_df.to_dict(orient="records")
+    campaign_params = {
+        "goals":                goals,
+        "topics":               topics,
+        "campaign_description": campaign_description,
+        "target_audience":      "",
+    }
+    print(f"   [LLM] Profiling {len(kol_dicts)} kandidat KOL (concurrent, cached)...")
+    llm_profiles = batch_profile_kols(kol_dicts, campaign_params)
+
     cat_embs   = m['cat_embeddings']
     df_full    = m['df']  # df asli (sebelum filter) untuk index cat_embeddings
     results    = []
@@ -424,16 +440,21 @@ def recommend(topics, goals, campaign_description, location,
         s_pattern = score_pattern(row, patterns)
         s_tier    = score_tier(row['tier_score'], preferred_tier)
 
+        # ── LLM profile score ────────────────────────────────────
+        profile = llm_profiles.get(to_str(row.get("username", "")), {})
+        s_llm   = float(profile.get("fit_score", 0.5))
+
         final = (
-            WEIGHTS['semantic']  * s_sem +
-            WEIGHTS['rf']        * s_rf +
-            WEIGHTS['xgb_er']    * s_xgb +
-            WEIGHTS['rbm']       * s_rbm +
-            WEIGHTS['budget']    * s_budget +
-            WEIGHTS['location']  * s_loc +
-            WEIGHTS['brand_fit'] * s_brand +
-            WEIGHTS['pattern']   * s_pattern +
-            WEIGHTS['tier']      * s_tier
+            WEIGHTS['semantic']    * s_sem    +
+            WEIGHTS['rf']          * s_rf     +
+            WEIGHTS['xgb_er']      * s_xgb    +
+            WEIGHTS['rbm']         * s_rbm    +
+            WEIGHTS['budget']      * s_budget +
+            WEIGHTS['location']    * s_loc    +
+            WEIGHTS['brand_fit']   * s_brand  +
+            WEIGHTS['pattern']     * s_pattern+
+            WEIGHTS['tier']        * s_tier   +
+            WEIGHTS['llm_profile'] * s_llm
         )
 
         rate_card = {}
@@ -467,6 +488,8 @@ def recommend(topics, goals, campaign_description, location,
             ts = patterns.get('tier_stats', {}).get(tier_name, {})
             if ts:
                 reasons.append(f"tier {tier_name} avg ER {ts.get('avg_er',0):.1f}% di campaign sebelumnya")
+        if s_llm >= 0.7 and profile.get('campaign_fit_reason'):
+            reasons.append(f"LLM: {profile['campaign_fit_reason'][:80]}")
 
         er_display = None
         xgb_er_pred = None
@@ -510,10 +533,19 @@ def recommend(topics, goals, campaign_description, location,
                 'location':          to_float(s_loc * 100),
                 'campaign pattern':  to_float(s_pattern * 100),
                 'tier':              to_float(s_tier * 100),
+                'llm profile':       to_float(s_llm * 100),
             },
             'reasoning':      ' & '.join(reasons) if reasons else 'Profil sesuai parameter campaign',
             'pic_contact':    to_str(row.get('pic_contact', '')),
             'contact_action': build_contact(row.get('pic_contact',''), row['social_media'], row['username']),
+            'llm_profile': {
+                'summary':           profile.get('summary', ''),
+                'audience_profile':  profile.get('audience_profile', ''),
+                'cross_topics':      profile.get('cross_topics', []),
+                'fit_reason':        profile.get('campaign_fit_reason', ''),
+                'audience_overlap':  profile.get('audience_overlap', []),
+                'risk_flag':         profile.get('risk_flag', ''),
+            },
         })
 
     results.sort(key=lambda x: x['match_score'], reverse=True)

@@ -1,0 +1,16 @@
+{
+  "audience_profile": "Perempuan muda yang tertarik dengan kecantikan dan gaya hidup di Bogor",
+  "content_style": "Visual dan tutorial",
+  "cross_topics": [
+    "Lifestyle",
+    "Gaya Hidup"
+  ],
+  "campaign_fit_reason": "KOL ini tidak sepenuhnya cocok karena kontennya lebih fokus pada kecantikan, namun masih ada kemungkinan untuk melakukan cross-promosi dengan topik keuangan dan UMKM perempuan",
+  "fit_score": 0.4,
+  "audience_overlap": [
+    "Ibu muda",
+    "Perempuan karier"
+  ],
+  "risk_flag": "Mismatch antara konten kecantikan dengan topik keuangan",
+  "summary": "KOL beauty dengan audience perempuan muda, potensial untuk cross-promosi namun perlu penyesuaian konten"
+}

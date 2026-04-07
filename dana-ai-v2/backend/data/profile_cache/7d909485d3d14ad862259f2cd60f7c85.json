@@ -1,0 +1,12 @@
+{
+  "audience_profile": "Pemuda dan pemudi muda di Indonesia yang suka hiburan dan tren terkini",
+  "content_style": "Konten hiburan yang ringan dan menghibur",
+  "cross_topics": [],
+  "campaign_fit_reason": "KOL ini tidak memiliki konten yang relevan dengan topik keuangan dan investasi, sehingga tidak cocok untuk campaign DANA",
+  "fit_score": 0.2,
+  "audience_overlap": [
+    "gen-z"
+  ],
+  "risk_flag": "Mismatch antara konten KOL dan topik campaign",
+  "summary": "KOL kevinmillenio tidak cocok untuk campaign DANA karena konten yang tidak relevan dengan topik keuangan"
+}

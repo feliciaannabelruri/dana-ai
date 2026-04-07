@@ -1,0 +1,16 @@
+{
+  "audience_profile": "Pemirsa konten hiburan di Tiktok dengan minat pada konten yang menghibur dan inspiratif",
+  "content_style": "Gaya konten singkat dan kreatif",
+  "cross_topics": [
+    "Lifestyle",
+    "Keluarga"
+  ],
+  "campaign_fit_reason": "KOL ini tidak sepenuhnya cocok karena konten utamanya adalah hiburan, namun masih memiliki potensi untuk mempromosikan pemberdayaan UMKM perempuan",
+  "fit_score": 0.4,
+  "audience_overlap": [
+    "Ibu-ibu muda",
+    "Pengusaha mikro"
+  ],
+  "risk_flag": "Mismatch antara konten utama KOL dan topik campaign",
+  "summary": "KOL ini memiliki potensi untuk mempromosikan pemberdayaan UMKM perempuan, namun perlu penyesuaian konten untuk memastikan kesesuaian dengan campaign"
+}

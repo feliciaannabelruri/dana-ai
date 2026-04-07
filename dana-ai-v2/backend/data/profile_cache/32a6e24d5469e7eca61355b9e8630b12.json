@@ -1,0 +1,16 @@
+{
+  "audience_profile": "Ibu-ibu muda dan keluarga di Jakarta yang tertarik dengan konten family dan lifestyle",
+  "content_style": "Gaya konten yang santai dan inspiratif",
+  "cross_topics": [
+    "keuangan pribadi",
+    "wirausaha"
+  ],
+  "campaign_fit_reason": "Konten family dan lifestyle dapat berkaitan dengan pemberdayaan UMKM perempuan, namun masih perlu penyesuaian untuk topik keuangan dan investasi",
+  "fit_score": 0.6,
+  "audience_overlap": [
+    "ibu-ibu muda",
+    "wirausaha perempuan"
+  ],
+  "risk_flag": "Konten tidak secara eksplisit membahas keuangan atau investasi",
+  "summary": "KOL ini memiliki potensi untuk mempromosikan pemberdayaan UMKM perempuan, namun perlu penyesuaian konten untuk topik keuangan"
+}
