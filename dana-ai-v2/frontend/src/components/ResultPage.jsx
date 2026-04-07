@@ -235,9 +235,9 @@ function KOLCard({ kol, rank }) {
           </div>
         )}
 
-        {kol.llm_profile&&kol.llm_profile.summary&&(
+        {kol.llm_profile && (kol.llm_profile.summary || kol.llm_profile.audience_profile) && (
           <LLMProfileBadge profile={kol.llm_profile} matchScore={kol.match_score}/>
-        )}
+)}
 
         {kol.score_detail&&(
           <>

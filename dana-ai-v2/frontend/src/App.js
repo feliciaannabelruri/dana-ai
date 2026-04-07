@@ -3,11 +3,9 @@ import {
   checkStatus, uploadKOL, uploadInsight,
   uploadHomelessMedia, trainModel, getRecommendations, getLocations
 } from './services/apiService';
-import ResultPage from './components/ResultPage';
 import LocationDropdown from './components/LocationDropdown';
 import ShareView, { encodeShareData } from './components/ShareView'; // [PATCH]
-import CampaignToolkit from './components/CampaignToolkit';
-
+import CampaignToolkit from './components/CampaignToolkit';z
 
 // ── Tokens ────────────────────────────────────────────────────
 const C = {
@@ -670,22 +668,144 @@ export default function App() {
     a{touch-action:manipulation}
   `;
 
+  // ── RESULT ─────────────────────────────────────────────────
   if(page==='result'&&result) {
-  return (
-    <ResultPage
-      result={result}
-      isMobile={isMobile}
-      px={px}
-      onNew={()=>setPage('form')}
-      onShare={generateShareUrl}
-      shareModal={shareModal}
-      shareUrl={shareUrl}
-      shareCopied={shareCopied}
-      onCopyShare={handleCopyShareUrl}
-      onCloseShare={()=>setShareModal(false)}
-    />
-  );
-}
+    const hm=result.homeless_media, hasHM=hm?.recommended_media?.length>0;
+    return (
+      <div style={{ minHeight:'100vh', background:C.bgGray, fontFamily:"'DM Sans','Segoe UI',sans-serif", color:C.text }}>
+        <style>{GLOBAL_CSS}</style>
+
+        {/* Navbar */}
+        <div style={{ background:C.bg, borderBottom:`1px solid ${C.border}`, padding:`0 ${px}px`, height:52, display:'flex', alignItems:'center', justifyContent:'space-between', position:'sticky', top:0, zIndex:100 }}>
+          <div style={{ display:'flex', alignItems:'center', gap:8, minWidth:0 }}>
+            <div style={{ width:30, height:30, borderRadius:7, background:C.blue, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', flexShrink:0 }}>{Icon.bolt(14)}</div>
+            <span style={{ fontWeight:800, fontSize:15, color:C.text, letterSpacing:'-0.3px', flexShrink:0 }}>DANA <span style={{ color:C.blue }}>AI</span></span>
+            {!isMobile&&<><div style={{ width:1, height:18, background:C.border, margin:'0 6px' }}/><span style={{ color:C.textSub, fontSize:13, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', maxWidth:180 }}>{result.campaign_name}</span></>}
+          </div>
+          <div style={{ display:'flex', gap:6, alignItems:'center', flexShrink:0 }}>
+            {!isMobile&&<Chip label={`${result.total_kol} KOL`}/>}
+            {!isMobile&&hasHM&&<Chip label={`${hm.total_media} Media`} color={C.teal} bg={C.tealBg}/>}
+
+            {/* [PATCH] Tombol Share */}
+            <button onClick={generateShareUrl}
+              style={{ display:'flex', alignItems:'center', gap:5, background:C.blue, border:'none', color:'#fff', borderRadius:8, padding:isMobile?'8px 10px':'6px 14px', cursor:'pointer', fontSize:13, fontFamily:'inherit', fontWeight:600 }}>
+              {Icon.share(13)} {isMobile ? 'Share' : 'Share Link'}
+            </button>
+
+            <button onClick={()=>setPage('form')} style={{ display:'flex', alignItems:'center', gap:5, background:C.bgGray2, border:`1px solid ${C.border}`, color:C.textSub, borderRadius:8, padding:isMobile?'8px 10px':'6px 14px', cursor:'pointer', fontSize:13, fontFamily:'inherit', fontWeight:600 }}>
+              {Icon.arrowLeft(13)} {isMobile?'Baru':'Buat baru'}
+            </button>
+          </div>
+        </div>
+
+        <div style={{ maxWidth:1100, margin:'0 auto', padding:`20px ${px}px 48px` }}>
+
+          {/* Summary */}
+          <div className="fu" style={{ background:C.bg, border:`1px solid ${C.border}`, borderRadius:12, padding:isMobile?'16px':'20px 24px', marginBottom:20, overflow:'hidden', position:'relative' }}>
+            <div style={{ position:'absolute', top:0, left:0, right:0, height:3, background:`linear-gradient(90deg,${C.blue},${C.teal})` }}/>
+            <div style={{ fontSize:11, fontWeight:700, color:C.textMuted, letterSpacing:'1px', marginBottom:6 }}>HASIL ANALISIS</div>
+            <div style={{ fontSize:isMobile?18:22, fontWeight:800, color:C.text, letterSpacing:'-0.5px', marginBottom:10 }}>{result.campaign_name}</div>
+            <div style={{ display:'flex', gap:6, flexWrap:'wrap', marginBottom:16 }}>
+              <Chip label={result.target_location} icon={Icon.pin(10)}/>
+              <Chip label={`Avg match ${result.avg_match_score}%`} color={C.green} bg={C.greenBg}/>
+              <Chip label={`${result.total_kol} KOL`}/>
+              {hasHM&&<Chip label={`${hm.total_media} Media`} color={C.teal} bg={C.tealBg} icon={Icon.newspaper(10)}/>}
+            </div>
+
+            {(() => {
+              const kolMin  = result.estimated_cost_min  || 0;
+              const kolMax  = result.estimated_cost_max  || 0;
+              const medMin  = hm?.estimated_cost_media_min || 0;
+              const medMax  = hm?.estimated_cost_media_max || 0;
+              const totMin  = result.total_estimated_min  || (kolMin + medMin);
+              const totMax  = result.total_estimated_max  || (kolMax + medMax);
+              const budget  = result.budget_total || 0;
+              const overBudget = totMin > budget && budget > 0;
+
+              return (
+                <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+                  <div style={{ background: overBudget ? C.redBg : C.greenBg, border:`1px solid ${overBudget ? C.redBorder : C.greenBorder}`, borderRadius:10, padding:'14px 16px', display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:8 }}>
+                    <div>
+                      <div style={{ color: overBudget ? C.red : C.green, fontSize:10, fontWeight:700, letterSpacing:'.8px', marginBottom:4 }}>TOTAL ESTIMASI BIAYA</div>
+                      <div style={{ color: overBudget ? C.red : C.green, fontWeight:800, fontSize:isMobile?18:22, letterSpacing:'-0.5px' }}>
+                        {fmtRate(totMin)}
+                        {totMax > totMin && <span style={{ fontSize:isMobile?13:15, fontWeight:600, opacity:.7 }}> — {fmtRate(totMax)}</span>}
+                      </div>
+                    </div>
+                    {budget > 0 && (
+                      <div style={{ textAlign:'right' }}>
+                        <div style={{ color:C.textMuted, fontSize:10, fontWeight:600, marginBottom:2 }}>BUDGET CAMPAIGN</div>
+                        <div style={{ color:C.textSub, fontWeight:700, fontSize:14 }}>{fmtBudget(budget)}</div>
+                        <div style={{ color: overBudget ? C.red : C.green, fontSize:11, fontWeight:700, marginTop:2 }}>
+                          {overBudget ? `⚠ Over budget` : `✓ Sisa ~${fmtRate(budget - totMin)}`}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div style={{ display:'grid', gridTemplateColumns: hasHM ? '1fr 1fr' : '1fr', gap:8 }}>
+                    <div style={{ background:C.goldBg, border:`1px solid ${C.goldBorder}`, borderRadius:8, padding:'10px 12px' }}>
+                      <div style={{ color:C.gold, fontSize:10, fontWeight:700, letterSpacing:'.6px', marginBottom:5 }}>KOL ({result.total_kol} orang)</div>
+                      <div style={{ color:C.text, fontWeight:800, fontSize:14 }}>{fmtRate(kolMin)}</div>
+                      {kolMax > kolMin && <div style={{ color:C.textMuted, fontSize:11, marginTop:2 }}>s/d {fmtRate(kolMax)}</div>}
+                      <div style={{ color:C.textMuted, fontSize:10, marginTop:4 }}>~{fmtRate(Math.round(kolMin / Math.max(result.total_kol,1)))} / KOL</div>
+                    </div>
+                    {hasHM && (
+                      <div style={{ background:C.tealBg, border:`1px solid ${C.tealBorder}`, borderRadius:8, padding:'10px 12px' }}>
+                        <div style={{ color:C.teal, fontSize:10, fontWeight:700, letterSpacing:'.6px', marginBottom:5 }}>HOMELESS MEDIA ({hm.total_media} akun)</div>
+                        <div style={{ color:C.text, fontWeight:800, fontSize:14 }}>{fmtRate(medMin)}</div>
+                        {medMax > medMin && <div style={{ color:C.textMuted, fontSize:11, marginTop:2 }}>s/d {fmtRate(medMax)}</div>}
+                        <div style={{ color:C.textMuted, fontSize:10, marginTop:4 }}>~{fmtRate(Math.round(medMin / Math.max(hm.total_media,1)))} / akun</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+          {/* ── Campaign Toolkit ── */}
+          <CampaignToolkit result={result} />
+          
+          {/* KOL */}
+          <div className="fu" style={{ animationDelay:'.08s', marginBottom:28 }}>
+            <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:14 }}>
+              <div style={{ width:3, height:20, background:C.blue, borderRadius:2 }}/>
+              <h2 style={{ margin:0, fontSize:isMobile?15:17, fontWeight:800, color:C.text, letterSpacing:'-0.3px' }}>Rekomendasi KOL</h2>
+              <Chip label={`${result.total_kol} KOL`}/>
+            </div>
+            <div style={{ display:'grid', gridTemplateColumns:isMobile?'1fr':'repeat(auto-fill,minmax(290px,1fr))', gap:12 }}>
+              {result.recommended_kol.map((k,i)=><KOLCard key={k.id} kol={k} rank={i+1}/>)}
+            </div>
+          </div>
+
+          {/* Homeless Media */}
+          {hasHM&&(
+            <div className="fu" style={{ animationDelay:'.16s' }}>
+              <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:14 }}>
+                <div style={{ width:3, height:20, background:C.teal, borderRadius:2 }}/>
+                <h2 style={{ margin:0, fontSize:isMobile?15:17, fontWeight:800, color:C.text, letterSpacing:'-0.3px' }}>Homeless Media</h2>
+                <Chip label={`${hm.total_media} Media`} color={C.teal} bg={C.tealBg} icon={Icon.newspaper(10)}/>
+              </div>
+              <div style={{ display:'grid', gridTemplateColumns:isMobile?'1fr':'repeat(auto-fill,minmax(290px,1fr))', gap:12 }}>
+                {hm.recommended_media.map((m,i)=><HomelessMediaCard key={m.id} media={m} rank={i+1}/>)}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* [PATCH] Share Modal */}
+        {shareModal && (
+          <ShareModal
+            url={shareUrl}
+            copied={shareCopied}
+            onCopy={handleCopyShareUrl}
+            onClose={() => setShareModal(false)}
+            isMobile={isMobile}
+          />
+        )}
+      </div>
+    );
+  }
 
   // ── FORM ───────────────────────────────────────────────────
   const modelReady=status?.model_trained, backendErr=status?.error;
