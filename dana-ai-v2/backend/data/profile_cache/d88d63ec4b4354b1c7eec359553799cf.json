@@ -1,0 +1,29 @@
+{
+  "audience_profile": "Remaja hingga dewasa muda yang suka hiburan dan komedi, terutama perempuan dan laki-laki muda yang aktif di media sosial",
+  "audience_dana_overlap": [
+    "mahasiswa-terima-uang-saku",
+    "pekerja-gajian",
+    "UMKM-pelaku"
+  ],
+  "content_style": "Komedi dan hiburan",
+  "cross_niche_angle": "DANA dapat dipromosikan melalui konten hiburan yang menampilkan kemudahan bertransaksi dan keuntungan menggunakan DANA",
+  "dana_use_cases": [
+    "transfer-uang",
+    "cashback-belanja",
+    "bayar-tagihan"
+  ],
+  "campaign_fit_reason": "KOL ini cocok untuk campaign brand awareness karena memiliki audiens yang luas dan aktif, serta konten yang dapat disesuaikan dengan topik finance dan UMKM",
+  "fit_score": 0.8,
+  "risk_flag": "",
+  "summary": "GO: Audiensnya luas dan aktif, serta konten dapat disesuaikan dengan topik campaign",
+  "cross_topics": [
+    "transfer-uang",
+    "cashback-belanja",
+    "bayar-tagihan"
+  ],
+  "audience_overlap": [
+    "mahasiswa-terima-uang-saku",
+    "pekerja-gajian",
+    "UMKM-pelaku"
+  ]
+}

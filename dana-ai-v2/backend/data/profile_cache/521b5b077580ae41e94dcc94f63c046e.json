@@ -1,0 +1,29 @@
+{
+  "audience_profile": "Remaja hingga dewasa muda berusia 15-30 tahun, mayoritas perempuan, pelajar, mahasiswa, dan pekerja muda yang aktif di media sosial dan memiliki minat pada hiburan dan konten kreatif.",
+  "audience_dana_overlap": [
+    "mahasiswa-terima-uang-saku",
+    "pekerja-gajian",
+    "ibu-RT-belanja-online"
+  ],
+  "content_style": "Hiburan komedi",
+  "cross_niche_angle": "DANA dapat dipromosikan melalui konten hiburan yang menampilkan kemudahan bertransaksi dan pembayaran menggunakan DANA, seperti membeli tiket konser atau membayar makanan di restoran.",
+  "dana_use_cases": [
+    "transfer-uang",
+    "bayar-tagihan",
+    "cashback-belanja"
+  ],
+  "campaign_fit_reason": "KOL ini cocok untuk campaign brand awareness karena memiliki audiens yang luas dan aktif, serta konten yang kreatif dan menarik yang dapat membantu meningkatkan kesadaran merek DANA.",
+  "fit_score": 0.8,
+  "risk_flag": "",
+  "summary": "GO: KOL ini memiliki audiens yang luas dan aktif, serta konten yang kreatif dan menarik yang dapat membantu meningkatkan kesadaran merek DANA.",
+  "cross_topics": [
+    "transfer-uang",
+    "bayar-tagihan",
+    "cashback-belanja"
+  ],
+  "audience_overlap": [
+    "mahasiswa-terima-uang-saku",
+    "pekerja-gajian",
+    "ibu-RT-belanja-online"
+  ]
+}

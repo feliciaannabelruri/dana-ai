@@ -1,0 +1,27 @@
+{
+  "audience_profile": "Ibu rumah tangga dan wanita muda urban di Jakarta dengan minat pada gaya hidup dan keluarga, yang aktif menggunakan media sosial untuk mencari inspirasi dan informasi",
+  "audience_dana_overlap": [
+    "ibu-RT-belanja-online",
+    "wanita-muda-urban"
+  ],
+  "content_style": "Konten gaya hidup dan keluarga",
+  "cross_niche_angle": "DANA dapat dipromosikan sebagai alat pembayaran yang mudah dan aman untuk kebutuhan sehari-hari, seperti belanja online dan transfer uang",
+  "dana_use_cases": [
+    "transfer-uang",
+    "bayar-tagihan",
+    "cashback-belanja"
+  ],
+  "campaign_fit_reason": "KOL ini cocok untuk campaign brand awareness karena audiensnya yang sesuai dengan target DANA, yaitu ibu rumah tangga dan wanita muda urban yang membutuhkan kemudahan dalam melakukan transaksi keuangan",
+  "fit_score": 0.8,
+  "risk_flag": "",
+  "summary": "GO: Audiens KOL yang sesuai dengan target DANA dan potensi cross-niche yang baik",
+  "cross_topics": [
+    "transfer-uang",
+    "bayar-tagihan",
+    "cashback-belanja"
+  ],
+  "audience_overlap": [
+    "ibu-RT-belanja-online",
+    "wanita-muda-urban"
+  ]
+}
