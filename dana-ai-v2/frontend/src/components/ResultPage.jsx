@@ -511,6 +511,12 @@ export default function ResultPage({
   const hm    = result.homeless_media;
   const hasHM = hm?.recommended_media?.length > 0;
 
+  const kolFree    = result.kol_homeless_free || [];
+  const hasKolFree = kolFree.length > 0;
+
+  const community = result.community || [];
+  const hasComm   = community.length > 0;
+
   const kolMin = result.estimated_cost_min  || 0;
   const kolMax = result.estimated_cost_max  || 0;
   const medMin = hm?.estimated_cost_media_min || 0;
