@@ -52,7 +52,7 @@ const fmtB=n=>{if(!n||isNaN(n))return'Rp 0';const v=Math.round(n);if(v>=1e9)retu
 const getPU=(u,sm)=>{if(!u)return null;const s=(sm||'').toLowerCase();const c=u.replace(/^@/,'').trim();if(s.includes('tiktok'))return`https://www.tiktok.com/@${c}`;return`https://www.instagram.com/${c}`;};
 
 // Budget slider
-const PRESETS=[{label:'Micro',min:1e6,max:5e6,desc:'1\u20135jt'},{label:'Kecil',min:5e6,max:25e6,desc:'5\u201325jt'},{label:'Medium',min:25e6,max:100e6,desc:'25\u2013100jt'},{label:'Besar',min:100e6,max:500e6,desc:'100\u2013500jt'},{label:'Premium',min:500e6,max:2e9,desc:'500jt\u20132M'}];
+const PRESETS=[{label:'Micro',min:1e6,max:5e6,desc:'1–5jt'},{label:'Kecil',min:5e6,max:25e6,desc:'5–25jt'},{label:'Medium',min:25e6,max:100e6,desc:'25–100jt'},{label:'Besar',min:100e6,max:500e6,desc:'100–500jt'},{label:'Premium',min:500e6,max:2e9,desc:'500jt–2M'}];
 const SMAX=1000;
 const l2v=p=>{const lo=Math.log(500000),hi=Math.log(2e9);return Math.round(Math.exp(lo+(p/SMAX)*(hi-lo)));};
 const v2l=v=>{if(!v||v<=0)return 200;const lo=Math.log(500000),hi=Math.log(2e9);return Math.round(((Math.log(Math.max(500000,Math.min(2e9,v)))-lo)/(hi-lo))*SMAX);};
@@ -79,7 +79,7 @@ function BudgetSlider({budgetMin,budgetMax,onChangeMin,onChangeMax}){
       </div>
       <div style={{display:'grid',gridTemplateColumns:'1fr auto 1fr',gap:8,alignItems:'center'}}>
         {[{label:'Min',val:minV,raw:rMin,focus:fMin,sR:sRMin,sF:sFMin,set:v=>onChangeMin(String(Math.min(v,maxV-1)))},null,{label:'Max',val:maxV,raw:rMax,focus:fMax,sR:sRMax,sF:sFMax,set:v=>onChangeMax(String(Math.max(v,minV+1)))}].map((item,i)=>{
-          if(!item)return<span key="sep" style={{color:C.textMuted,fontSize:14,textAlign:'center'}}>\u2014</span>;
+          if(!item)return<span key="sep" style={{color:C.textMuted,fontSize:14,textAlign:'center'}}>—</span>;
           return(<div key={item.label} style={{border:`1px solid ${item.focus?C.blue:C.border}`,borderRadius:8,padding:'9px 12px',boxShadow:item.focus?`0 0 0 3px ${C.blue}15`:'none',transition:'border-color .15s'}}>
             <div style={{color:C.textMuted,fontSize:10,fontWeight:600,marginBottom:2}}>{item.label.toUpperCase()}</div>
             <div style={{color:C.blue,fontWeight:700,fontSize:13}}>{fmtB(item.val)}</div>
@@ -89,7 +89,7 @@ function BudgetSlider({budgetMin,budgetMax,onChangeMin,onChangeMax}){
       </div>
       <div style={{background:C.blueLight,borderRadius:8,padding:'9px 14px',display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:6}}>
         <span style={{color:C.textSub,fontSize:12}}>Range</span>
-        <span style={{color:C.blue,fontWeight:700,fontSize:13}}>{fmtB(minV)} \u2014 {fmtB(maxV)}</span>
+        <span style={{color:C.blue,fontWeight:700,fontSize:13}}>{fmtB(minV)} — {fmtB(maxV)}</span>
         <span style={{background:C.blue,color:'#fff',borderRadius:20,padding:'2px 10px',fontSize:11,fontWeight:600}}>{ap.label}</span>
       </div>
     </div>
@@ -142,7 +142,7 @@ function MultiLocSelector({selected,onChange,locations,loading}){
     if(wo.includes(val)){const n=wo.filter(v=>v!==val);onChange(n.length===0?['nasional']:n);}else onChange([...wo,val]);
   };
   const isNas=selected.includes('nasional')||selected.length===0;
-  const label=isNas?'\uD83C\uDF0F Nasional (Semua Indonesia)':`${selected.length} lokasi dipilih`;
+  const label=isNas?'🌏 Nasional (Semua Indonesia)':`${selected.length} lokasi dipilih`;
   const grouped={};for(const loc of locations){const g=loc.group||'Lainnya';if(!grouped[g])grouped[g]=[];grouped[g].push(loc);}
   return(
     <div ref={ref} style={{position:'relative'}}>
@@ -157,7 +157,7 @@ function MultiLocSelector({selected,onChange,locations,loading}){
       </div>}
       {open&&<div style={{position:'absolute',top:'calc(100% + 4px)',left:0,right:0,background:C.bg,border:`1px solid ${C.border}`,borderRadius:10,boxShadow:'0 8px 24px rgba(0,0,0,.12)',zIndex:200,maxHeight:300,overflowY:'auto'}}>
         <div onClick={()=>{toggle('nasional');setOpen(false);}} style={{padding:'10px 14px',cursor:'pointer',background:isNas?C.blueLight:'transparent',color:isNas?C.blue:C.text,fontWeight:isNas?700:400,fontSize:13,borderBottom:`1px solid ${C.border}`,display:'flex',alignItems:'center',gap:8}}>
-          {isNas&&Ic.check(12)}\uD83C\uDF0F Nasional (Semua Indonesia)
+          {isNas&&Ic.check(12)}🌏 Nasional (Semua Indonesia)
         </div>
         {Object.entries(grouped).filter(([g])=>g!=='nasional').map(([group,locs])=>(
           <div key={group}>
@@ -177,8 +177,8 @@ function MultiLocSelector({selected,onChange,locations,loading}){
 // Tier Split
 const TIERS=[
   {k:'nano',l:'Nano',d:'< 10K',c:C.green,bg:C.greenBg,br:C.greenBorder},
-  {k:'mikro',l:'Mikro',d:'10K\u2013100K',c:C.blue,bg:C.blueLight,br:`${C.blue}33`},
-  {k:'makro',l:'Makro',d:'100K\u20131M',c:C.gold,bg:C.goldBg,br:C.goldBorder},
+  {k:'mikro',l:'Mikro',d:'10K–100K',c:C.blue,bg:C.blueLight,br:`${C.blue}33`},
+  {k:'makro',l:'Makro',d:'100K–1M',c:C.gold,bg:C.goldBg,br:C.goldBorder},
   {k:'mega',l:'Mega',d:'> 1M',c:C.purple,bg:C.purpleBg,br:C.purpleBorder},
 ];
 
@@ -195,7 +195,7 @@ function TierSplit({mode,split,pref,onMode,onSplit,onPref,numKol}){
       </div>
       {mode==='single'?(
         <div style={{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:8}}>
-          {[{v:'semua',l:'Semua Tier'},{v:'nano',l:'Nano < 10K'},{v:'mikro',l:'Mikro 10K\u2013100K'},{v:'makro',l:'Makro 100K\u20131M'},{v:'mega',l:'Mega > 1M'}].map(({v,l})=>{
+          {[{v:'semua',l:'Semua Tier'},{v:'nano',l:'Nano < 10K'},{v:'mikro',l:'Mikro 10K–100K'},{v:'makro',l:'Makro 100K–1M'},{v:'mega',l:'Mega > 1M'}].map(({v,l})=>{
             const on=pref===v;const t=TIERS.find(x=>x.k===v);
             return(<button key={v} onClick={()=>onPref(v)} style={{background:on?(t?.bg||C.blueLight):C.bg,border:`1.5px solid ${on?(t?.c||C.blue):C.border}`,color:on?(t?.c||C.blue):C.textSub,borderRadius:8,padding:'9px 12px',fontSize:12,fontWeight:on?700:500,cursor:'pointer',fontFamily:'inherit',textAlign:'left',transition:'all .12s',gridColumn:v==='semua'?'1/-1':'auto'}}>{l}</button>);
           })}
@@ -211,14 +211,15 @@ function TierSplit({mode,split,pref,onMode,onSplit,onPref,numKol}){
               <div style={{width:10,height:10,borderRadius:'50%',background:t.c,flexShrink:0}}/>
               <div style={{flex:1}}><div style={{fontSize:12,fontWeight:700,color:p?t.c:C.textSub}}>{t.l}</div><div style={{fontSize:10,color:C.textMuted}}>{t.d}</div></div>
               <div style={{display:'flex',alignItems:'center',gap:6}}>
-                <button onClick={()=>upd(t.k,p-10)} style={{width:28,height:28,borderRadius:6,background:C.bgGray2,border:`1px solid ${C.border}`,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',color:C.textSub,fontWeight:700,fontSize:16}}>-</button>
+                {/* FIX: use JS string expression so unicode escape renders correctly */}
+                <button onClick={()=>upd(t.k,p-10)} style={{width:28,height:28,borderRadius:6,background:C.bgGray2,border:`1px solid ${C.border}`,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',color:C.textSub,fontWeight:700,fontSize:16}}>{"\u2212"}</button>
                 <div style={{textAlign:'center',minWidth:40}}><div style={{fontWeight:800,fontSize:14,color:p?t.c:C.textMuted}}>{p}%</div>{p>0&&<div style={{fontSize:10,color:C.textMuted}}>{nK} KOL</div>}</div>
                 <button onClick={()=>upd(t.k,p+10)} style={{width:28,height:28,borderRadius:6,background:C.bgGray2,border:`1px solid ${C.border}`,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',color:C.textSub,fontWeight:700,fontSize:16}}>+</button>
               </div>
             </div>
           );})}
           {!valid&&total>0&&<div style={{background:C.redBg,border:`1px solid ${C.redBorder}`,borderRadius:8,padding:'8px 12px',fontSize:12,color:C.red,display:'flex',alignItems:'center',gap:6}}>{Ic.alert(12)} Total harus tepat 100% (sekarang {total}%)</div>}
-          {total===100&&<div style={{background:C.greenBg,border:`1px solid ${C.greenBorder}`,borderRadius:8,padding:'8px 12px',fontSize:12,color:C.green,display:'flex',alignItems:'center',gap:6}}>{Ic.check(12)} Split valid \u2014 {numKol} KOL dibagi proporsional</div>}
+          {total===100&&<div style={{background:C.greenBg,border:`1px solid ${C.greenBorder}`,borderRadius:8,padding:'8px 12px',fontSize:12,color:C.green,display:'flex',alignItems:'center',gap:6}}>{Ic.check(12)} Split valid — {numKol} KOL dibagi proporsional</div>}
         </div>
       )}
     </div>
@@ -232,7 +233,7 @@ function ZeroBudgetBanner({active,onToggle}){return(
     </div>
     <div>
       <div style={{fontWeight:700,fontSize:13,color:active?C.orange:C.textSub}}>Mode Tier-Only (Budget = 0)</div>
-      <div style={{fontSize:11,color:C.textMuted,marginTop:1}}>{active?'Budget diabaikan \u2014 fokus ke tier & kualitas KOL saja':'Aktifkan untuk cari KOL tanpa filter budget'}</div>
+      <div style={{fontSize:11,color:C.textMuted,marginTop:1}}>{active?'Budget diabaikan — fokus ke tier & kualitas KOL saja':'Aktifkan untuk cari KOL tanpa filter budget'}</div>
     </div>
   </div>
 );}
@@ -280,15 +281,15 @@ function KOLCard({kol,rank}){
           </div>
           <ScoreBar score={kol.match_score} color={sc}/>
         </div>
-        {kol.has_real_er&&kol.avg_er_pct&&<div style={{background:C.greenBg,border:`1px solid ${C.greenBorder}`,borderRadius:8,padding:'8px 10px',marginBottom:12,display:'flex',alignItems:'center',gap:6}}><span style={{color:C.green,display:'flex'}}>{Ic.check(13)}</span><span style={{color:C.green,fontSize:13,fontWeight:600}}>ER Aktual {kol.avg_er_pct}% \u2014 data nyata</span></div>}
+        {kol.has_real_er&&kol.avg_er_pct&&<div style={{background:C.greenBg,border:`1px solid ${C.greenBorder}`,borderRadius:8,padding:'8px 10px',marginBottom:12,display:'flex',alignItems:'center',gap:6}}><span style={{color:C.green,display:'flex'}}>{Ic.check(13)}</span><span style={{color:C.green,fontSize:13,fontWeight:600}}>ER Aktual {kol.avg_er_pct}% — data nyata</span></div>}
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:12}}>
           <StatBox label="Followers" value={fmtF(kol.followers_num)||kol.followers}/>
-          <StatBox label="Type" value={kol.type||'\u2013'}/>
+          <StatBox label="Type" value={kol.type||'–'}/>
           <StatBox label="Rate Min" value={fmtR(kol.rate_min)} color={C.gold}/>
-          <StatBox label="Lokasi" value={kol.location||'\u2013'}/>
+          <StatBox label="Lokasi" value={kol.location||'–'}/>
         </div>
         <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:12}}>
-          <Chip label={kol.social_media||'\u2013'}/>
+          <Chip label={kol.social_media||'–'}/>
           {kol.tier&&<Chip label={`Tier ${kol.tier} ${['Nano','Mikro','Makro','Mega'][kol.tier-1]||''}`} color={ti?.c||C.purple} bg={ti?.bg||C.purpleBg}/>}
           {kol.has_real_er&&<Chip label="Real ER" color={C.green} bg={C.greenBg} icon={Ic.check(10)}/>}
         </div>
@@ -343,7 +344,7 @@ export default function App(){
   const hKOL=async e=>{const f=e.target.files[0];if(!f)return;sKolMsg('Uploading...');try{await uploadKOL(f);sKolMsg('Upload berhasil. Klik Latih Model.');}catch(err){sKolMsg('Error: '+err.message);}};
   const hIns=async e=>{const f=e.target.files[0];if(!f)return;sInsMsg('Uploading...');try{const r=await uploadInsight(f);sInsMsg(r.er_extracted?'Upload berhasil, ER diekstrak.':'Upload berhasil.');}catch(err){sInsMsg('Error: '+err.message);}};
   const hHM=async e=>{const f=e.target.files[0];if(!f)return;sHmMsg('Uploading...');try{const r=await uploadHomelessMedia(f);if(r.parsed&&r.homeless_media_count>0){sHmMsg(`${r.homeless_media_count} media dimuat.`);const s=await checkStatus();sStatus(s);loadL();}else{sHmMsg('Parsing gagal: '+(r.log?r.log.trim().split('\n').pop():'Error'));}}catch(err){sHmMsg('Error: '+err.message);}};
-  const hTrain=async()=>{sTrn(true);sKolMsg('Training...');try{await trainModel();const s=await checkStatus();sStatus(s);const m=s.meta||{};sKolMsg(`Model siap \u2014 ${m.total_kol||0} KOL`);loadL();}catch(err){sKolMsg('Error: '+err.message);}sTrn(false);};
+  const hTrain=async()=>{sTrn(true);sKolMsg('Training...');try{await trainModel();const s=await checkStatus();sStatus(s);const m=s.meta||{};sKolMsg(`Model siap — ${m.total_kol||0} KOL`);loadL();}catch(err){sKolMsg('Error: '+err.message);}sTrn(false);};
   const hSubmit=async()=>{
     if(!form.campaign_name)return;if(!form.zeroBudget&&!form.budget_min)return;
     sPage('loading');midx.current=0;sMsg(MSGS[0]);
@@ -367,7 +368,7 @@ export default function App(){
   const canSub=!!(form.campaign_name&&(form.zeroBudget||form.budget_min)&&modelReady);
   const ssM={error:{bg:C.redBg,border:C.redBorder,color:C.red,icon:Ic.xcircle(13)},loading:{bg:C.bgGray2,border:C.border,color:C.textSub,icon:Ic.loader(13)},ok:{bg:C.greenBg,border:C.greenBorder,color:C.green,icon:Ic.check(13)},warn:{bg:C.goldBg,border:C.goldBorder,color:C.gold,icon:Ic.alert(13)}};
   const ss=ssM[backendErr?'error':status===null?'loading':modelReady?'ok':'warn'];
-  const stTxt=backendErr?'Backend tidak bisa dihubungi':status===null?'Menghubungi backend...':modelReady?`Model siap \u2014 ${meta.total_kol||0} KOL, ${meta.kol_with_er||0} dengan ER nyata`:'Model belum dilatih \u2014 upload KOL.xlsx lalu klik Latih Model';
+  const stTxt=backendErr?'Backend tidak bisa dihubungi':status===null?'Menghubungi backend...':modelReady?`Model siap — ${meta.total_kol||0} KOL, ${meta.kol_with_er||0} dengan ER nyata`:'Model belum dilatih — upload KOL.xlsx lalu klik Latih Model';
   const sf=v=>sForm(f=>({...f,...v}));
   return(
     <div style={{minHeight:'100vh',background:C.bgGray,fontFamily:"'DM Sans','Segoe UI',sans-serif",color:C.text}}>
@@ -443,20 +444,21 @@ export default function App(){
                     <option value="retention">Retention User Lama</option>
                   </select>
                 </Field>
-                <Field label="Target Audience"><input style={INP} placeholder="Pemuda 20\u201330 tahun, urban" value={form.target_audience} onChange={e=>sf({target_audience:e.target.value})}/></Field>
+                {/* FIX: use actual dash characters instead of \u2013 escape in placeholder */}
+                <Field label="Target Audience"><input style={INP} placeholder="Pemuda 20–30 tahun, urban" value={form.target_audience} onChange={e=>sf({target_audience:e.target.value})}/></Field>
               </div>
             </div>
           </div>
           {/* Multi-Topic */}
           <div style={{borderTop:`1px solid ${C.border}`,paddingTop:18}}>
             <SL>Topik / Niche KOL</SL>
-            <div style={{fontSize:12,color:C.textSub,marginBottom:10}}>Pilih satu atau beberapa niche \u2014 LLM akan profiling cross-niche otomatis</div>
+            <div style={{fontSize:12,color:C.textSub,marginBottom:10}}>Pilih satu atau beberapa niche — LLM akan profiling cross-niche otomatis</div>
             <MultiTopicSelector selected={form.selTopics} onChange={v=>sf({selTopics:v})}/>
           </div>
           {/* Multi-Location */}
           <div style={{borderTop:`1px solid ${C.border}`,paddingTop:18}}>
             <SL>Lokasi Target</SL>
-            <div style={{fontSize:12,color:C.textSub,marginBottom:10}}>Pilih satu atau beberapa kota \u2014 hasil digabung & dedupe otomatis</div>
+            <div style={{fontSize:12,color:C.textSub,marginBottom:10}}>Pilih satu atau beberapa kota — hasil digabung & dedupe otomatis</div>
             <MultiLocSelector selected={form.selLocs} onChange={v=>sf({selLocs:v})} locations={locs} loading={locLoad}/>
           </div>
           {/* Budget */}
@@ -467,7 +469,7 @@ export default function App(){
           </div>
           {/* Budget KOL vs Media */}
           {!form.zeroBudget&&<div style={{background:C.bgGray,borderRadius:10,padding:14}}>
-            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10,flexWrap:'wrap',gap:6}}><SL>Alokasi Budget</SL><span style={{color:C.textSub,fontSize:12}}>KOL {form.budget_kol_pct}% \u2014 Media {100-form.budget_kol_pct}%</span></div>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10,flexWrap:'wrap',gap:6}}><SL>Alokasi Budget</SL><span style={{color:C.textSub,fontSize:12}}>KOL {form.budget_kol_pct}% — Media {100-form.budget_kol_pct}%</span></div>
             <div style={{display:'flex',height:5,borderRadius:3,overflow:'hidden',marginBottom:12}}><div style={{width:`${form.budget_kol_pct}%`,background:C.gold,transition:'width .2s'}}/><div style={{flex:1,background:C.teal}}/></div>
             <style>{`.spl{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:2px;background:${C.border};outline:none;cursor:pointer;margin-bottom:14px}.spl::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:#fff;border:2px solid ${C.textMuted};box-shadow:0 1px 5px rgba(0,0,0,.15);cursor:pointer}.spl::-moz-range-thumb{width:24px;height:24px;border-radius:50%;border:2px solid ${C.textMuted};background:#fff;cursor:pointer}`}</style>
             <input type="range" className="spl" min={10} max={90} step={5} value={form.budget_kol_pct} onChange={e=>sf({budget_kol_pct:parseInt(e.target.value)})}/>
@@ -479,7 +481,7 @@ export default function App(){
           {/* Tier */}
           <div style={{borderTop:`1px solid ${C.border}`,paddingTop:18}}>
             <SL>Preferensi Tier KOL</SL>
-            <div style={{fontSize:12,color:C.textSub,marginBottom:10}}>{form.zeroBudget?'Mode tier-only aktif \u2014 tier bersifat mutlak (hard filter)':'Split budget antar tier atau pilih satu tier'}</div>
+            <div style={{fontSize:12,color:C.textSub,marginBottom:10}}>{form.zeroBudget?'Mode tier-only aktif — tier bersifat mutlak (hard filter)':'Split budget antar tier atau pilih satu tier'}</div>
             <TierSplit mode={form.tierMode} split={form.tier_split} pref={form.preferred_tier} onMode={v=>sf({tierMode:v})} onSplit={v=>sf({tier_split:v})} onPref={v=>sf({preferred_tier:v})} numKol={form.num_kol}/>
           </div>
           {/* Platform + Count */}
@@ -491,7 +493,8 @@ export default function App(){
                 <div key={key}>
                   <label style={{display:'block',color:C.textSub,fontSize:12,fontWeight:600,marginBottom:8}}>{label}</label>
                   <div style={{display:'flex',alignItems:'center',gap:10}}>
-                    <button onClick={()=>sf({[key]:Math.max(1,form[key]-1)})} style={{width:40,height:40,borderRadius:8,background:C.bgGray2,border:`1px solid ${C.border}`,color:C.textSub,fontWeight:700,fontSize:20,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>\u2212</button>
+                    {/* FIX: wrap unicode minus in JS expression */}
+                    <button onClick={()=>sf({[key]:Math.max(1,form[key]-1)})} style={{width:40,height:40,borderRadius:8,background:C.bgGray2,border:`1px solid ${C.border}`,color:C.textSub,fontWeight:700,fontSize:20,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>{"\u2212"}</button>
                     <span style={{fontSize:20,fontWeight:800,minWidth:24,textAlign:'center',color}}>{form[key]}</span>
                     <button onClick={()=>sf({[key]:Math.min(max,form[key]+1)})} style={{width:40,height:40,borderRadius:8,background:C.bgGray2,border:`1px solid ${C.border}`,color:C.textSub,fontWeight:700,fontSize:20,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>+</button>
                     <span style={{color:C.textMuted,fontSize:11}}>dari {total}</span>
@@ -506,7 +509,8 @@ export default function App(){
           </button>
           {!modelReady&&<p style={{textAlign:'center',color:C.textMuted,fontSize:12,margin:0,display:'flex',alignItems:'center',justifyContent:'center',gap:5}}><span style={{display:'flex'}}>{Ic.alert(12)}</span> Upload KOL.xlsx lalu klik Latih Model terlebih dahulu</p>}
         </div>
-        <p style={{textAlign:'center',color:C.textMuted,fontSize:11,marginTop:24}}>DANA AI v3 \u00b7 Multi-Location \u00b7 Multi-Topic \u00b7 Tier Split \u00b7 Groq LLM Profiling</p>
+        {/* FIX: use actual middle dot · instead of \u00b7 escape in JSX text */}
+        <p style={{textAlign:'center',color:C.textMuted,fontSize:11,marginTop:24}}>DANA AI v3 · Multi-Location · Multi-Topic · Tier Split · Groq LLM Profiling</p>
       </div>
     </div>
   );
