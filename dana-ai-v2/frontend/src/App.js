@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import {
   checkStatus, uploadKOL, uploadInsight,
-  uploadHomelessMedia, trainModel, getRecommendations, getLocations
+  uploadHomelessMedia, trainModel, getRecommendations, getLocations,
+  uploadKOLHomelessFree, uploadCommunity
 } from './services/apiService';
 import ResultPage from './components/ResultPage';
 import ShareView, { encodeShareData } from './components/ShareView';
@@ -324,7 +325,7 @@ function LoadingScreen({msg}){return(
 export default function App(){
   const isMobile=useIsMobile();const px=isMobile?16:24;
   const[page,sPage]=useState('form');const[status,sStatus]=useState(null);const[result,sResult]=useState(null);
-  const[msg,sMsg]=useState(MSGS[0]);const[kolMsg,sKolMsg]=useState('');const[insMsg,sInsMsg]=useState('');const[hmMsg,sHmMsg]=useState('');
+  const[msg,sMsg]=useState(MSGS[0]);const[kolMsg,sKolMsg]=useState('');const[insMsg,sInsMsg]=useState('');const[hmMsg,sHmMsg]=useState('');const[kolFreeMsg,sKolFreeMsg]=useState('');const[commMsg,sCommMsg]=useState('');
   const[training,sTrn]=useState(false);const[locs,sLocs]=useState([]);const[locLoad,sLocLoad]=useState(false);
   const[updateMode,sUpdateMode]=useState(false);
   const[shareModal,sShareModal]=useState(false);const[shareUrl,sShareUrl]=useState('');const[shareCop,sShareCop]=useState(false);
@@ -337,7 +338,7 @@ export default function App(){
     tier_split:{nano:0,mikro:0,makro:0,mega:0},
     zeroBudget:false,
   });
-  const kolRef=useRef();const insRef=useRef();const hmRef=useRef();const midx=useRef(0);
+  const kolRef=useRef();const insRef=useRef();const hmRef=useRef();const kolFreeRef=useRef();const commRef=useRef();const midx=useRef(0);
   useEffect(()=>{checkStatus().then(sStatus).catch(()=>sStatus({error:true}));},[]);
   useEffect(()=>{if(!status||status.error)return;loadL();},[status]);
   const loadL=async()=>{sLocLoad(true);try{const d=await getLocations();sLocs(d.locations||[]);}catch{sLocs([{value:'nasional',label:'Nasional',group:'nasional'}]);}sLocLoad(false);};
@@ -345,6 +346,8 @@ export default function App(){
   const hKOL=async e=>{const f=e.target.files[0];if(!f)return;sKolMsg('Uploading...');try{await uploadKOL(f);sKolMsg('Upload berhasil. Klik Latih Model.');}catch(err){sKolMsg('Error: '+err.message);}};
   const hIns=async e=>{const f=e.target.files[0];if(!f)return;sInsMsg('Uploading...');try{const r=await uploadInsight(f);sInsMsg(r.er_extracted?'Upload berhasil, ER diekstrak.':'Upload berhasil.');}catch(err){sInsMsg('Error: '+err.message);}};
   const hHM=async e=>{const f=e.target.files[0];if(!f)return;sHmMsg('Uploading...');try{const r=await uploadHomelessMedia(f);if(r.parsed&&r.homeless_media_count>0){sHmMsg(`${r.homeless_media_count} media dimuat.`);const s=await checkStatus();sStatus(s);loadL();}else{sHmMsg('Parsing gagal: '+(r.log?r.log.trim().split('\n').pop():'Error'));}}catch(err){sHmMsg('Error: '+err.message);}};
+  const hKolFree=async e=>{const f=e.target.files[0];if(!f)return;sKolFreeMsg('Uploading...');try{const r=await uploadKOLHomelessFree(f);sKolFreeMsg(r.count?`${r.count} KOL dimuat.`:'Upload berhasil.');}catch(err){sKolFreeMsg('Error: '+err.message);}};
+  const hComm=async e=>{const f=e.target.files[0];if(!f)return;sCommMsg('Uploading...');try{const r=await uploadCommunity(f);sCommMsg(r.count?`${r.count} komunitas dimuat.`:'Upload berhasil.');}catch(err){sCommMsg('Error: '+err.message);}};
   const hTrain=async()=>{sTrn(true);sKolMsg('Training...');try{await trainModel();const s=await checkStatus();sStatus(s);const m=s.meta||{};sKolMsg(`Model siap — ${m.total_kol||0} KOL`);loadL();}catch(err){sKolMsg('Error: '+err.message);}sTrn(false);};
   const hSubmit=async()=>{
     if(!form.campaign_name)return;if(!form.zeroBudget&&!form.budget_min)return;
