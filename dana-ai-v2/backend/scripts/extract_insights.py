@@ -1,13 +1,3 @@
-"""
-extract_insights.py
-Ekstrak SEMUA knowledge dari insight.xlsx:
-1. ER data per KOL (existing) 
-2. Campaign performance patterns — pola KOL yang berhasil
-   - ER tinggi datang dari tier apa, followers range berapa, kategori apa
-   - Performa per lokasi
-   - Content type yang perform terbaik
-3. "Ideal KOL profile" per campaign type -> dipakai sbg referensi saat scoring KOL baru
-"""
 import sys, io
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')

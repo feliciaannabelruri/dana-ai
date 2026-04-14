@@ -1,16 +1,3 @@
-"""
-kol_profiler.py — Enhanced v2
-==============================
-Upgrade dari versi sebelumnya:
-1. Cross-niche detection: mama lifestyle → bisa reach ibu RT yang butuh dompet digital
-2. Audience profiling lebih dalam: siapa SEBENARNYA yang nonton, bukan hanya kategori KOL
-3. DANA-specific fit reasoning: langsung sebut use case DANA yang relevan (transfer, QRIS, dll)
-4. Risk flag lebih smart: detect kontroversi, brand safety, niche yang gak match sama sekali
-5. Summary actionable: tim bisa langsung decide go/no-go dari summary aja
-
-Uses Groq (llama-3.3-70b-versatile) — free tier ~30 req/min
-"""
-
 import os
 import json
 import hashlib
@@ -31,7 +18,7 @@ client = OpenAI(
     api_key=os.environ.get("GROQ_API_KEY", ""),
 )
 
-# ── DANA Context untuk LLM ─────────────────────────────────────────────────────
+# ── DANA Context ───────────────────────────────────────────────────────────────
 DANA_CONTEXT = """
 DANA adalah aplikasi dompet digital #1 Indonesia dengan fitur:
 - Transfer uang & pembayaran tagihan
@@ -59,23 +46,115 @@ Cross-niche yang BAGUS untuk DANA:
 - Finance/investasi → direct match → literasi keuangan digital
 """
 
-# ── System Prompt (Enhanced) ───────────────────────────────────────────────────
+# ── Goals Database: mapping goals → signal konkret untuk LLM ──────────────────
+# Dipakai untuk memperkaya context sebelum dikirim ke LLM
+GOALS_SIGNALS: dict[str, dict] = {
+    "brand awareness":   {"intent": "jangkauan luas, awareness", "kol_fit": "reach tinggi, engagement luas, konten yang mudah viral", "dana_angle": "perkenalkan DANA ke audiens baru"},
+    "awareness":         {"intent": "jangkauan luas, awareness", "kol_fit": "reach tinggi, engagement luas, konten yang mudah viral", "dana_angle": "perkenalkan DANA ke audiens baru"},
+    "engagement":        {"intent": "interaksi tinggi, komunitas aktif", "kol_fit": "ER tinggi, komunitas engaged, sering reply/diskusi", "dana_angle": "trigger konversasi tentang cashless"},
+    "conversion":        {"intent": "dorong install atau transaksi DANA", "kol_fit": "audiens decision-ready, trust tinggi, sudah pakai e-wallet", "dana_angle": "CTA download + transaksi pertama"},
+    "install":           {"intent": "dorong install aplikasi DANA", "kol_fit": "audiens mobile-savvy, sudah familiar e-wallet", "dana_angle": "CTA download DANA"},
+    "transaksi":         {"intent": "mendorong transaksi aktif di DANA", "kol_fit": "audiens yang sudah punya kebiasaan bayar digital", "dana_angle": "QRIS, transfer, top-up"},
+    "edukasi":           {"intent": "edukasi fitur dan manfaat DANA", "kol_fit": "KOL yang trusted, konten informatif, audiens yang ingin belajar", "dana_angle": "tutorial fitur, tips keuangan digital"},
+    "retention":         {"intent": "pertahankan user lama tetap aktif", "kol_fit": "audiens yang sudah kenal DANA, perlu reminder fitur baru", "dana_angle": "fitur baru, promo cashback, loyalty"},
+    "product launch":    {"intent": "launch fitur/produk baru DANA", "kol_fit": "early adopter, tech-savvy, opinion leader", "dana_angle": "first look fitur baru, eksklusif"},
+    "promo":             {"intent": "promosi cashback atau promo khusus", "kol_fit": "audiens deal-hunter, ibu RT, mahasiswa", "dana_angle": "cashback, diskon, promo merchant"},
+    "umkm":              {"intent": "akuisisi merchant UMKM pakai QRIS", "kol_fit": "KOL entrepreneur, bisnis, kuliner", "dana_angle": "QRIS merchant, terima pembayaran digital"},
+}
+
+# ── Topics/Niche Database: mapping niche → profil audiens konkret ──────────────
+TOPICS_SIGNALS: dict[str, dict] = {
+    "lifestyle":     {"audience": "urban millennial perempuan 22-35, aktif sosmed, konsumtif digital", "dana_overlap": ["cashless-belanja", "bayar-tagihan", "top-up"], "content_fit": "everyday content, relatable, aspirational"},
+    "parenting":     {"audience": "ibu RT 25-40, family-oriented, manage keuangan rumah tangga", "dana_overlap": ["bayar-sekolah", "belanja-online", "transfer-keluarga"], "content_fit": "tips, edukasi, sharing pengalaman"},
+    "mama":          {"audience": "ibu RT 25-40, family-oriented, manage keuangan rumah tangga", "dana_overlap": ["bayar-sekolah", "belanja-online", "transfer-keluarga"], "content_fit": "tips, edukasi, sharing pengalaman"},
+    "food":          {"audience": "semua umur, kuliner enthusiast, sering jajan/makan luar", "dana_overlap": ["bayar-makanan-QRIS", "cashback-kuliner"], "content_fit": "review, mukbang, resep"},
+    "kuliner":       {"audience": "semua umur, kuliner enthusiast, sering jajan/makan luar", "dana_overlap": ["bayar-makanan-QRIS", "cashback-kuliner"], "content_fit": "review, mukbang, resep"},
+    "travel":        {"audience": "pekerja produktif 25-35, suka jalan-jalan, mobile lifestyle", "dana_overlap": ["beli-tiket", "booking-hotel", "transfer-aman"], "content_fit": "vlog, tips travel, destinasi"},
+    "fashion":       {"audience": "perempuan urban 18-30, fashion-forward, sering belanja online", "dana_overlap": ["belanja-cashless", "cashback-fashion"], "content_fit": "OOTD, styling, haul"},
+    "beauty":        {"audience": "perempuan urban 18-35, skincare enthusiast, belanja online rutin", "dana_overlap": ["belanja-cashless", "cashback-beauty", "top-up"], "content_fit": "review produk, tutorial"},
+    "skincare":      {"audience": "perempuan muda 18-30, concern dengan kulit, konsumtif beauty", "dana_overlap": ["belanja-cashless", "cashback-beauty"], "content_fit": "review, skincare routine"},
+    "finance":       {"audience": "professional 25-40, melek keuangan, investor pemula/menengah", "dana_overlap": ["transfer-aman", "top-up-investasi", "literasi-digital"], "content_fit": "edukasi keuangan, tips investasi"},
+    "keuangan":      {"audience": "professional 25-40, melek keuangan, investor pemula/menengah", "dana_overlap": ["transfer-aman", "top-up-investasi", "literasi-digital"], "content_fit": "edukasi keuangan, tips investasi"},
+    "investasi":     {"audience": "millennial 25-38, sudah investasi/saham, income stabil", "dana_overlap": ["top-up-investasi", "transfer-cepat", "literasi-finansial"], "content_fit": "analisis pasar, tips investasi"},
+    "gaming":        {"audience": "Gen Z laki-laki 15-25, mobile gamer, sering top-up", "dana_overlap": ["top-up-game", "cashback-gaming"], "content_fit": "gameplay, review game, tips"},
+    "edukasi":       {"audience": "pelajar/mahasiswa 15-25, orangtua, guru, orientasi belajar", "dana_overlap": ["terima-uang-saku", "bayar-SPP", "top-up"], "content_fit": "tutorial, tips belajar, motivasi"},
+    "entertainment": {"audience": "semua umur, Gen Z dominan, reach sangat luas", "dana_overlap": ["brand-awareness", "cashless-everyday"], "content_fit": "konten hiburan, viral, relatable"},
+    "comedy":        {"audience": "Gen Z dan millennial, suka konten ringan dan menghibur", "dana_overlap": ["brand-awareness", "cashless-everyday"], "content_fit": "skit, parodi, meme"},
+    "bisnis":        {"audience": "entrepreneur, UMKM owner, profesional 28-45", "dana_overlap": ["QRIS-merchant", "terima-pembayaran", "transfer-bisnis"], "content_fit": "tips bisnis, success story"},
+    "umkm":          {"audience": "pemilik usaha kecil, warung, toko online", "dana_overlap": ["QRIS-merchant", "terima-pembayaran-digital"], "content_fit": "tips jualan, sharing pengalaman"},
+    "otomotif":      {"audience": "laki-laki dewasa 25-45, punya kendaraan, produktif", "dana_overlap": ["bayar-servis", "beli-bensin-cashless"], "content_fit": "review mobil/motor, modifikasi"},
+    "olahraga":      {"audience": "aktif, health-conscious, Gen Z dan millennial", "dana_overlap": ["beli-suplemen-cashless", "bayar-gym"], "content_fit": "workout, tips fitness, challenge"},
+    "kesehatan":     {"audience": "health-conscious, 25-45, peduli hidup sehat", "dana_overlap": ["bayar-apotik", "beli-suplemen"], "content_fit": "tips kesehatan, review produk"},
+}
+
+
+def enrich_goals_topics(goals: str, topics: str) -> dict:
+    """
+    Urai goals dan topics menjadi sinyal konkret dari database.
+    Support multi-topic (comma-separated).
+    Dipakai untuk memperkaya prompt LLM.
+    """
+    goals_lower = (goals or "").lower()
+    topics_lower = (topics or "").lower()
+
+    # Parse multi-topic
+    topic_list = [t.strip() for t in re.split(r"[,;/]", topics_lower) if t.strip()]
+
+    # Match goals
+    matched_goals = {}
+    for key, signals in GOALS_SIGNALS.items():
+        if key in goals_lower:
+            matched_goals = signals
+            break
+    if not matched_goals:
+        matched_goals = {"intent": goals or "campaign marketing", "kol_fit": "reach dan engagement relevan", "dana_angle": "perkenalkan manfaat DANA"}
+
+    # Match all topics (multi-topic)
+    matched_topics = []
+    for topic in topic_list:
+        for key, signals in TOPICS_SIGNALS.items():
+            if key in topic:
+                matched_topics.append({"topic": key, **signals})
+                break
+
+    # Fallback jika tidak ada match
+    if not matched_topics:
+        matched_topics = [{"topic": topics or "umum", "audience": "masyarakat umum Indonesia", "dana_overlap": ["cashless-everyday"], "content_fit": "konten relevan"}]
+
+    # Gabungkan audience overlap dari semua topics
+    all_dana_overlap = []
+    all_audiences = []
+    for t in matched_topics:
+        all_dana_overlap.extend(t.get("dana_overlap", []))
+        all_audiences.append(t.get("audience", ""))
+
+    return {
+        "goals_signal":    matched_goals,
+        "topics_signals":  matched_topics,
+        "combined_overlap": list(dict.fromkeys(all_dana_overlap)),  # dedupe preserve order
+        "combined_audience": " | ".join(all_audiences),
+    }
+
+
+# ── System Prompt (v3 — LLM always profiles, including finance KOL) ───────────
 SYSTEM_PROMPT = f"""Kamu adalah senior KOL analyst di tim marketing DANA Indonesia (aplikasi dompet digital fintech).
 Tugasmu: analisis MENDALAM apakah seorang KOL cocok untuk campaign DANA, dengan mempertimbangkan:
-1. Siapa SEBENARNYA audiensnya (bukan hanya kategori kontennya)
-2. Cross-niche potential: apakah audiensnya pakai DANA even kalau topiknya bukan finance
-3. Risiko brand safety
+1. Siapa SEBENARNYA audiensnya — bukan hanya label kategorinya
+2. Apakah ada overlap antara audiens KOL dengan target user DANA
+3. Angle konten yang paling tepat untuk campaign ini (bukan generik)
+4. Risiko brand safety
 
 Context tentang DANA:
 {DANA_CONTEXT}
 
-PENTING: 
-- KOL lifestyle/parenting/food BISA sangat cocok untuk DANA kalau audiensnya = DANA target user
-- Jangan hanya lihat kategori — lihat siapa yang NONTON kontennya
+PENTING:
+- KOL finance pun perlu di-profile spesifik: finance broad (saham, kripto) vs finance yang relevan DANA (transfer, QRIS, dompet digital)
+- KOL lifestyle/parenting/food BISA sangat cocok kalau audiensnya = DANA target user
 - Selalu balas HANYA dengan JSON valid, tanpa markdown, tanpa penjelasan tambahan
+- Isi semua field — jangan kosongkan kecuali yang memang tidak relevan
 """
 
-# ── User Prompt Template (Enhanced) ───────────────────────────────────────────
+# ── User Prompt Template (v3) ──────────────────────────────────────────────────
 USER_PROMPT_TEMPLATE = """\
 Analisis KOL ini untuk campaign DANA:
 
@@ -88,27 +167,34 @@ KOL DATA:
 
 CAMPAIGN INFO:
 - Goals: {goals}
-- Topik: {topics}
-- Target audience: {target_audience}
+- Topik/niche: {topics}
 - Deskripsi: {description}
 
+ENRICHED CONTEXT (dari database):
+- Intent campaign: {goals_intent}
+- KOL yang ideal untuk campaign ini: {kol_fit_ideal}
+- DANA angle untuk campaign ini: {dana_angle}
+- Prediksi audiens berdasarkan niche: {predicted_audience}
+- DANA features yang relevan untuk niche ini: {predicted_dana_overlap}
+
 TUGASMU:
-1. Identifikasi siapa SEBENARNYA yang nonton konten ini (beyond kategori)
-2. Cek apakah ada CROSS-NICHE potential untuk DANA
-3. Nilai kesesuaian dengan campaign ini
-4. Berikan go/no-go summary yang actionable
+1. Tentukan siapa SEBENARNYA yang nonton KOL ini (beyond label kategori)
+2. Apakah audiens itu punya kebutuhan yang DANA bisa solve?
+3. Angle konten DANA apa yang paling natural untuk KOL ini?
+4. Apakah KOL ini cocok untuk goals: "{goals}"?
+5. Berikan go/no-go yang actionable
 
 Balas dengan JSON PERSIS format ini (no markdown):
 {{
   "audience_profile": "Deskripsi konkret siapa audiensnya: umur, gender, pekerjaan, kebiasaan digital (1-2 kalimat)",
-  "audience_dana_overlap": ["list segment DANA yang ada di audiens ini, misal: ibu-RT-belanja-online, mahasiswa-terima-uang-saku, pekerja-gajian"],
+  "audience_dana_overlap": ["segment DANA yang ada di audiens ini, misal: ibu-RT-belanja-online, mahasiswa-terima-uang-saku"],
   "content_style": "Gaya konten dalam 3-5 kata",
-  "cross_niche_angle": "Kalau bukan finance KOL, jelaskan angle DANA yang bisa dipromote ke audiensnya. Kosongkan jika finance KOL.",
-  "dana_use_cases": ["list fitur DANA yang relevan untuk audiens ini, max 3 item, misal: transfer-uang, bayar-tagihan, cashback-belanja"],
-  "campaign_fit_reason": "Kenapa cocok/tidak untuk campaign {goals} ini — spesifik dan konkret (1-2 kalimat)",
+  "content_angle_for_dana": "Angle konten DANA yang paling natural untuk KOL ini — spesifik, bukan generik. Isi untuk SEMUA KOL termasuk finance.",
+  "dana_use_cases": ["fitur DANA yang relevan untuk audiens ini, max 3, misal: transfer-uang, bayar-tagihan, cashback-belanja"],
+  "campaign_fit_reason": "Kenapa cocok/tidak untuk goals '{goals}' — spesifik dan konkret (1-2 kalimat)",
   "fit_score": 0.75,
-  "risk_flag": "Isi jika ada: kontroversi, niche mismatch, brand safety concern. Kosongkan jika aman.",
-  "summary": "Go/No-go dalam 1 kalimat dengan alasan utama, format: GO/NO-GO: [alasan konkret]"
+  "risk_flag": "Isi jika ada risiko: kontroversi, brand safety, niche mismatch. Kosongkan jika aman.",
+  "summary": "GO/NO-GO dalam 1 kalimat dengan alasan utama, format: GO/NO-GO: [alasan konkret]"
 }}
 
 fit_score rules:
@@ -121,25 +207,25 @@ fit_score rules:
 
 # ── Default Profile ────────────────────────────────────────────────────────────
 DEFAULT_PROFILE: dict = {
-    "audience_profile": "",
-    "audience_dana_overlap": [],
-    "content_style": "",
-    "cross_niche_angle": "",
-    "dana_use_cases": [],
-    "campaign_fit_reason": "",
-    "fit_score": 0.5,
-    "risk_flag": "",
-    "summary": "",
+    "audience_profile":       "",
+    "audience_dana_overlap":  [],
+    "content_style":          "",
+    "content_angle_for_dana": "",
+    "dana_use_cases":         [],
+    "campaign_fit_reason":    "",
+    "fit_score":              0.5,
+    "risk_flag":              "",
+    "summary":                "",
     # backward compat
-    "cross_topics": [],
-    "audience_overlap": [],
+    "cross_topics":           [],
+    "audience_overlap":       [],
+    "cross_niche_angle":      "",
 }
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
 
 def _cache_key(username: str, goals: str, topics: str, description: str = "") -> str:
-    # Include description hash agar cache invalidate kalau campaign berubah
-    raw = f"{username}|{goals}|{topics}|{description[:100]}"
+    raw = f"v3|{username}|{goals}|{topics}|{description[:100]}"
     return hashlib.md5(raw.encode()).hexdigest()
 
 
@@ -156,10 +242,8 @@ def _normalize_profile(raw: dict) -> dict:
     profile = DEFAULT_PROFILE.copy()
     profile.update(raw)
 
-    # Type safety
     profile["fit_score"] = float(max(0.0, min(1.0, profile.get("fit_score", 0.5))))
 
-    # Normalize list fields
     for field in ["audience_dana_overlap", "dana_use_cases", "cross_topics", "audience_overlap"]:
         val = profile.get(field, [])
         if isinstance(val, str):
@@ -167,11 +251,14 @@ def _normalize_profile(raw: dict) -> dict:
         elif not isinstance(val, list):
             profile[field] = []
 
-    # Backward compat: map new fields ke old field names
+    # Backward compat mapping
     if not profile.get("audience_overlap") and profile.get("audience_dana_overlap"):
         profile["audience_overlap"] = profile["audience_dana_overlap"]
     if not profile.get("cross_topics") and profile.get("dana_use_cases"):
         profile["cross_topics"] = profile["dana_use_cases"]
+    # v3: content_angle_for_dana → cross_niche_angle (backward compat)
+    if not profile.get("cross_niche_angle") and profile.get("content_angle_for_dana"):
+        profile["cross_niche_angle"] = profile["content_angle_for_dana"]
 
     return profile
 
@@ -201,7 +288,8 @@ def _tier_label(kol: dict) -> str:
 def get_kol_profile(kol: dict, campaign: dict) -> dict:
     """
     Profile a single KOL against a campaign.
-    Results cached by username+goals+topics+description hash.
+    v3: Goals + Topics diperkaya dari database sebelum dikirim ke LLM.
+    LLM selalu dipanggil untuk semua niche termasuk finance.
     """
     username    = str(kol.get("username", "")).strip()
     goals       = str(campaign.get("goals", ""))
@@ -212,17 +300,27 @@ def get_kol_profile(kol: dict, campaign: dict) -> dict:
     if cached := _load_cache(cache_path):
         return _normalize_profile(cached)
 
+    # Enrich goals + topics dari database
+    enriched = enrich_goals_topics(goals, topics)
+    goals_signal   = enriched["goals_signal"]
+    predicted_audience  = enriched["combined_audience"]
+    predicted_overlap   = ", ".join(enriched["combined_overlap"])
+
     prompt = USER_PROMPT_TEMPLATE.format(
-        username       = username,
-        social_media   = kol.get("social_media", ""),
-        category       = kol.get("category", "konten umum"),
-        tier           = _tier_label(kol),
-        followers      = kol.get("followers_raw", ""),
-        location       = kol.get("location_raw", ""),
-        goals          = goals,
-        topics         = topics,
-        target_audience= campaign.get("target_audience", ""),
-        description    = description,
+        username             = username,
+        social_media         = kol.get("social_media", ""),
+        category             = kol.get("category", "konten umum"),
+        tier                 = _tier_label(kol),
+        followers            = kol.get("followers_raw", ""),
+        location             = kol.get("location_raw", ""),
+        goals                = goals,
+        topics               = topics,
+        description          = description,
+        goals_intent         = goals_signal.get("intent", goals),
+        kol_fit_ideal        = goals_signal.get("kol_fit", ""),
+        dana_angle           = goals_signal.get("dana_angle", ""),
+        predicted_audience   = predicted_audience,
+        predicted_dana_overlap = predicted_overlap,
     )
 
     try:
@@ -232,8 +330,8 @@ def get_kol_profile(kol: dict, campaign: dict) -> dict:
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user",   "content": prompt},
             ],
-            max_tokens  = 500,
-            temperature = 0.15,  # lebih deterministik untuk profiling
+            max_tokens  = 600,
+            temperature = 0.15,
         )
         raw     = response.choices[0].message.content or ""
         profile = _normalize_profile(_extract_json(raw))
@@ -254,9 +352,8 @@ def batch_profile_kols(
     """
     Profile multiple KOLs concurrently.
     Returns {username: profile}
-    
     Groq free tier: ~30 req/min → max_workers=5 aman untuk burst.
-    Cache sangat efektif karena profil KOL + campaign yang sama = hit cache.
+    Cache sangat efektif untuk request berulang.
     """
     results: dict[str, dict] = {}
 
@@ -276,48 +373,55 @@ def batch_profile_kols(
     return results
 
 
-# ── Quick fit check (tanpa LLM, pakai rules) ──────────────────────────────────
-# Dipakai sebagai fallback atau pre-filter sebelum LLM
-
+# ── Quick fit check (rule-based fallback) ─────────────────────────────────────
 CROSS_NICHE_RULES = {
-    # category_keyword → (dana_segments, base_score)
-    "lifestyle":    (["urban-millennial", "gen-z"], 0.65),
-    "parenting":    (["ibu-RT", "keluarga"], 0.72),
-    "food":         (["semua-umur", "cashless-merchant"], 0.60),
-    "kuliner":      (["semua-umur", "cashless-merchant"], 0.60),
-    "travel":       (["pekerja-produktif", "urban"], 0.62),
-    "fashion":      (["perempuan-urban", "belanja-online"], 0.63),
-    "beauty":       (["perempuan-urban", "belanja-online"], 0.63),
-    "skincare":     (["perempuan-urban"], 0.60),
-    "comedy":       (["gen-z", "brand-awareness"], 0.55),
-    "entertainment":  (["gen-z", "brand-awareness"], 0.55),
-    "finance":      (["investor", "literasi-keuangan"], 0.90),
-    "keuangan":     (["investor", "literasi-keuangan"], 0.90),
-    "investasi":    (["investor", "literasi-keuangan"], 0.88),
-    "bisnis":       (["entrepreneur", "UMKM"], 0.80),
-    "entrepreneur": (["UMKM", "pembayaran-bisnis"], 0.80),
-    "edukasi":      (["pelajar", "mahasiswa"], 0.68),
-    "mahasiswa":    (["pelajar", "transfer-uang-saku"], 0.70),
-    "olahraga":     (["gen-z", "millennial"], 0.50),
-    "gaming":       (["gen-z", "top-up-game"], 0.58),
-    "otomotif":     (["laki-laki-produktif"], 0.45),
-    "ibu":          (["ibu-RT", "belanja-keluarga"], 0.75),
-    "rumah":        (["ibu-RT", "tagihan-rumah"], 0.68),
+    "lifestyle":     (["urban-millennial", "gen-z"], 0.65),
+    "parenting":     (["ibu-RT", "keluarga"], 0.72),
+    "mama":          (["ibu-RT", "keluarga"], 0.74),
+    "food":          (["semua-umur", "cashless-merchant"], 0.60),
+    "kuliner":       (["semua-umur", "cashless-merchant"], 0.60),
+    "travel":        (["pekerja-produktif", "urban"], 0.62),
+    "fashion":       (["perempuan-urban", "belanja-online"], 0.63),
+    "beauty":        (["perempuan-urban", "belanja-online"], 0.63),
+    "skincare":      (["perempuan-urban"], 0.60),
+    "comedy":        (["gen-z", "brand-awareness"], 0.55),
+    "entertainment": (["gen-z", "brand-awareness"], 0.55),
+    "finance":       (["investor", "literasi-keuangan"], 0.85),
+    "keuangan":      (["investor", "literasi-keuangan"], 0.85),
+    "investasi":     (["investor", "literasi-keuangan"], 0.83),
+    "bisnis":        (["entrepreneur", "UMKM"], 0.80),
+    "entrepreneur":  (["UMKM", "pembayaran-bisnis"], 0.80),
+    "edukasi":       (["pelajar", "mahasiswa"], 0.68),
+    "mahasiswa":     (["pelajar", "transfer-uang-saku"], 0.70),
+    "olahraga":      (["gen-z", "millennial"], 0.50),
+    "gaming":        (["gen-z", "top-up-game"], 0.58),
+    "otomotif":      (["laki-laki-produktif"], 0.45),
+    "ibu":           (["ibu-RT", "belanja-keluarga"], 0.75),
+    "rumah":         (["ibu-RT", "tagihan-rumah"], 0.68),
+    "umkm":          (["UMKM", "QRIS-merchant"], 0.82),
+    "kesehatan":     (["health-conscious", "bayar-apotik"], 0.52),
 }
+
 
 def quick_cross_niche_score(category: str) -> tuple[float, list[str]]:
     """
-    Rule-based cross-niche scoring sebagai fallback kalau LLM gagal.
-    Returns (score, dana_segments)
+    Rule-based fallback kalau LLM gagal.
+    Support multi-category (comma-separated).
+    Returns (best_score, dana_segments)
     """
-    cat_lower = (category or "").lower()
-    best_score = 0.35
-    best_segments = []
+    # Support multi-category
+    cats = [c.strip().lower() for c in re.split(r"[,;/]", category or "") if c.strip()]
+    if not cats:
+        return 0.35, []
 
-    for keyword, (segments, score) in CROSS_NICHE_RULES.items():
-        if keyword in cat_lower:
-            if score > best_score:
-                best_score = score
-                best_segments = segments
+    best_score = 0.35
+    best_segments: list[str] = []
+
+    for cat in cats:
+        for keyword, (segments, score) in CROSS_NICHE_RULES.items():
+            if keyword in cat:
+                if score > best_score:
+                    best_score = score
+                    best_segments = segments
 
     return best_score, best_segments

@@ -1,13 +1,3 @@
-"""
-company_profile.py — Enhanced v2
-==================================
-Upgrade dari versi sebelumnya:
-1. Cross-niche scoring matrix: mama+lifestyle → ibu RT → DANA use case ada
-2. Audience-based scoring bukan hanya category keyword match
-3. Campaign context enrichment yang lebih spesifik ke produk DANA
-4. Topic → DANA feature mapping yang lebih lengkap
-"""
-
 COMPANY_PROFILE = {
 
     # ── Identitas brand ───────────────────────────────────────────────────────

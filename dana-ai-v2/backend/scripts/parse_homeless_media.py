@@ -1,10 +1,3 @@
-"""
-parse_homeless_media.py — FIXED VERSION
-Fixes:
-1. Category (col 4) may be None on first row of a record → carry forward last known category
-2. Rate values can be '-', '27-28Jt', 'Rp3.500.00' → robust parse_rate
-3. Handles all edge cases in the real HomelessMedia.xlsx
-"""
 import sys, io
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')

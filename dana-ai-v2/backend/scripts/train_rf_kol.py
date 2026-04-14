@@ -1,14 +1,3 @@
-"""
-train_rf_kol.py  — Layer 3 untuk KOL Recommender
-=================================================
-1. Load KOL data + ER data yang sudah ada
-2. Generate 5000 simulasi campaign <-> KOL interactions
-   berdasarkan business rules yang sudah terbukti di Layer 1+2
-3. Train Random Forest Regressor untuk prediksi match score
-4. Save model → models/rf_kol.pkl + models/rf_kol_meta.json
-
-Makin banyak ER data nyata dari insight.xlsx → simulasi makin akurat.
-"""
 import sys, io
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')

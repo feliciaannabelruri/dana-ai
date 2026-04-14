@@ -1,13 +1,3 @@
-"""
-train_rf_homeless.py  — Layer 3 untuk Homeless Media Recommender
-================================================================
-1. Generate 5000 simulasi campaign × media interactions
-2. Train Random Forest + Gradient Boosting
-3. Save → models/rf_homeless.pkl + rf_homeless_meta.json
-
-Berbeda dari KOL: homeless media dinilai dari REACH (bukan ER),
-kategori media (Trending News / Gossip / Meme), dan lokasi coverage.
-"""
 import sys, io
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')

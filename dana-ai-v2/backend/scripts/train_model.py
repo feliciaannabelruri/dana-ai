@@ -1,15 +1,3 @@
-"""
-train_model.py — Multi-Layer ML Architecture
-============================================
-Layer 1: HuggingFace (paraphrase-multilingual) → semantic embedding per kategori KOL
-Layer 2: KNN (cosine similarity) → candidate retrieval dari feature matrix
-Layer 3a: Random Forest → ranking/scoring berdasarkan kombinasi fitur tabular
-Layer 3b: XGBoost → prediksi ER KOL baru berdasarkan fitur (tier, followers, lokasi, dll)
-Layer 3c: RBM (Restricted Boltzmann Machine) → latent feature extraction
-          untuk collaborative filtering style matching
-
-Campaign Patterns dari insight.xlsx dipakai sebagai training signal untuk RF + XGBoost.
-"""
 import sys, io
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')

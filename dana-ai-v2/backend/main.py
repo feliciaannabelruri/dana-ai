@@ -1,16 +1,16 @@
 ﻿from dotenv import load_dotenv
-load_dotenv() 
+load_dotenv()
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 import os, shutil, subprocess, sys, json, threading
 
 from recommender import recommend, get_meta, load_models
 from homeless_recommender import recommend_homeless_media
 from hf_storage import download_models, upload_models
 
-app = FastAPI(title="DANA AI Campaign Planner v2 - HuggingFace + Campaign Learning")
+app = FastAPI(title="DANA AI Campaign Planner v3 - Multi-Location + Smart Budget")
 
 app.add_middleware(
     CORSMiddleware,
@@ -37,25 +37,41 @@ async def startup():
         print("Belum ada model. Upload data lalu hit /train")
 
 
+class TierBudgetSplit(BaseModel):
+    """
+    Split budget per tier. Jumlah semua nilai harus = 100 (persen).
+    Contoh: {"nano": 40, "mikro": 40, "makro": 20}
+    Jika tidak diisi, sistem pakai preferred_tier tunggal.
+    """
+    nano:  Optional[float] = 0
+    mikro: Optional[float] = 0
+    makro: Optional[float] = 0
+    mega:  Optional[float] = 0
+
+
 class CampaignRequest(BaseModel):
     campaign_name:        str
     campaign_description: Optional[str] = ""
-    goals:                Optional[str] = ""
-    topics:               Optional[str] = ""
+    goals:                Optional[str] = ""  
+    topics:               Optional[str] = ""  
     target_audience:      Optional[str] = ""
-    location:             Optional[str] = "nasional"
-    budget:               float
+    location:             Optional[str]       = "nasional"
+    locations:            Optional[List[str]] = None  
+    budget:               float = 0
     budget_kol_pct:       float = 0.70
     num_kol:              int = 5
     num_media:            int = 3
+
     content_type:         Optional[str] = "semua"
     preferred_tier:       Optional[str] = "semua"
+    tier_budget_split:    Optional[TierBudgetSplit] = None
+
     include_homeless_media: bool = True
 
 
 @app.get("/")
 def root():
-    return {"status": "ok", "version": "2.3", "message": "DANA AI Campaign Planner"}
+    return {"status": "ok", "version": "3.0", "message": "DANA AI Campaign Planner"}
 
 
 @app.get("/status")
@@ -94,40 +110,35 @@ def status():
 def get_locations():
     """
     Return daftar lokasi unik dari KOL database dan Homeless Media database.
-    Frontend pakai ini untuk dropdown — 100% sesuai data yang ada.
+    Frontend pakai ini untuk dropdown multi-select.
     """
     kol_locations = []
     homeless_locations = []
 
-    # Dari KOL database (pkl)
     kol_pkl = os.path.join(MODELS_DIR, 'kol_df.pkl')
     if os.path.exists(kol_pkl):
         try:
             import joblib, pandas as pd
             df = joblib.load(kol_pkl)
-            # Ambil location_raw yang unik, bersih, bukan kosong
             raw = df['location_raw'].dropna().astype(str).str.strip()
             raw = raw[raw.str.len() > 0].unique().tolist()
             kol_locations = sorted(set(raw))
         except Exception as e:
             print(f"[WARN] Gagal load KOL locations: {e}")
 
-    # Dari Homeless Media JSON
     homeless_path = os.path.join(DATA_DIR, 'homeless_media.json')
     if os.path.exists(homeless_path):
         try:
             with open(homeless_path) as f:
                 media_list = json.load(f)
-            raw = [m.get('location_raw','').strip() for m in media_list]
+            raw = [m.get('location_raw', '').strip() for m in media_list]
             raw = [r for r in raw if r]
             homeless_locations = sorted(set(raw))
         except Exception as e:
             print(f"[WARN] Gagal load homeless locations: {e}")
 
-    # Gabung semua lokasi unik
     all_raw = sorted(set(kol_locations + homeless_locations))
 
-    # Kelompokkan berdasarkan location_norm untuk display yang rapi
     from recommender import normalize_location_query
     grouped = {}
     for loc_raw in all_raw:
@@ -136,7 +147,6 @@ def get_locations():
             grouped[norm] = []
         grouped[norm].append(loc_raw)
 
-    # Susun urutan wilayah
     region_order = [
         "nasional",
         "jakarta", "bandung", "cirebon", "yogyakarta", "solo",
@@ -145,7 +155,6 @@ def get_locations():
     ]
 
     result = []
-    # Nasional selalu di atas
     result.append({"value": "nasional", "label": "🌏 Nasional (Semua Indonesia)", "group": "nasional"})
 
     for region in region_order:
@@ -177,10 +186,9 @@ def get_locations():
                 "value": loc,
                 "label": loc,
                 "group": group_label,
-                "norm": region,
+                "norm":  region,
             })
 
-    # Tambah lokasi yang mungkin di "other" tapi belum kecover
     for region, locs in grouped.items():
         if region not in region_order:
             for loc in sorted(locs):
@@ -188,20 +196,20 @@ def get_locations():
                     "value": loc,
                     "label": loc,
                     "group": "Kota Lainnya",
-                    "norm": region,
+                    "norm":  region,
                 })
 
     return {
-        "locations": result,
-        "total": len(result),
-        "kol_count": len(kol_locations),
+        "locations":   result,
+        "total":       len(result),
+        "kol_count":   len(kol_locations),
         "media_count": len(homeless_locations),
     }
 
 
 @app.post("/upload-kol")
 async def upload_kol(file: UploadFile = File(...)):
-    if not file.filename.endswith(('.xlsx','.xls')):
+    if not file.filename.endswith(('.xlsx', '.xls')):
         raise HTTPException(400, "File harus .xlsx")
     os.makedirs(DATA_DIR, exist_ok=True)
     with open(os.path.join(DATA_DIR, 'KOL.xlsx'), 'wb') as f:
@@ -211,7 +219,7 @@ async def upload_kol(file: UploadFile = File(...)):
 
 @app.post("/upload-insight")
 async def upload_insight(file: UploadFile = File(...)):
-    if not file.filename.endswith(('.xlsx','.xls')):
+    if not file.filename.endswith(('.xlsx', '.xls')):
         raise HTTPException(400, "File harus .xlsx")
     os.makedirs(DATA_DIR, exist_ok=True)
     with open(os.path.join(DATA_DIR, 'insight.xlsx'), 'wb') as f:
@@ -322,48 +330,167 @@ def train():
         raise HTTPException(500, str(e))
 
 
+def _resolve_locations(req: CampaignRequest) -> list[str]:
+    """
+    Resolve lokasi dari request. Support:
+    - locations: ["jakarta", "bandung"]  → multi-location
+    - location: "jakarta, bandung"       → comma-separated string
+    - location: "nasional"               → single
+    """
+    if req.locations and len(req.locations) > 0:
+        locs = [l.strip() for l in req.locations if l.strip()]
+    elif req.location and "," in req.location:
+        locs = [l.strip() for l in req.location.split(",") if l.strip()]
+    else:
+        locs = [req.location or "nasional"]
+    return locs if locs else ["nasional"]
+
+
+def _resolve_tier_splits(req: CampaignRequest, num_kol: int, budget_kol: float) -> list[dict]:
+    """
+    Resolve tier splits menjadi list of {tier, num_kol, budget}.
+    Jika tier_budget_split diisi → split proportional.
+    Jika tidak → single tier run.
+
+    budget=0 → tier-only mode: budget_per_kol = 0 (skip budget scoring).
+    """
+    zero_budget = (req.budget <= 0)
+
+    split = req.tier_budget_split
+    if split is None:
+        return [{
+            "tier":          req.preferred_tier or "semua",
+            "num_kol":       num_kol,
+            "budget_total":  budget_kol,
+            "zero_budget":   zero_budget,
+        }]
+
+    # Parse tier split
+    raw = {
+        "nano":  split.nano  or 0,
+        "mikro": split.mikro or 0,
+        "makro": split.makro or 0,
+        "mega":  split.mega  or 0,
+    }
+    total_pct = sum(raw.values())
+    if total_pct <= 0:
+        return [{"tier": "semua", "num_kol": num_kol, "budget_total": budget_kol, "zero_budget": zero_budget}]
+
+    # Normalize ke 100%
+    runs = []
+    allocated_kol = 0
+    tiers_with_pct = [(t, p) for t, p in raw.items() if p > 0]
+    for i, (tier, pct) in enumerate(tiers_with_pct):
+        frac = pct / total_pct
+        # Last tier gets remainder to avoid rounding loss
+        if i == len(tiers_with_pct) - 1:
+            n = num_kol - allocated_kol
+        else:
+            n = max(1, round(num_kol * frac))
+        allocated_kol += n
+        runs.append({
+            "tier":         tier,
+            "num_kol":      n,
+            "budget_total": budget_kol * frac if not zero_budget else 0,
+            "zero_budget":  zero_budget,
+        })
+
+    return runs
+
+
 @app.post("/recommend")
 def get_recommendations(req: CampaignRequest):
     if not os.path.exists(os.path.join(MODELS_DIR, 'st_model.pkl')):
         raise HTTPException(503, "Model belum dilatih. Hit /train dulu.")
-    if req.budget <= 0:
-        raise HTTPException(400, "Budget harus > 0")
+
+    zero_budget = (req.budget <= 0)
 
     kol_pct      = max(0.0, min(1.0, req.budget_kol_pct))
     media_pct    = 1.0 - kol_pct
-    budget_kol   = req.budget * kol_pct
-    budget_media = req.budget * media_pct
+    budget_kol   = req.budget * kol_pct   if not zero_budget else 0
+    budget_media = req.budget * media_pct if not zero_budget else 0
 
-    kol_result = recommend(
+    # ── Resolve multi-location ────────────────────────────────────────────────
+    locations = _resolve_locations(req)
+    is_multi_loc = len(locations) > 1
+
+    # ── Resolve tier splits ───────────────────────────────────────────────────
+    tier_runs = _resolve_tier_splits(req, req.num_kol, budget_kol)
+
+    # ── Run recommend per lokasi × per tier ───────────────────────────────────
+    all_kol_results: list[dict] = []
+    seen_usernames:  set[str]   = set()
+
+    for loc in locations:
+        for run in tier_runs:
+            result = recommend(
+                topics               = req.topics or "",
+                goals                = req.goals or "",
+                campaign_description = req.campaign_description or "",
+                location             = loc,
+                budget_total         = run["budget_total"],
+                num_kol              = run["num_kol"],
+                content_type         = req.content_type or "semua",
+                preferred_tier       = run["tier"],
+                zero_budget_mode     = run["zero_budget"],
+            )
+            for kol in result.get("recommended_kol", []):
+                uname = kol.get("username", "")
+                if uname not in seen_usernames:
+                    # Tag lokasi asal untuk display
+                    kol["matched_location"] = loc
+                    all_kol_results.append(kol)
+                    seen_usernames.add(uname)
+
+    # Sort gabungan by match_score, ambil top num_kol
+    all_kol_results.sort(key=lambda x: x["match_score"], reverse=True)
+    top_kol = all_kol_results[:req.num_kol]
+
+    cost_min = sum(r.get("rate_min", 0) for r in top_kol)
+    cost_max = sum(r.get("rate_max", 0) for r in top_kol)
+
+    # ── Build response ────────────────────────────────────────────────────────
+    # Ambil meta dari run pertama (meta bersifat global)
+    first_result = recommend(
         topics               = req.topics or "",
         goals                = req.goals or "",
         campaign_description = req.campaign_description or "",
-        location             = req.location or "nasional",
+        location             = locations[0],
         budget_total         = budget_kol,
-        num_kol              = req.num_kol,
+        num_kol              = 1,
         content_type         = req.content_type or "semua",
         preferred_tier       = req.preferred_tier or "semua",
-    )
-
-    kol_cost_min = kol_result.get('estimated_cost_min', 0)
-    kol_cost_max = kol_result.get('estimated_cost_max', 0)
+        zero_budget_mode     = zero_budget,
+    ) if not top_kol else {}
 
     response = {
         "campaign_name":      req.campaign_name,
-        **kol_result,
+        "recommended_kol":    top_kol,
+        "total_kol":          len(top_kol),
+        "budget_per_kol":     int(round(budget_kol / max(req.num_kol, 1))) if not zero_budget else 0,
+        "estimated_cost_min": int(cost_min),
+        "estimated_cost_max": int(cost_max),
+        "budget_remaining":   int(max(0, budget_kol - cost_min)) if not zero_budget else None,
+        "avg_match_score":    round(sum(r["match_score"] for r in top_kol) / len(top_kol), 1) if top_kol else 0.0,
+        "target_location":    locations if is_multi_loc else locations[0],
+        "zero_budget_mode":   zero_budget,
+        "tier_splits_used":   [{"tier": r["tier"], "num_kol": r["num_kol"]} for r in tier_runs] if req.tier_budget_split else None,
         "budget_total":       int(req.budget),
         "budget_kol_alloc":   int(budget_kol),
         "budget_media_alloc": int(budget_media),
         "budget_kol_pct":     round(kol_pct * 100, 1),
         "budget_media_pct":   round(media_pct * 100, 1),
+        "hf_model_used":      first_result.get("hf_model_used", ""),
+        "models_active":      first_result.get("models_active", {}),
+        "campaign_patterns":  first_result.get("campaign_patterns"),
     }
 
-    if req.include_homeless_media:
+    if req.include_homeless_media and not zero_budget:
         media_result = recommend_homeless_media(
             topics               = req.topics or "",
             goals                = req.goals or "",
             campaign_description = req.campaign_description or "",
-            location             = req.location or "nasional",
+            location             = locations[0],  
             budget_total         = budget_media,
             num_media            = req.num_media,
             content_type         = req.content_type or "semua",
@@ -372,8 +499,8 @@ def get_recommendations(req: CampaignRequest):
 
         media_cost_min = media_result.get('estimated_cost_media_min', 0)
         media_cost_max = media_result.get('estimated_cost_media_max', 0)
-        total_min = kol_cost_min + media_cost_min
-        total_max = kol_cost_max + media_cost_max
+        total_min = cost_min + media_cost_min
+        total_max = cost_max + media_cost_max
 
         response['total_estimated_min']  = int(total_min)
         response['total_estimated_max']  = int(total_max)
