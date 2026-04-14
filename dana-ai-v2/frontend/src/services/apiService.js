@@ -75,3 +75,19 @@ export async function getRecommendations(form) {
   if (!r.ok) { const e = await r.json(); throw new Error(e.detail || 'Gagal'); }
   return r.json();
 }
+
+export async function uploadKOLHomelessFree(file) {
+  const form = new FormData();
+  form.append('file', file);
+  const r = await fetch(`${BASE}/upload-kol-homeless-free`, { method: 'POST', body: form });
+  if (!r.ok) { const e = await r.json(); throw new Error(e.detail || 'Upload KOL Homeless Free gagal'); }
+  return r.json();
+}
+
+export async function uploadCommunity(file) {
+  const form = new FormData();
+  form.append('file', file);
+  const r = await fetch(`${BASE}/upload-community`, { method: 'POST', body: form });
+  if (!r.ok) { const e = await r.json(); throw new Error(e.detail || 'Upload Community gagal'); }
+  return r.json();
+}

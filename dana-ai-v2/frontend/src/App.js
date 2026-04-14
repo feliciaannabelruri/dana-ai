@@ -446,6 +446,26 @@ export default function App(){
               <button onClick={hTrain} disabled={training||!!backendErr} style={{background:training?C.bgGray2:C.blue,border:'none',color:training?C.textMuted:'#fff',borderRadius:10,padding:'13px',cursor:training||backendErr?'not-allowed':'pointer',fontSize:14,fontWeight:700,fontFamily:'inherit',width:'100%',display:'flex',alignItems:'center',justifyContent:'center',gap:8,opacity:backendErr?.4:1,transition:'background .15s'}}>
                 {training?Ic.loader(15):Ic.cpu(14)} {training?'Training...':'Latih Model'}
               </button>
+              {/* Zero Budget & Community pools */}
+              <div style={{marginTop:14,borderTop:`1px solid ${C.border}`,paddingTop:14}}>
+                <div style={{color:C.textSub,fontSize:10,fontWeight:700,letterSpacing:'.5px',marginBottom:10}}>DATA TANPA RATE CARD</div>
+                <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:10}}>
+                  <div style={{background:'#FFF7ED',border:'1px solid #FED7AA',borderRadius:10,padding:12}}>
+                    <div style={{color:'#C2410C',fontSize:10,fontWeight:700,letterSpacing:'.5px',marginBottom:8}}>KOL HOMELESS FREE</div>
+                    <div style={{color:'#9A3412',fontSize:11,marginBottom:8,lineHeight:1.4}}>KOL tanpa rate card — muncul saat budget = 0</div>
+                    <input ref={kolFreeRef} type="file" accept=".xlsx" style={{display:'none'}} onChange={hKolFree}/>
+                    <button onClick={()=>kolFreeRef.current.click()} disabled={!!backendErr} style={{background:'#FEF3C7',border:'1px solid #F59E0B44',color:'#92400E',borderRadius:8,padding:'11px',cursor:'pointer',fontSize:13,fontWeight:700,fontFamily:'inherit',width:'100%',display:'flex',alignItems:'center',justifyContent:'center',gap:6,opacity:backendErr?.4:1}}>{Ic.upload(13)} KOLHomeless.xlsx</button>
+                    {kolFreeMsg&&<div style={{marginTop:7,fontSize:11,lineHeight:1.5,color:kolFreeMsg.startsWith('Error')?C.red:'#92400E'}}>{kolFreeMsg}</div>}
+                  </div>
+                  <div style={{background:'#F0FDF4',border:'1px solid #BBF7D0',borderRadius:10,padding:12}}>
+                    <div style={{color:'#15803D',fontSize:10,fontWeight:700,letterSpacing:'.5px',marginBottom:8}}>KOMUNITAS</div>
+                    <div style={{color:'#166534',fontSize:11,marginBottom:8,lineHeight:1.4}}>Komunitas UMKM/fintech — section tersendiri di hasil</div>
+                    <input ref={commRef} type="file" accept=".xlsx" style={{display:'none'}} onChange={hComm}/>
+                    <button onClick={()=>commRef.current.click()} disabled={!!backendErr} style={{background:'#DCFCE7',border:'1px solid #4ADE8044',color:'#15803D',borderRadius:8,padding:'11px',cursor:'pointer',fontSize:13,fontWeight:700,fontFamily:'inherit',width:'100%',display:'flex',alignItems:'center',justifyContent:'center',gap:6,opacity:backendErr?.4:1}}>{Ic.upload(13)} Community.xlsx</button>
+                    {commMsg&&<div style={{marginTop:7,fontSize:11,lineHeight:1.5,color:commMsg.startsWith('Error')?C.red:'#15803D'}}>{commMsg}</div>}
+                  </div>
+                </div>
+              </div>
             </>
           )}
         </div>

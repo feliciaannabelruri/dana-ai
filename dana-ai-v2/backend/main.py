@@ -9,6 +9,7 @@ import os, shutil, subprocess, sys, json, threading
 from recommender import recommend, get_meta, load_models
 from homeless_recommender import recommend_homeless_media
 from hf_storage import download_models, upload_models
+from free_pool_recommender import recommend_kol_free, recommend_community
 
 app = FastAPI(title="DANA AI Campaign Planner v3 - Multi-Location + Smart Budget")
 
@@ -290,6 +291,76 @@ async def upload_homeless_media(file: UploadFile = File(...)):
     }
 
 
+@app.post("/upload-kol-homeless-free")
+async def upload_kol_homeless_free(file: UploadFile = File(...)):
+    if not file.filename.endswith(('.xlsx', '.xls')):
+        raise HTTPException(400, "File harus .xlsx")
+    os.makedirs(DATA_DIR, exist_ok=True)
+    dest = os.path.join(DATA_DIR, 'KOLHomeless.xlsx')
+    with open(dest, 'wb') as f:
+        shutil.copyfileobj(file.file, f)
+
+    parse_script = os.path.join(os.path.dirname(__file__), 'scripts', 'parse_free_pools.py')
+    env = os.environ.copy()
+    env['KOL_HOMELESS_PATH'] = dest
+    env['COMMUNITY_PATH']    = os.path.join(DATA_DIR, 'Community.xlsx')
+
+    r = subprocess.run(
+        [sys.executable, parse_script],
+        capture_output=True, text=True,
+        cwd=os.path.dirname(__file__), env=env
+    )
+
+    count = 0
+    out_path = os.path.join(DATA_DIR, 'kol_homeless_free.json')
+    if os.path.exists(out_path):
+        with open(out_path) as jf:
+            count = len(json.load(jf))
+
+    return {
+        "status":         "uploaded",
+        "filename":       file.filename,
+        "parsed":         r.returncode == 0,
+        "kol_free_count": count,
+        "log":            r.stdout[-300:] if r.stdout else r.stderr[-300:]
+    }
+
+
+@app.post("/upload-community")
+async def upload_community(file: UploadFile = File(...)):
+    if not file.filename.endswith(('.xlsx', '.xls')):
+        raise HTTPException(400, "File harus .xlsx")
+    os.makedirs(DATA_DIR, exist_ok=True)
+    dest = os.path.join(DATA_DIR, 'Community.xlsx')
+    with open(dest, 'wb') as f:
+        shutil.copyfileobj(file.file, f)
+
+    parse_script = os.path.join(os.path.dirname(__file__), 'scripts', 'parse_free_pools.py')
+    env = os.environ.copy()
+    env['KOL_HOMELESS_PATH'] = os.path.join(DATA_DIR, 'KOLHomeless.xlsx')
+    env['COMMUNITY_PATH']    = dest
+
+    r = subprocess.run(
+        [sys.executable, parse_script],
+        capture_output=True, text=True,
+        cwd=os.path.dirname(__file__), env=env
+    )
+
+    count = 0
+    out_path = os.path.join(DATA_DIR, 'community_pool.json')
+    if os.path.exists(out_path):
+        with open(out_path) as jf:
+            count = len(json.load(jf))
+
+    return {
+        "status":          "uploaded",
+        "filename":        file.filename,
+        "parsed":          r.returncode == 0,
+        "community_count": count,
+        "log":             r.stdout[-300:] if r.stdout else r.stderr[-300:]
+    }
+
+
 @app.post("/train")
 def train():
     if not os.path.exists(os.path.join(DATA_DIR, 'KOL.xlsx')):
@@ -410,14 +481,11 @@ def get_recommendations(req: CampaignRequest):
     budget_kol   = req.budget * kol_pct   if not zero_budget else 0
     budget_media = req.budget * media_pct if not zero_budget else 0
 
-    # ── Resolve multi-location ────────────────────────────────────────────────
     locations = _resolve_locations(req)
     is_multi_loc = len(locations) > 1
 
-    # ── Resolve tier splits ───────────────────────────────────────────────────
     tier_runs = _resolve_tier_splits(req, req.num_kol, budget_kol)
 
-    # ── Run recommend per lokasi × per tier ───────────────────────────────────
     all_kol_results: list[dict] = []
     seen_usernames:  set[str]   = set()
 
@@ -441,16 +509,12 @@ def get_recommendations(req: CampaignRequest):
                     kol["matched_location"] = loc
                     all_kol_results.append(kol)
                     seen_usernames.add(uname)
-
-    # Sort gabungan by match_score, ambil top num_kol
     all_kol_results.sort(key=lambda x: x["match_score"], reverse=True)
     top_kol = all_kol_results[:req.num_kol]
 
     cost_min = sum(r.get("rate_min", 0) for r in top_kol)
     cost_max = sum(r.get("rate_max", 0) for r in top_kol)
 
-    # ── Build response ────────────────────────────────────────────────────────
-    # Ambil meta dari run pertama (meta bersifat global)
     first_result = recommend(
         topics               = req.topics or "",
         goals                = req.goals or "",
@@ -507,5 +571,23 @@ def get_recommendations(req: CampaignRequest):
         response['budget_remaining_min'] = int(max(0, req.budget - total_min))
         response['budget_remaining_max'] = int(max(0, req.budget - total_max))
         response['over_budget']          = total_min > req.budget
+
+    if zero_budget:
+        kol_free_result = recommend_kol_free(
+            topics               = req.topics or "",
+            goals                = req.goals or "",
+            campaign_description = req.campaign_description or "",
+            num_kol              = req.num_kol,
+        )
+        response['kol_homeless_free'] = kol_free_result
+        response['kol_free_count']    = len(kol_free_result)
+    community_result = recommend_community(
+        topics               = req.topics or "",
+        goals                = req.goals or "",
+        campaign_description = req.campaign_description or "",
+        num_community        = req.num_media,
+    )
+    response['community'] = community_result
+    response['community_count'] = len(community_result)
 
     return response

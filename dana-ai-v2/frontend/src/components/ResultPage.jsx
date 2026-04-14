@@ -1,39 +1,3 @@
-/**
- * ResultPage.jsx
- * ==============
- * Result page dengan 2 tab setelah summary card:
- *   Tab 1 — Rekomendasi  : KOL cards + Homeless Media cards
- *   Tab 2 — Campaign Toolkit : Budget Tracker + History
- *
- * Cara pakai di App.js:
- *   1. Import di atas:
- *      import ResultPage from './components/ResultPage';
- *
- *   2. Ganti seluruh blok `if(page==='result'&&result) { return (...) }`
- *      dengan:
- *
- *      if(page==='result'&&result) {
- *        return (
- *          <ResultPage
- *            result={result}
- *            isMobile={isMobile}
- *            px={px}
- *            onNew={()=>setPage('form')}
- *            onShare={generateShareUrl}
- *            shareModal={shareModal}
- *            shareUrl={shareUrl}
- *            shareCopied={shareCopied}
- *            onCopyShare={handleCopyShareUrl}
- *            onCloseShare={()=>setShareModal(false)}
- *          />
- *        );
- *      }
- *
- *   3. HAPUS blok ShareModal dari result page lama (sudah dipindah ke sini)
- *   4. HAPUS import KOLCard, HomelessMediaCard, CampaignToolkit dari App.js
- *      (kalau mau bersih) — atau biarkan saja, tidak konflik
- */
-
 import { useState } from 'react';
 import CampaignToolkit from './CampaignToolkit';
 import LLMProfileBadge from './LLMProfileBadge';
@@ -389,6 +353,118 @@ function HomelessMediaCard({ media, rank }) {
   );
 }
 
+// ── FreePoolCard (KOL Free & Community) ──────────────────────
+function FreePoolCard({ item, rank, accentColor, accentBg, accentDark, type }) {
+  const [open, setOpen] = useState(false);
+  const sc = item.match_score >= 70 ? C.green : item.match_score >= 40 ? C.gold : C.textMuted;
+
+  const contactInfo = item.contact_info || {};
+  const contactLabel = {
+    whatsapp: 'Chat WhatsApp',
+    email:    'Kirim Email',
+    dm:       'DM Instagram',
+    link:     'Lihat Profil',
+  }[contactInfo.type] || 'Hubungi';
+
+  const contactHref = {
+    whatsapp: `https://wa.me/${(contactInfo.value||'').replace(/\D/g,'')}`,
+    email:    `mailto:${contactInfo.value}`,
+    dm:       `https://instagram.com/${(contactInfo.value||'').replace('@','')}`,
+    link:     contactInfo.value,
+  }[contactInfo.type] || '#';
+
+  const approachColor = item.approachability >= 0.9 ? C.green
+    : item.approachability >= 0.7 ? C.gold : C.textMuted;
+  const approachBg = item.approachability >= 0.9 ? C.greenBg
+    : item.approachability >= 0.7 ? C.goldBg : C.bgGray2;
+
+  return (
+    <div style={{background:C.bg,border:`1px solid ${C.border}`,borderRadius:12,overflow:'hidden'}}>
+      <div style={{height:3,background:`linear-gradient(90deg,${accentColor},${accentColor}88)`}}/>
+      <div style={{padding:16}}>
+        {/* Header */}
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:14,gap:8}}>
+          <div style={{display:'flex',gap:10,alignItems:'center',minWidth:0}}>
+            <div style={{width:38,height:38,borderRadius:8,background:accentBg,display:'flex',alignItems:'center',justifyContent:'center',color:accentColor,flexShrink:0,fontWeight:800,fontSize:14}}>
+              {type==='community'?'🤝':'👤'}
+            </div>
+            <div style={{minWidth:0}}>
+              <div style={{fontWeight:700,color:C.text,fontSize:14,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
+                {type==='community'
+                  ? (item.nama_komunitas||item.username)
+                  : `@${item.username}`}
+              </div>
+              <div style={{color:C.textMuted,fontSize:11,marginTop:1}}>{item.category}</div>
+            </div>
+          </div>
+          <div style={{display:'flex',gap:5,alignItems:'center',flexShrink:0}}>
+            <span style={{background:accentColor,color:'#fff',borderRadius:20,padding:'2px 10px',fontSize:12,fontWeight:700}}>#{rank}</span>
+          </div>
+        </div>
+
+        {/* Match Score */}
+        <div style={{marginBottom:12}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+            <span style={{fontSize:11,color:C.textMuted,fontWeight:600,letterSpacing:'.5px'}}>MATCH SCORE</span>
+            <span style={{fontSize:18,fontWeight:800,color:sc}}>{item.match_score}%</span>
+          </div>
+          <ScoreBar score={item.match_score} color={accentColor}/>
+        </div>
+
+        {/* Stats */}
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:12}}>
+          {type==='kol'&&<StatBox label="Followers" value={item.followers||'–'}/>}
+          {type==='kol'&&<StatBox label="Platform"  value={item.social_media||'–'}/>}
+          <div style={{background:approachBg,borderRadius:8,padding:'8px 10px',gridColumn:type==='community'?'1/-1':'auto'}}>
+            <div style={{fontSize:10,color:approachColor,fontWeight:700,letterSpacing:'.5px',marginBottom:2}}>APPROACHABILITY</div>
+            <div style={{fontWeight:700,fontSize:13,color:approachColor}}>{item.approachability_label||'–'}</div>
+          </div>
+          {type==='community'&&item.social_url&&(
+            <StatBox label="Platform" value="Instagram"/>
+          )}
+        </div>
+
+        {/* Reasoning */}
+        {item.reasoning&&(
+          <div style={{background:accentBg,borderRadius:8,padding:'8px 10px',marginBottom:12,display:'flex',gap:7,alignItems:'flex-start'}}>
+            <span style={{color:accentColor,flexShrink:0,marginTop:1}}>{Icon.lightbulb(12)}</span>
+            <span style={{color:accentDark,fontSize:12,lineHeight:1.6}}>{item.reasoning}</span>
+          </div>
+        )}
+
+        {/* Score detail */}
+        {item.score_detail&&(
+          <>
+            <button onClick={()=>setOpen(o=>!o)} style={{background:'none',border:`1px solid ${C.border}`,color:C.textSub,borderRadius:8,padding:'10px 12px',cursor:'pointer',fontSize:12,fontFamily:'inherit',width:'100%',marginBottom:open?8:12,display:'flex',alignItems:'center',justifyContent:'center',gap:6}}>
+              {open?Icon.chevronUp(11):Icon.chevronDown(11)}{open?'Sembunyikan detail':'Detail scoring'}
+            </button>
+            {open&&(
+              <div style={{background:C.bgGray,borderRadius:8,padding:'10px 12px',marginBottom:12}}>
+                {Object.entries(item.score_detail).map(([k,v])=>(
+                  <div key={k} style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:7}}>
+                    <span style={{color:C.textSub,fontSize:12}}>{k}</span>
+                    <div style={{display:'flex',alignItems:'center',gap:8}}>
+                      <div style={{width:50,height:3,background:C.bgGray2,borderRadius:2,overflow:'hidden'}}><div style={{width:`${v}%`,height:'100%',background:v>=70?C.green:v>=40?C.gold:C.textMuted,borderRadius:2}}/></div>
+                      <span style={{color:C.textSub,fontSize:12,minWidth:32,textAlign:'right'}}>{v}%</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Contact button */}
+        <a href={contactHref} target="_blank" rel="noopener noreferrer"
+          style={{display:'flex',alignItems:'center',justifyContent:'center',gap:8,background:accentBg,border:`1px solid ${accentColor}44`,color:accentDark,borderRadius:10,padding:'12px 14px',fontSize:14,fontWeight:700,textDecoration:'none',fontFamily:'inherit'}}>
+          {Icon.link(14)} {contactLabel}
+          <span style={{display:'flex',opacity:.6}}>{Icon.externalLink(10)}</span>
+        </a>
+      </div>
+    </div>
+  );
+}
+
 // ── Share Modal ───────────────────────────────────────────────
 function ShareModal({ url, copied, onCopy, onClose, isMobile }) {
   const iconX     = (s=14) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>;
@@ -608,7 +684,7 @@ export default function ResultPage({
 
                 {/* Homeless Media section */}
                 {hasHM&&(
-                  <div>
+                  <div style={{marginBottom:28}}>
                     <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:14 }}>
                       <div style={{ width:3, height:20, background:C.teal, borderRadius:2 }}/>
                       <h2 style={{ margin:0, fontSize:isMobile?15:17, fontWeight:800, color:C.text, letterSpacing:'-0.3px' }}>Homeless Media</h2>
@@ -618,6 +694,40 @@ export default function ResultPage({
                       {hm.recommended_media.map((m,i)=>(
                         <HomelessMediaCard key={m.id||i} media={m} rank={i+1}/>
                       ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* KOL Homeless Free section — hanya muncul saat zero budget */}
+                {hasKolFree&&(
+                  <div style={{marginBottom:28}}>
+                    <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:8}}>
+                      <div style={{width:3,height:20,background:'#F59E0B',borderRadius:2}}/>
+                      <h2 style={{margin:0,fontSize:isMobile?15:17,fontWeight:800,color:C.text,letterSpacing:'-0.3px'}}>KOL Free (Zero Budget)</h2>
+                      <Chip label={`${kolFree.length} KOL`} color='#92400E' bg='#FEF3C7'/>
+                    </div>
+                    <div style={{background:'#FFFBEB',border:'1px solid #FDE68A',borderRadius:10,padding:'10px 14px',marginBottom:14,fontSize:12,color:'#92400E',lineHeight:1.5}}>
+                      KOL tanpa rate card — approach langsung via DM/WA/email. Cocok untuk kolaborasi barter atau content partnership.
+                    </div>
+                    <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(auto-fill,minmax(280px,1fr))',gap:12}}>
+                      {kolFree.map((k,i)=><FreePoolCard key={k.id||i} item={k} rank={i+1} accentColor='#F59E0B' accentBg='#FEF3C7' accentDark='#92400E' type='kol'/>)}
+                    </div>
+                  </div>
+                )}
+
+                {/* Community section — selalu tampil */}
+                {hasComm&&(
+                  <div>
+                    <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:8}}>
+                      <div style={{width:3,height:20,background:'#10B981',borderRadius:2}}/>
+                      <h2 style={{margin:0,fontSize:isMobile?15:17,fontWeight:800,color:C.text,letterSpacing:'-0.3px'}}>Komunitas</h2>
+                      <Chip label={`${community.length} Komunitas`} color='#065F46' bg='#D1FAE5'/>
+                    </div>
+                    <div style={{background:'#F0FDF4',border:'1px solid #BBF7D0',borderRadius:10,padding:'10px 14px',marginBottom:14,fontSize:12,color:'#065F46',lineHeight:1.5}}>
+                      Komunitas relevan untuk partnership, co-branding, atau distribusi konten. Approach via kontak yang tersedia.
+                    </div>
+                    <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(auto-fill,minmax(280px,1fr))',gap:12}}>
+                      {community.map((c,i)=><FreePoolCard key={c.id||i} item={c} rank={i+1} accentColor='#10B981' accentBg='#D1FAE5' accentDark='#065F46' type='community'/>)}
                     </div>
                   </div>
                 )}
