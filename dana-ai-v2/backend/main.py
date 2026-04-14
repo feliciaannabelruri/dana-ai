@@ -300,10 +300,12 @@ async def upload_kol_homeless_free(file: UploadFile = File(...)):
     with open(dest, 'wb') as f:
         shutil.copyfileobj(file.file, f)
 
+    # Parse ONLY kol_free — jangan timpa community_pool.json yang sudah ada
     parse_script = os.path.join(os.path.dirname(__file__), 'scripts', 'parse_free_pools.py')
     env = os.environ.copy()
-    env['KOL_HOMELESS_PATH'] = dest
-    env['COMMUNITY_PATH']    = os.path.join(DATA_DIR, 'Community.xlsx')
+    env['KOL_HOMELESS_PATH']  = dest
+    env['COMMUNITY_PATH']     = ''          # kosongkan agar community tidak di-reparse
+    env['SKIP_COMMUNITY']     = '1'
 
     r = subprocess.run(
         [sys.executable, parse_script],
@@ -337,8 +339,9 @@ async def upload_community(file: UploadFile = File(...)):
 
     parse_script = os.path.join(os.path.dirname(__file__), 'scripts', 'parse_free_pools.py')
     env = os.environ.copy()
-    env['KOL_HOMELESS_PATH'] = os.path.join(DATA_DIR, 'KOLHomeless.xlsx')
-    env['COMMUNITY_PATH']    = dest
+    env['KOL_HOMELESS_PATH']  = ''          # kosongkan agar KOLHomeless tidak di-reparse
+    env['COMMUNITY_PATH']     = dest
+    env['SKIP_KOL_FREE']      = '1'
 
     r = subprocess.run(
         [sys.executable, parse_script],

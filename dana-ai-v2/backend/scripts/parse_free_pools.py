@@ -170,13 +170,21 @@ def parse_community():
 if __name__ == '__main__':
     os.makedirs(DATA_DIR, exist_ok=True)
 
-    kol_free = parse_kol_free()
-    community = parse_community()
+    skip_kol_free  = os.environ.get('SKIP_KOL_FREE', '0') == '1'
+    skip_community = os.environ.get('SKIP_COMMUNITY', '0') == '1'
 
-    with open(KOL_FREE_OUT, 'w', encoding='utf-8') as f:
-        json.dump(kol_free, f, ensure_ascii=False, indent=2)
-    print(f'[OK] Saved kol_homeless_free.json ({len(kol_free)} entri)')
+    if not skip_kol_free:
+        kol_free = parse_kol_free()
+        with open(KOL_FREE_OUT, 'w', encoding='utf-8') as f:
+            json.dump(kol_free, f, ensure_ascii=False, indent=2)
+        print(f'[OK] Saved kol_homeless_free.json ({len(kol_free)} entri)')
+    else:
+        print('[SKIP] KOL free parse dilewati (SKIP_KOL_FREE=1)')
 
-    with open(COMM_OUT, 'w', encoding='utf-8') as f:
-        json.dump(community, f, ensure_ascii=False, indent=2)
-    print(f'[OK] Saved community_pool.json ({len(community)} entri)')
+    if not skip_community:
+        community = parse_community()
+        with open(COMM_OUT, 'w', encoding='utf-8') as f:
+            json.dump(community, f, ensure_ascii=False, indent=2)
+        print(f'[OK] Saved community_pool.json ({len(community)} entri)')
+    else:
+        print('[SKIP] Community parse dilewati (SKIP_COMMUNITY=1)')
