@@ -326,6 +326,7 @@ export default function App(){
   const[page,sPage]=useState('form');const[status,sStatus]=useState(null);const[result,sResult]=useState(null);
   const[msg,sMsg]=useState(MSGS[0]);const[kolMsg,sKolMsg]=useState('');const[insMsg,sInsMsg]=useState('');const[hmMsg,sHmMsg]=useState('');
   const[training,sTrn]=useState(false);const[locs,sLocs]=useState([]);const[locLoad,sLocLoad]=useState(false);
+  const[updateMode,sUpdateMode]=useState(false);
   const[shareModal,sShareModal]=useState(false);const[shareUrl,sShareUrl]=useState('');const[shareCop,sShareCop]=useState(false);
   const[form,sForm]=useState({
     campaign_name:'',campaign_description:'',goals:'',target_audience:'',
@@ -391,35 +392,62 @@ export default function App(){
         </div>
         {/* Setup */}
         <div className="fu" style={{animationDelay:'.06s',background:C.bg,border:`1px solid ${C.border}`,borderRadius:12,padding:isMobile?16:22,marginBottom:12}}>
+          {/* Status bar */}
           <div style={{display:'flex',alignItems:'flex-start',gap:8,background:ss.bg,border:`1px solid ${ss.border}`,borderRadius:8,padding:'10px 12px',marginBottom:16}}>
             <span style={{color:ss.color,display:'flex',alignItems:'center',marginTop:1,flexShrink:0}}>{ss.icon}</span>
-            <span style={{color:ss.color,fontWeight:600,fontSize:13,lineHeight:1.4}}>{stTxt}</span>
+            <span style={{color:ss.color,fontWeight:600,fontSize:13,lineHeight:1.4,flex:1}}>{stTxt}</span>
           </div>
-          <SL>Upload data</SL>
-          <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr 1fr',gap:10,marginBottom:14}}>
-            <div style={{background:C.bgGray,borderRadius:10,padding:12}}>
-              <div style={{color:C.textSub,fontSize:10,fontWeight:700,letterSpacing:'.5px',marginBottom:8}}>DATABASE KOL</div>
-              <input ref={kolRef} type="file" accept=".xlsx" style={{display:'none'}} onChange={hKOL}/>
-              <button onClick={()=>kolRef.current.click()} disabled={!!backendErr} style={{background:C.blueLight,border:`1px solid ${C.blue}33`,color:C.blue,borderRadius:8,padding:'11px',cursor:'pointer',fontSize:13,fontWeight:700,fontFamily:'inherit',width:'100%',display:'flex',alignItems:'center',justifyContent:'center',gap:6,opacity:backendErr?.4:1}}>{Ic.upload(13)} KOL.xlsx</button>
-              {kolMsg&&<div style={{marginTop:7,fontSize:11,lineHeight:1.5,color:kolMsg.startsWith('Error')?C.red:C.textSub}}>{kolMsg}</div>}
+          {/* Update Data Toggle */}
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:updateMode?16:0}}>
+            <div style={{display:'flex',alignItems:'center',gap:8}}>
+              <span style={{fontSize:13,fontWeight:700,color:C.text}}>Update Data</span>
+              <span style={{fontSize:11,color:C.textMuted,background:updateMode?'#FEF3C7':'#F3F4F6',border:`1px solid ${updateMode?'#F59E0B33':'#E5E7EB'}`,borderRadius:4,padding:'1px 6px',fontWeight:600,color:updateMode?'#92400E':C.textMuted}}>{updateMode?'ON':'OFF'}</span>
             </div>
-            <div style={{background:C.bgGray,borderRadius:10,padding:12}}>
-              <div style={{color:C.textSub,fontSize:10,fontWeight:700,letterSpacing:'.5px',marginBottom:8}}>INSIGHT / ER DATA</div>
-              <input ref={insRef} type="file" accept=".xlsx" style={{display:'none'}} onChange={hIns}/>
-              <button onClick={()=>insRef.current.click()} disabled={!!backendErr} style={{background:C.greenBg,border:`1px solid ${C.green}33`,color:C.green,borderRadius:8,padding:'11px',cursor:'pointer',fontSize:13,fontWeight:700,fontFamily:'inherit',width:'100%',display:'flex',alignItems:'center',justifyContent:'center',gap:6,opacity:backendErr?.4:1}}>{Ic.chart(13)} insight.xlsx</button>
-              {insMsg&&<div style={{marginTop:7,fontSize:11,lineHeight:1.5,color:insMsg.startsWith('Error')?C.red:C.textSub}}>{insMsg}</div>}
-            </div>
-            <div style={{background:C.tealBg,border:`1px solid ${C.tealBorder}`,borderRadius:10,padding:12}}>
-              <div style={{color:C.teal,fontSize:10,fontWeight:700,letterSpacing:'.5px',marginBottom:8,display:'flex',alignItems:'center',gap:4}}>{Ic.news(10)} HOMELESS MEDIA</div>
-              <input ref={hmRef} type="file" accept=".xlsx" style={{display:'none'}} onChange={hHM}/>
-              <button onClick={()=>hmRef.current.click()} disabled={!!backendErr} style={{background:C.bg,border:`1px solid ${C.teal}44`,color:C.teal,borderRadius:8,padding:'11px',cursor:'pointer',fontSize:13,fontWeight:700,fontFamily:'inherit',width:'100%',display:'flex',alignItems:'center',justifyContent:'center',gap:6,opacity:backendErr?.4:1}}>{Ic.upload(13)} HomelessMedia.xlsx</button>
-              {hmLoaded&&!hmMsg&&<div style={{marginTop:7,fontSize:11,color:C.teal}}>{hmCount} media dimuat</div>}
-              {hmMsg&&<div style={{marginTop:7,fontSize:11,lineHeight:1.5,color:hmMsg.startsWith('Error')?C.red:C.teal}}>{hmMsg}</div>}
-            </div>
+            <button
+              onClick={()=>{sUpdateMode(v=>!v);if(updateMode){sKolMsg('');sInsMsg('');sHmMsg('');}}}
+              disabled={!!backendErr}
+              style={{
+                width:44,height:24,borderRadius:12,border:'none',cursor:backendErr?'not-allowed':'pointer',
+                background:updateMode?C.blue:'#D1D5DB',
+                transition:'background .2s',position:'relative',flexShrink:0,opacity:backendErr?.5:1
+              }}
+            >
+              <span style={{
+                position:'absolute',top:3,left:updateMode?22:3,width:18,height:18,
+                borderRadius:'50%',background:'#fff',transition:'left .2s',
+                boxShadow:'0 1px 3px rgba(0,0,0,.2)',display:'block'
+              }}/>
+            </button>
           </div>
-          <button onClick={hTrain} disabled={training||!!backendErr} style={{background:training?C.bgGray2:C.blue,border:'none',color:training?C.textMuted:'#fff',borderRadius:10,padding:'13px',cursor:training||backendErr?'not-allowed':'pointer',fontSize:14,fontWeight:700,fontFamily:'inherit',width:'100%',display:'flex',alignItems:'center',justifyContent:'center',gap:8,opacity:backendErr?.4:1,transition:'background .15s'}}>
-            {training?Ic.loader(15):Ic.cpu(14)} {training?'Training...':'Latih Model'}
-          </button>
+          {/* Upload section — hanya tampil kalau updateMode ON */}
+          {updateMode&&(
+            <>
+              <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr 1fr',gap:10,marginBottom:14}}>
+                <div style={{background:C.bgGray,borderRadius:10,padding:12}}>
+                  <div style={{color:C.textSub,fontSize:10,fontWeight:700,letterSpacing:'.5px',marginBottom:8}}>DATABASE KOL</div>
+                  <input ref={kolRef} type="file" accept=".xlsx" style={{display:'none'}} onChange={hKOL}/>
+                  <button onClick={()=>kolRef.current.click()} disabled={!!backendErr} style={{background:C.blueLight,border:`1px solid ${C.blue}33`,color:C.blue,borderRadius:8,padding:'11px',cursor:'pointer',fontSize:13,fontWeight:700,fontFamily:'inherit',width:'100%',display:'flex',alignItems:'center',justifyContent:'center',gap:6,opacity:backendErr?.4:1}}>{Ic.upload(13)} KOL.xlsx</button>
+                  {kolMsg&&<div style={{marginTop:7,fontSize:11,lineHeight:1.5,color:kolMsg.startsWith('Error')?C.red:C.textSub}}>{kolMsg}</div>}
+                </div>
+                <div style={{background:C.bgGray,borderRadius:10,padding:12}}>
+                  <div style={{color:C.textSub,fontSize:10,fontWeight:700,letterSpacing:'.5px',marginBottom:8}}>INSIGHT / ER DATA</div>
+                  <input ref={insRef} type="file" accept=".xlsx" style={{display:'none'}} onChange={hIns}/>
+                  <button onClick={()=>insRef.current.click()} disabled={!!backendErr} style={{background:C.greenBg,border:`1px solid ${C.green}33`,color:C.green,borderRadius:8,padding:'11px',cursor:'pointer',fontSize:13,fontWeight:700,fontFamily:'inherit',width:'100%',display:'flex',alignItems:'center',justifyContent:'center',gap:6,opacity:backendErr?.4:1}}>{Ic.chart(13)} insight.xlsx</button>
+                  {insMsg&&<div style={{marginTop:7,fontSize:11,lineHeight:1.5,color:insMsg.startsWith('Error')?C.red:C.textSub}}>{insMsg}</div>}
+                </div>
+                <div style={{background:C.tealBg,border:`1px solid ${C.tealBorder}`,borderRadius:10,padding:12}}>
+                  <div style={{color:C.teal,fontSize:10,fontWeight:700,letterSpacing:'.5px',marginBottom:8,display:'flex',alignItems:'center',gap:4}}>{Ic.news(10)} HOMELESS MEDIA</div>
+                  <input ref={hmRef} type="file" accept=".xlsx" style={{display:'none'}} onChange={hHM}/>
+                  <button onClick={()=>hmRef.current.click()} disabled={!!backendErr} style={{background:C.bg,border:`1px solid ${C.teal}44`,color:C.teal,borderRadius:8,padding:'11px',cursor:'pointer',fontSize:13,fontWeight:700,fontFamily:'inherit',width:'100%',display:'flex',alignItems:'center',justifyContent:'center',gap:6,opacity:backendErr?.4:1}}>{Ic.upload(13)} HomelessMedia.xlsx</button>
+                  {hmLoaded&&!hmMsg&&<div style={{marginTop:7,fontSize:11,color:C.teal}}>{hmCount} media dimuat</div>}
+                  {hmMsg&&<div style={{marginTop:7,fontSize:11,lineHeight:1.5,color:hmMsg.startsWith('Error')?C.red:C.teal}}>{hmMsg}</div>}
+                </div>
+              </div>
+              <button onClick={hTrain} disabled={training||!!backendErr} style={{background:training?C.bgGray2:C.blue,border:'none',color:training?C.textMuted:'#fff',borderRadius:10,padding:'13px',cursor:training||backendErr?'not-allowed':'pointer',fontSize:14,fontWeight:700,fontFamily:'inherit',width:'100%',display:'flex',alignItems:'center',justifyContent:'center',gap:8,opacity:backendErr?.4:1,transition:'background .15s'}}>
+                {training?Ic.loader(15):Ic.cpu(14)} {training?'Training...':'Latih Model'}
+              </button>
+            </>
+          )}
         </div>
         {/* Main Form */}
         <div className="fu" style={{animationDelay:'.12s',background:C.bg,border:`1px solid ${C.border}`,borderRadius:12,padding:isMobile?16:22,display:'flex',flexDirection:'column',gap:20}}>
@@ -507,7 +535,7 @@ export default function App(){
           <button onClick={hSubmit} disabled={!canSub} style={{background:canSub?C.blue:C.bgGray2,border:'none',color:canSub?'#fff':C.textMuted,borderRadius:10,padding:'15px',fontSize:15,fontWeight:700,cursor:canSub?'pointer':'not-allowed',fontFamily:'inherit',opacity:canSub?1:.55,display:'flex',alignItems:'center',justifyContent:'center',gap:8,width:'100%',letterSpacing:'-0.2px',transition:'background .15s'}}>
             {Ic.bolt(15)} Generate Rekomendasi {hmLoaded&&!form.zeroBudget?'KOL + Media':'KOL'}
           </button>
-          {!modelReady&&<p style={{textAlign:'center',color:C.textMuted,fontSize:12,margin:0,display:'flex',alignItems:'center',justifyContent:'center',gap:5}}><span style={{display:'flex'}}>{Ic.alert(12)}</span> Upload KOL.xlsx lalu klik Latih Model terlebih dahulu</p>}
+          {!modelReady&&<p style={{textAlign:'center',color:C.textMuted,fontSize:12,margin:0,display:'flex',alignItems:'center',justifyContent:'center',gap:5}}><span style={{display:'flex'}}>{Ic.alert(12)}</span> Aktifkan toggle Update Data → upload KOL.xlsx → Latih Model</p>}
         </div>
         {/* FIX: use actual middle dot · instead of \u00b7 escape in JSX text */}
         <p style={{textAlign:'center',color:C.textMuted,fontSize:11,marginTop:24}}>DANA AI v3 · Multi-Location · Multi-Topic · Tier Split · Groq LLM Profiling</p>
