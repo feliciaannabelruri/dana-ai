@@ -55,26 +55,23 @@ TIER_VAL_MAP   = {'nano':1, 'mikro':2, 'makro':3, 'mega':4}
 LOCATION_LIST  = ['jakarta','bandung','cirebon','surabaya','malang','jawa_timur',
                   'yogyakarta','solo','semarang','jawa_tengah',
                   'bali','sumatra','kalimantan','sulawesi','nasional','other','unknown']
-
 WEIGHTS = {
     'semantic':    0.20,
     'rf':          0.14,
     'xgb_er':      0.11,
     'rbm':         0.07,
-    'budget':      0.10,   # dikurangi sedikit untuk beri ruang LLM
+    'budget':      0.10,   
     'location':    0.08,
     'brand_fit':   0.08,
     'pattern':     0.03,
     'tier':        0.01,
-    'llm_profile': 0.18,   # naik dari 0.13 → 0.18
+    'llm_profile': 0.18,  
 }
 
-PRE_FILTER_MULT = 4  # naik dari 3 → 4: pool lebih besar untuk LLM
+PRE_FILTER_MULT = 4  
 
 _cache = {}
 
-
-# ── Type helpers ──────────────────────────────────────────────────────────────
 def to_int(v):
     try:
         if v is None or (isinstance(v, float) and np.isnan(v)): return 0
@@ -108,7 +105,6 @@ def build_contact(pic_contact, social_media, username):
     if uname:
         return {'type':'profile','url':f'https://instagram.com/{uname}','label':f'DM @{uname}'}
     return None
-
 
 def load_models():
     global _cache
@@ -197,7 +193,6 @@ def encode_query(topics, goals, description, st_model, target_audience=""):
     else:
         base = f"{topics} {goals} {description}".strip() or "campaign marketing umum"
 
-    # Enrich dengan sinyal dari database
     enriched_text = (
         f"{base} "
         f"intent: {goals_signal.get('intent', '')} "
@@ -382,6 +377,7 @@ def score_tier(tier_score, preferred_tier, zero_budget_mode=False):
     else:
         return max(0.0, 1.0 - abs(float(tier_score) - pref) * 0.3)
 
+
 def recommend(
     topics, goals, campaign_description, location,
     budget_total, num_kol,
@@ -426,7 +422,6 @@ def recommend(
 
     if zero_budget_mode and preferred_tier and preferred_tier.lower() not in ('semua', 'all', ''):
         df_f = filter_by_tier(df_f, preferred_tier)
-
     pre_candidate_df = df_f.head(num_kol * PRE_FILTER_MULT)
     kol_dicts = pre_candidate_df.to_dict(orient="records")
     campaign_params = {
@@ -438,7 +433,6 @@ def recommend(
     print(f"   [LLM] Profiling {len(kol_dicts)} kandidat KOL (concurrent, cached)...")
     llm_profiles = batch_profile_kols(kol_dicts, campaign_params)
 
-    # ── STEP 4: Encode query (enriched dengan goals/topics signals) ───────────
     print(f"   [NLP] Encoding query enriched: '{topics} | {goals}'")
     query_emb = encode_query(topics, goals, campaign_description, m['st_model'], target_audience="")
 
@@ -481,7 +475,6 @@ def recommend(
         if to_int(row['rate_tiktok']) > 0:  rate_card['Tiktok']   = to_int(row['rate_tiktok'])
         if to_int(row['rate_ig']) > 0:       rate_card['IG Reels'] = to_int(row['rate_ig'])
         if to_int(row['rate_bundling']) > 0: rate_card['Bundling'] = to_int(row['rate_bundling'])
-
         reasons = []
 
         if s_sem >= 0.6:
@@ -543,6 +536,7 @@ def recommend(
             reasons.append(f"Angle DANA: {llm_angle[:80]}")
         if len(reasons) <= 2 and llm_fit:
             reasons.append(f"LLM: {llm_fit[:80]}")
+
         er_display  = None
         xgb_er_pred = None
         try:
