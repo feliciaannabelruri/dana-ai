@@ -7,6 +7,15 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from openai import OpenAI
 
+# ── Cache (Upstash REST, fallback ke file cache) ───────────────────────────────
+try:
+    from upstash_cache import get_profile_cache, set_profile_cache
+    _CACHE_ENABLED = True
+except ImportError:
+    _CACHE_ENABLED = False
+    def get_profile_cache(k): return None
+    def set_profile_cache(k, v): pass
+
 # ── Config ─────────────────────────────────────────────────────────────────────
 CACHE_DIR = Path("data/profile_cache")
 CACHE_DIR.mkdir(parents=True, exist_ok=True)
@@ -47,7 +56,6 @@ Cross-niche yang BAGUS untuk DANA:
 """
 
 # ── Goals Database: mapping goals → signal konkret untuk LLM ──────────────────
-# Dipakai untuk memperkaya context sebelum dikirim ke LLM
 GOALS_SIGNALS: dict[str, dict] = {
     "brand awareness":   {"intent": "jangkauan luas, awareness", "kol_fit": "reach tinggi, engagement luas, konten yang mudah viral", "dana_angle": "perkenalkan DANA ke audiens baru"},
     "awareness":         {"intent": "jangkauan luas, awareness", "kol_fit": "reach tinggi, engagement luas, konten yang mudah viral", "dana_angle": "perkenalkan DANA ke audiens baru"},
@@ -92,15 +100,12 @@ def enrich_goals_topics(goals: str, topics: str) -> dict:
     """
     Urai goals dan topics menjadi sinyal konkret dari database.
     Support multi-topic (comma-separated).
-    Dipakai untuk memperkaya prompt LLM.
     """
     goals_lower = (goals or "").lower()
     topics_lower = (topics or "").lower()
 
-    # Parse multi-topic
     topic_list = [t.strip() for t in re.split(r"[,;/]", topics_lower) if t.strip()]
 
-    # Match goals
     matched_goals = {}
     for key, signals in GOALS_SIGNALS.items():
         if key in goals_lower:
@@ -109,7 +114,6 @@ def enrich_goals_topics(goals: str, topics: str) -> dict:
     if not matched_goals:
         matched_goals = {"intent": goals or "campaign marketing", "kol_fit": "reach dan engagement relevan", "dana_angle": "perkenalkan manfaat DANA"}
 
-    # Match all topics (multi-topic)
     matched_topics = []
     for topic in topic_list:
         for key, signals in TOPICS_SIGNALS.items():
@@ -117,11 +121,9 @@ def enrich_goals_topics(goals: str, topics: str) -> dict:
                 matched_topics.append({"topic": key, **signals})
                 break
 
-    # Fallback jika tidak ada match
     if not matched_topics:
         matched_topics = [{"topic": topics or "umum", "audience": "masyarakat umum Indonesia", "dana_overlap": ["cashless-everyday"], "content_fit": "konten relevan"}]
 
-    # Gabungkan audience overlap dari semua topics
     all_dana_overlap = []
     all_audiences = []
     for t in matched_topics:
@@ -129,14 +131,14 @@ def enrich_goals_topics(goals: str, topics: str) -> dict:
         all_audiences.append(t.get("audience", ""))
 
     return {
-        "goals_signal":    matched_goals,
-        "topics_signals":  matched_topics,
-        "combined_overlap": list(dict.fromkeys(all_dana_overlap)),  # dedupe preserve order
+        "goals_signal":      matched_goals,
+        "topics_signals":    matched_topics,
+        "combined_overlap":  list(dict.fromkeys(all_dana_overlap)),
         "combined_audience": " | ".join(all_audiences),
     }
 
 
-# ── System Prompt (v3 — LLM always profiles, including finance KOL) ───────────
+# ── System Prompt ──────────────────────────────────────────────────────────────
 SYSTEM_PROMPT = f"""Kamu adalah senior KOL analyst di tim marketing DANA Indonesia (aplikasi dompet digital fintech).
 Tugasmu: analisis MENDALAM apakah seorang KOL cocok untuk campaign DANA, dengan mempertimbangkan:
 1. Siapa SEBENARNYA audiensnya — bukan hanya label kategorinya
@@ -154,7 +156,7 @@ PENTING:
 - Isi semua field — jangan kosongkan kecuali yang memang tidak relevan
 """
 
-# ── User Prompt Template (v3) ──────────────────────────────────────────────────
+# ── User Prompt Template ───────────────────────────────────────────────────────
 USER_PROMPT_TEMPLATE = """\
 Analisis KOL ini untuk campaign DANA:
 
@@ -256,21 +258,20 @@ def _normalize_profile(raw: dict) -> dict:
         profile["audience_overlap"] = profile["audience_dana_overlap"]
     if not profile.get("cross_topics") and profile.get("dana_use_cases"):
         profile["cross_topics"] = profile["dana_use_cases"]
-    # v3: content_angle_for_dana → cross_niche_angle (backward compat)
     if not profile.get("cross_niche_angle") and profile.get("content_angle_for_dana"):
         profile["cross_niche_angle"] = profile["content_angle_for_dana"]
 
     return profile
 
 
-def _load_cache(path: Path) -> dict | None:
+def _load_file_cache(path: Path) -> dict | None:
     try:
         return json.loads(path.read_text(encoding="utf-8"))
     except Exception:
         return None
 
 
-def _save_cache(path: Path, data: dict) -> None:
+def _save_file_cache(path: Path, data: dict) -> None:
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
@@ -288,38 +289,49 @@ def _tier_label(kol: dict) -> str:
 def get_kol_profile(kol: dict, campaign: dict) -> dict:
     """
     Profile a single KOL against a campaign.
-    v3: Goals + Topics diperkaya dari database sebelum dikirim ke LLM.
-    LLM selalu dipanggil untuk semua niche termasuk finance.
+    Cache priority: Upstash (jika tersedia) → file cache lokal → LLM call.
     """
     username    = str(kol.get("username", "")).strip()
     goals       = str(campaign.get("goals", ""))
     topics      = str(campaign.get("topics", ""))
     description = str(campaign.get("campaign_description", ""))
 
-    cache_path = CACHE_DIR / f"{_cache_key(username, goals, topics, description)}.json"
-    if cached := _load_cache(cache_path):
-        return _normalize_profile(cached)
+    key = _cache_key(username, goals, topics, description)
 
-    # Enrich goals + topics dari database
+    # 1. Cek Upstash cache
+    if _CACHE_ENABLED:
+        cached = get_profile_cache(key)
+        if cached:
+            return _normalize_profile(cached)
+
+    # 2. Cek file cache lokal (untuk backward compat & offline)
+    cache_path = CACHE_DIR / f"{key}.json"
+    if file_cached := _load_file_cache(cache_path):
+        # Sync ke Upstash jika belum ada di sana
+        if _CACHE_ENABLED:
+            set_profile_cache(key, file_cached)
+        return _normalize_profile(file_cached)
+
+    # 3. Enrich goals + topics dari database
     enriched = enrich_goals_topics(goals, topics)
-    goals_signal   = enriched["goals_signal"]
-    predicted_audience  = enriched["combined_audience"]
-    predicted_overlap   = ", ".join(enriched["combined_overlap"])
+    goals_signal       = enriched["goals_signal"]
+    predicted_audience = enriched["combined_audience"]
+    predicted_overlap  = ", ".join(enriched["combined_overlap"])
 
     prompt = USER_PROMPT_TEMPLATE.format(
-        username             = username,
-        social_media         = kol.get("social_media", ""),
-        category             = kol.get("category", "konten umum"),
-        tier                 = _tier_label(kol),
-        followers            = kol.get("followers_raw", ""),
-        location             = kol.get("location_raw", ""),
-        goals                = goals,
-        topics               = topics,
-        description          = description,
-        goals_intent         = goals_signal.get("intent", goals),
-        kol_fit_ideal        = goals_signal.get("kol_fit", ""),
-        dana_angle           = goals_signal.get("dana_angle", ""),
-        predicted_audience   = predicted_audience,
+        username               = username,
+        social_media           = kol.get("social_media", ""),
+        category               = kol.get("category", "konten umum"),
+        tier                   = _tier_label(kol),
+        followers              = kol.get("followers_raw", ""),
+        location               = kol.get("location_raw", ""),
+        goals                  = goals,
+        topics                 = topics,
+        description            = description,
+        goals_intent           = goals_signal.get("intent", goals),
+        kol_fit_ideal          = goals_signal.get("kol_fit", ""),
+        dana_angle             = goals_signal.get("dana_angle", ""),
+        predicted_audience     = predicted_audience,
         predicted_dana_overlap = predicted_overlap,
     )
 
@@ -335,7 +347,14 @@ def get_kol_profile(kol: dict, campaign: dict) -> dict:
         )
         raw     = response.choices[0].message.content or ""
         profile = _normalize_profile(_extract_json(raw))
-        _save_cache(cache_path, profile)
+
+        # Simpan ke file cache lokal
+        _save_file_cache(cache_path, profile)
+
+        # Simpan ke Upstash
+        if _CACHE_ENABLED:
+            set_profile_cache(key, profile)
+
         return profile
 
     except Exception as e:
@@ -353,7 +372,7 @@ def batch_profile_kols(
     Profile multiple KOLs concurrently.
     Returns {username: profile}
     Groq free tier: ~30 req/min → max_workers=5 aman untuk burst.
-    Cache sangat efektif untuk request berulang.
+    Cache (Upstash + file) sangat efektif untuk request berulang.
     """
     results: dict[str, dict] = {}
 
@@ -409,7 +428,6 @@ def quick_cross_niche_score(category: str) -> tuple[float, list[str]]:
     Support multi-category (comma-separated).
     Returns (best_score, dana_segments)
     """
-    # Support multi-category
     cats = [c.strip().lower() for c in re.split(r"[,;/]", category or "") if c.strip()]
     if not cats:
         return 0.35, []

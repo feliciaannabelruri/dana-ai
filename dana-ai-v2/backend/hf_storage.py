@@ -14,7 +14,7 @@ def download_models():
         return False
 
     marker = os.path.join(MODELS_DIR, 'st_model.pkl')
-    if os.path.exists(marker):
+    if os.path.exists(marker) and os.path.getsize(marker) > 1000:
         print('[OK] Models sudah ada, skip download')
         return True
 
@@ -24,20 +24,23 @@ def download_models():
     os.makedirs(MODELS_DIR, exist_ok=True)
     os.makedirs(DATA_DIR, exist_ok=True)
 
-    try:
-        snapshot_download(
-            repo_id=REPO_ID,
-            local_dir=BASE_DIR,
-            allow_patterns=['models/*', 'data/*'],
-            token=HF_TOKEN,
-            repo_type='model',
-        )
-        print('[OK] Download selesai!')
-        return True
-    except Exception as e:
-        print(f'[ERROR] Download gagal: {e}')
-        return False
-
+    for attempt in range(3):
+        try:
+            snapshot_download(
+                repo_id=REPO_ID,
+                local_dir=BASE_DIR,
+                allow_patterns=['models/*', 'data/profile_cache/*'],
+                token=HF_TOKEN,
+                repo_type='model',
+                force_download=(attempt > 0),
+            )
+            print('[OK] Download selesai!')
+            return True
+        except Exception as e:
+            print(f'[ERROR] Attempt {attempt+1}/3 gagal: {e}')
+            if attempt == 2:
+                return False
+    return False
 
 def upload_models():
     if not HF_TOKEN:

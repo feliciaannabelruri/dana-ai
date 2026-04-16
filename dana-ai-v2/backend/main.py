@@ -30,13 +30,16 @@ DATA_DIR   = os.path.join(os.path.dirname(__file__), 'data')
 
 @app.on_event("startup")
 async def startup():
-    download_models()
-    if os.path.exists(os.path.join(MODELS_DIR, 'st_model.pkl')):
-        load_models()
-        print("Models loaded!")
+    success = download_models()
+    marker = os.path.join(MODELS_DIR, 'st_model.pkl')
+    if success and os.path.exists(marker):
+        try:
+            load_models()
+            print("Models loaded!")
+        except Exception as e:
+            print(f"Load model gagal: {e} — hit /train untuk retrain")
     else:
-        print("Belum ada model. Upload data lalu hit /train")
-
+        print("Model belum ada. Upload KOL.xlsx lalu hit /train")
 
 class TierBudgetSplit(BaseModel):
     """
