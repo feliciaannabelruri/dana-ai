@@ -2,10 +2,9 @@ import os
 import json
 import hashlib
 import re
+import httpx
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
-
-from openai import OpenAI
 
 # ── Cache (Upstash REST, fallback ke file cache) ───────────────────────────────
 try:
@@ -20,12 +19,9 @@ except ImportError:
 CACHE_DIR = Path("data/profile_cache")
 CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
-MODEL = "llama-3.3-70b-versatile"
-
-client = OpenAI(
-    base_url="https://api.groq.com/openai/v1",
-    api_key=os.environ.get("GROQ_API_KEY", ""),
-)
+DIFY_BASE_URL = os.environ.get("DIFY_BASE_URL", "https://dify-app.ai.dana.id")
+DIFY_API_KEY  = os.environ.get("DIFY_API_KEY", "app-CmU0bexY0YNZA97mCUZAVBz2")
+DIFY_ENDPOINT = f"{DIFY_BASE_URL}/v1/workflows/run"
 
 # ── DANA Context ───────────────────────────────────────────────────────────────
 DANA_CONTEXT = """
@@ -55,7 +51,7 @@ Cross-niche yang BAGUS untuk DANA:
 - Finance/investasi → direct match → literasi keuangan digital
 """
 
-# ── Goals Database: mapping goals → signal konkret untuk LLM ──────────────────
+# ── Goals Database ─────────────────────────────────────────────────────────────
 GOALS_SIGNALS: dict[str, dict] = {
     "brand awareness":   {"intent": "jangkauan luas, awareness", "kol_fit": "reach tinggi, engagement luas, konten yang mudah viral", "dana_angle": "perkenalkan DANA ke audiens baru"},
     "awareness":         {"intent": "jangkauan luas, awareness", "kol_fit": "reach tinggi, engagement luas, konten yang mudah viral", "dana_angle": "perkenalkan DANA ke audiens baru"},
@@ -70,7 +66,7 @@ GOALS_SIGNALS: dict[str, dict] = {
     "umkm":              {"intent": "akuisisi merchant UMKM pakai QRIS", "kol_fit": "KOL entrepreneur, bisnis, kuliner", "dana_angle": "QRIS merchant, terima pembayaran digital"},
 }
 
-# ── Topics/Niche Database: mapping niche → profil audiens konkret ──────────────
+# ── Topics/Niche Database ──────────────────────────────────────────────────────
 TOPICS_SIGNALS: dict[str, dict] = {
     "lifestyle":     {"audience": "urban millennial perempuan 22-35, aktif sosmed, konsumtif digital", "dana_overlap": ["cashless-belanja", "bayar-tagihan", "top-up"], "content_fit": "everyday content, relatable, aspirational"},
     "parenting":     {"audience": "ibu RT 25-40, family-oriented, manage keuangan rumah tangga", "dana_overlap": ["bayar-sekolah", "belanja-online", "transfer-keluarga"], "content_fit": "tips, edukasi, sharing pengalaman"},
@@ -97,14 +93,9 @@ TOPICS_SIGNALS: dict[str, dict] = {
 
 
 def enrich_goals_topics(goals: str, topics: str) -> dict:
-    """
-    Urai goals dan topics menjadi sinyal konkret dari database.
-    Support multi-topic (comma-separated).
-    """
-    goals_lower = (goals or "").lower()
+    goals_lower  = (goals or "").lower()
     topics_lower = (topics or "").lower()
-
-    topic_list = [t.strip() for t in re.split(r"[,;/]", topics_lower) if t.strip()]
+    topic_list   = [t.strip() for t in re.split(r"[,;/]", topics_lower) if t.strip()]
 
     matched_goals = {}
     for key, signals in GOALS_SIGNALS.items():
@@ -125,7 +116,7 @@ def enrich_goals_topics(goals: str, topics: str) -> dict:
         matched_topics = [{"topic": topics or "umum", "audience": "masyarakat umum Indonesia", "dana_overlap": ["cashless-everyday"], "content_fit": "konten relevan"}]
 
     all_dana_overlap = []
-    all_audiences = []
+    all_audiences    = []
     for t in matched_topics:
         all_dana_overlap.extend(t.get("dana_overlap", []))
         all_audiences.append(t.get("audience", ""))
@@ -138,75 +129,6 @@ def enrich_goals_topics(goals: str, topics: str) -> dict:
     }
 
 
-# ── System Prompt ──────────────────────────────────────────────────────────────
-SYSTEM_PROMPT = f"""Kamu adalah senior KOL analyst di tim marketing DANA Indonesia (aplikasi dompet digital fintech).
-Tugasmu: analisis MENDALAM apakah seorang KOL cocok untuk campaign DANA, dengan mempertimbangkan:
-1. Siapa SEBENARNYA audiensnya — bukan hanya label kategorinya
-2. Apakah ada overlap antara audiens KOL dengan target user DANA
-3. Angle konten yang paling tepat untuk campaign ini (bukan generik)
-4. Risiko brand safety
-
-Context tentang DANA:
-{DANA_CONTEXT}
-
-PENTING:
-- KOL finance pun perlu di-profile spesifik: finance broad (saham, kripto) vs finance yang relevan DANA (transfer, QRIS, dompet digital)
-- KOL lifestyle/parenting/food BISA sangat cocok kalau audiensnya = DANA target user
-- Selalu balas HANYA dengan JSON valid, tanpa markdown, tanpa penjelasan tambahan
-- Isi semua field — jangan kosongkan kecuali yang memang tidak relevan
-"""
-
-# ── User Prompt Template ───────────────────────────────────────────────────────
-USER_PROMPT_TEMPLATE = """\
-Analisis KOL ini untuk campaign DANA:
-
-KOL DATA:
-- Username: {username}
-- Platform: {social_media}
-- Kategori konten: {category}
-- Tier: {tier} | Followers: {followers}
-- Lokasi: {location}
-
-CAMPAIGN INFO:
-- Goals: {goals}
-- Topik/niche: {topics}
-- Deskripsi: {description}
-
-ENRICHED CONTEXT (dari database):
-- Intent campaign: {goals_intent}
-- KOL yang ideal untuk campaign ini: {kol_fit_ideal}
-- DANA angle untuk campaign ini: {dana_angle}
-- Prediksi audiens berdasarkan niche: {predicted_audience}
-- DANA features yang relevan untuk niche ini: {predicted_dana_overlap}
-
-TUGASMU:
-1. Tentukan siapa SEBENARNYA yang nonton KOL ini (beyond label kategori)
-2. Apakah audiens itu punya kebutuhan yang DANA bisa solve?
-3. Angle konten DANA apa yang paling natural untuk KOL ini?
-4. Apakah KOL ini cocok untuk goals: "{goals}"?
-5. Berikan go/no-go yang actionable
-
-Balas dengan JSON PERSIS format ini (no markdown):
-{{
-  "audience_profile": "Deskripsi konkret siapa audiensnya: umur, gender, pekerjaan, kebiasaan digital (1-2 kalimat)",
-  "audience_dana_overlap": ["segment DANA yang ada di audiens ini, misal: ibu-RT-belanja-online, mahasiswa-terima-uang-saku"],
-  "content_style": "Gaya konten dalam 3-5 kata",
-  "content_angle_for_dana": "Angle konten DANA yang paling natural untuk KOL ini — spesifik, bukan generik. Isi untuk SEMUA KOL termasuk finance.",
-  "dana_use_cases": ["fitur DANA yang relevan untuk audiens ini, max 3, misal: transfer-uang, bayar-tagihan, cashback-belanja"],
-  "campaign_fit_reason": "Kenapa cocok/tidak untuk goals '{goals}' — spesifik dan konkret (1-2 kalimat)",
-  "fit_score": 0.75,
-  "risk_flag": "Isi jika ada risiko: kontroversi, brand safety, niche mismatch. Kosongkan jika aman.",
-  "summary": "GO/NO-GO dalam 1 kalimat dengan alasan utama, format: GO/NO-GO: [alasan konkret]"
-}}
-
-fit_score rules:
-- 0.85-1.0: Perfect match, langsung prioritaskan
-- 0.70-0.84: Bagus, cocok untuk campaign ini
-- 0.50-0.69: Potential ada tapi perlu angle yang tepat
-- 0.30-0.49: Kurang relevan tapi masih bisa
-- 0.0-0.29: Tidak cocok, skip
-"""
-
 # ── Default Profile ────────────────────────────────────────────────────────────
 DEFAULT_PROFILE: dict = {
     "audience_profile":       "",
@@ -218,7 +140,6 @@ DEFAULT_PROFILE: dict = {
     "fit_score":              0.5,
     "risk_flag":              "",
     "summary":                "",
-    # backward compat
     "cross_topics":           [],
     "audience_overlap":       [],
     "cross_niche_angle":      "",
@@ -232,7 +153,7 @@ def _cache_key(username: str, goals: str, topics: str, description: str = "") ->
 
 
 def _extract_json(text: str) -> dict:
-    text = re.sub(r"```(?:json)?", "", text).strip()
+    text  = re.sub(r"```(?:json)?", "", text).strip()
     match = re.search(r"\{.*\}", text, re.DOTALL)
     if not match:
         raise ValueError(f"No JSON found in response: {text[:200]}")
@@ -240,10 +161,8 @@ def _extract_json(text: str) -> dict:
 
 
 def _normalize_profile(raw: dict) -> dict:
-    """Ensure backward compat + type safety"""
     profile = DEFAULT_PROFILE.copy()
     profile.update(raw)
-
     profile["fit_score"] = float(max(0.0, min(1.0, profile.get("fit_score", 0.5))))
 
     for field in ["audience_dana_overlap", "dana_use_cases", "cross_topics", "audience_overlap"]:
@@ -253,7 +172,6 @@ def _normalize_profile(raw: dict) -> dict:
         elif not isinstance(val, list):
             profile[field] = []
 
-    # Backward compat mapping
     if not profile.get("audience_overlap") and profile.get("audience_dana_overlap"):
         profile["audience_overlap"] = profile["audience_dana_overlap"]
     if not profile.get("cross_topics") and profile.get("dana_use_cases"):
@@ -275,7 +193,6 @@ def _save_file_cache(path: Path, data: dict) -> None:
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
-# ── KOL Tier Label ─────────────────────────────────────────────────────────────
 def _tier_label(kol: dict) -> str:
     tier = kol.get("tier") or kol.get("tier_score") or 2
     try:
@@ -285,12 +202,47 @@ def _tier_label(kol: dict) -> str:
     return {1: "Nano (<10K)", 2: "Mikro (10K-100K)", 3: "Makro (100K-1M)", 4: "Mega (>1M)"}.get(tier, "Mikro")
 
 
+# ── Core: Call Dify Workflow ───────────────────────────────────────────────────
+def _call_dify(inputs: dict) -> str:
+    """
+    Kirim request ke Dify Workflow API.
+    Returns raw text output dari LLM.
+    """
+    headers = {
+        "Authorization": f"Bearer {app-CmU0bexY0YNZA97mCUZAVBz2}",
+        "Content-Type":  "application/json",
+    }
+    payload = {
+        "inputs":        inputs,
+        "response_mode": "blocking",
+        "user":          "kol-profiler",
+    }
+
+    response = httpx.post(
+        DIFY_ENDPOINT,
+        headers=headers,
+        json=payload,
+        timeout=120.0,  # reasoning model bisa lambat
+    )
+    response.raise_for_status()
+
+    data = response.json()
+
+    # Dify workflow output ada di data.data.outputs
+    outputs = data.get("data", {}).get("outputs", {})
+
+    # Ambil field text dari output (sesuai nama variable di Output node Dify)
+    text = outputs.get("text", "") or outputs.get("LLM", "") or ""
+
+    # Kalau output adalah dict (structured), convert ke string dulu
+    if isinstance(text, dict):
+        return json.dumps(text, ensure_ascii=False)
+
+    return str(text)
+
+
 # ── Core: Profile single KOL ───────────────────────────────────────────────────
 def get_kol_profile(kol: dict, campaign: dict) -> dict:
-    """
-    Profile a single KOL against a campaign.
-    Cache priority: Upstash (jika tersedia) → file cache lokal → LLM call.
-    """
     username    = str(kol.get("username", "")).strip()
     goals       = str(campaign.get("goals", ""))
     topics      = str(campaign.get("topics", ""))
@@ -304,54 +256,43 @@ def get_kol_profile(kol: dict, campaign: dict) -> dict:
         if cached:
             return _normalize_profile(cached)
 
-    # 2. Cek file cache lokal (untuk backward compat & offline)
+    # 2. Cek file cache lokal
     cache_path = CACHE_DIR / f"{key}.json"
     if file_cached := _load_file_cache(cache_path):
-        # Sync ke Upstash jika belum ada di sana
         if _CACHE_ENABLED:
             set_profile_cache(key, file_cached)
         return _normalize_profile(file_cached)
 
     # 3. Enrich goals + topics dari database
-    enriched = enrich_goals_topics(goals, topics)
+    enriched           = enrich_goals_topics(goals, topics)
     goals_signal       = enriched["goals_signal"]
     predicted_audience = enriched["combined_audience"]
     predicted_overlap  = ", ".join(enriched["combined_overlap"])
 
-    prompt = USER_PROMPT_TEMPLATE.format(
-        username               = username,
-        social_media           = kol.get("social_media", ""),
-        category               = kol.get("category", "konten umum"),
-        tier                   = _tier_label(kol),
-        followers              = kol.get("followers_raw", ""),
-        location               = kol.get("location_raw", ""),
-        goals                  = goals,
-        topics                 = topics,
-        description            = description,
-        goals_intent           = goals_signal.get("intent", goals),
-        kol_fit_ideal          = goals_signal.get("kol_fit", ""),
-        dana_angle             = goals_signal.get("dana_angle", ""),
-        predicted_audience     = predicted_audience,
-        predicted_dana_overlap = predicted_overlap,
-    )
+    # 4. Siapkan inputs untuk Dify workflow
+    inputs = {
+        "username":               username,
+        "social_media":           kol.get("social_media", ""),
+        "category":               kol.get("category", "konten umum"),
+        "tier":                   _tier_label(kol),
+        "followers":              str(kol.get("followers_raw", "")),
+        "location":               kol.get("location_raw", ""),
+        "goals":                  goals,
+        "topics":                 topics,
+        "description":            description,
+        "goals_intent":           goals_signal.get("intent", goals),
+        "kol_fit_ideal":          goals_signal.get("kol_fit", ""),
+        "dana_angle":             goals_signal.get("dana_angle", ""),
+        "predicted_audience":     predicted_audience,
+        "predicted_dana_overlap": predicted_overlap,
+    }
 
     try:
-        response = client.chat.completions.create(
-            model    = MODEL,
-            messages = [
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user",   "content": prompt},
-            ],
-            max_tokens  = 600,
-            temperature = 0.15,
-        )
-        raw     = response.choices[0].message.content or ""
-        profile = _normalize_profile(_extract_json(raw))
+        raw_text = _call_dify(inputs)
+        profile  = _normalize_profile(_extract_json(raw_text))
 
-        # Simpan ke file cache lokal
+        # Simpan ke cache
         _save_file_cache(cache_path, profile)
-
-        # Simpan ke Upstash
         if _CACHE_ENABLED:
             set_profile_cache(key, profile)
 
@@ -366,14 +307,8 @@ def get_kol_profile(kol: dict, campaign: dict) -> dict:
 def batch_profile_kols(
     kol_list: list[dict],
     campaign: dict,
-    max_workers: int = 5,
+    max_workers: int = 3,  # lebih konservatif untuk reasoning model
 ) -> dict[str, dict]:
-    """
-    Profile multiple KOLs concurrently.
-    Returns {username: profile}
-    Groq free tier: ~30 req/min → max_workers=5 aman untuk burst.
-    Cache (Upstash + file) sangat efektif untuk request berulang.
-    """
     results: dict[str, dict] = {}
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
@@ -423,23 +358,18 @@ CROSS_NICHE_RULES = {
 
 
 def quick_cross_niche_score(category: str) -> tuple[float, list[str]]:
-    """
-    Rule-based fallback kalau LLM gagal.
-    Support multi-category (comma-separated).
-    Returns (best_score, dana_segments)
-    """
     cats = [c.strip().lower() for c in re.split(r"[,;/]", category or "") if c.strip()]
     if not cats:
         return 0.35, []
 
-    best_score = 0.35
+    best_score    = 0.35
     best_segments: list[str] = []
 
     for cat in cats:
         for keyword, (segments, score) in CROSS_NICHE_RULES.items():
             if keyword in cat:
                 if score > best_score:
-                    best_score = score
+                    best_score    = score
                     best_segments = segments
 
     return best_score, best_segments
