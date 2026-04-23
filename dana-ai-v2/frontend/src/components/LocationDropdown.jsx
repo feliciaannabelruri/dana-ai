@@ -40,10 +40,11 @@ const LocationDropdown = ({ options = [], selected = [], onChange, loading }) =>
   };
 
   const isNas = (selected || []).includes('nasional') || (selected || []).length === 0;
-  const label = isNas ? '🌏 Nasional (Semua Indonesia)' : `${selected.length} lokasi dipilih`;
+  const label = isNas ? '🌏 Nasional (Semua Indonesia)' : `${(selected || []).length} lokasi dipilih`;
   const grouped = {};
   if (Array.isArray(options)) {
     for (const loc of options) {
+      if (!loc) continue;
       const g = loc.group || 'Lainnya';
       if (!grouped[g]) grouped[g] = [];
       grouped[g].push(loc);
@@ -56,10 +57,10 @@ const LocationDropdown = ({ options = [], selected = [], onChange, loading }) =>
         <span style={{ fontWeight: isNas ? 400 : 600 }}>{loading ? 'Memuat lokasi...' : label}</span>
         {Ic.chevDown(12)}
       </button>
-      {!isNas && selected.length > 0 && (
+      {!isNas && (selected || []).length > 0 && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginTop: 6 }}>
-          {selected.map(val => {
-            const loc = options.find(l => l.value === val);
+          {(selected || []).map(val => {
+            const loc = (options || []).find(l => l && l.value === val);
             return (
               <span key={val} style={{ background: C.blueLight, color: C.blue, borderRadius: 16, padding: '3px 8px 3px 10px', fontSize: 11, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 5 }}>
                 {Ic.pin(10)}{loc?.label || val}
@@ -78,8 +79,8 @@ const LocationDropdown = ({ options = [], selected = [], onChange, loading }) =>
           {Object.entries(grouped).filter(([g]) => g !== 'nasional').map(([group, locs]) => (
             <div key={group}>
               <div style={{ padding: '6px 14px 4px', fontSize: 10, fontWeight: 700, color: C.textMuted, letterSpacing: '.5px', background: C.bgGray }}>{group.toUpperCase()}</div>
-              {locs.filter(l => l.value !== 'nasional').map(loc => {
-                const on = selected.includes(loc.value);
+              {locs.filter(l => l && l.value !== 'nasional').map(loc => {
+                const on = (selected || []).includes(loc.value);
                 return (
                   <div key={loc.value} onClick={() => toggle(loc.value)} style={{ padding: '9px 14px', cursor: 'pointer', background: on ? C.blueLight : 'transparent', color: on ? C.blue : C.text, fontSize: 13, fontWeight: on ? 600 : 400, display: 'flex', alignItems: 'center', gap: 8, transition: 'background .08s' }}>
                     {on ? Ic.check(12) : <span style={{ width: 12 }} />}{loc.label}
