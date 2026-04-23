@@ -28,6 +28,8 @@ const C = {
   teal:        '#0891B2',
   tealBg:      '#ECFEFF',
   tealBorder:  '#A5F3FC',
+  orange:      '#EA580C',
+  orangeBg:    '#FFF7ED',
 };
 
 // ── Formatters ────────────────────────────────────────────────
@@ -94,7 +96,6 @@ function Chip({ label, color=C.blue, bg=C.blueLight, icon=null }) {
 function ScoreBar({ score, color=C.blue }) {
   const [w,setW]=useState(0);
   useState(()=>{ const t=setTimeout(()=>setW(score),200); return ()=>clearTimeout(t); });
-  // Use useEffect via inline trick — simple version:
   return (
     <div style={{ height:4, background:C.bgGray2, borderRadius:2, overflow:'hidden', marginTop:4 }}>
       <div style={{ width:`${score}%`, height:'100%', background:color, borderRadius:2, transition:'width 1s cubic-bezier(.4,0,.2,1)' }}/>
@@ -201,7 +202,7 @@ function KOLCard({ kol, rank }) {
 
         {kol.llm_profile && (kol.llm_profile.summary || kol.llm_profile.audience_profile) && (
           <LLMProfileBadge profile={kol.llm_profile} matchScore={kol.match_score}/>
-)}
+        )}
 
         {kol.score_detail&&(
           <>
@@ -577,20 +578,30 @@ export default function ResultPage({
 
           {/* Cost breakdown */}
           <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
-            <div style={{ background:overBudget?C.redBg:C.greenBg, border:`1px solid ${overBudget?C.redBorder:C.greenBorder}`, borderRadius:10, padding:'14px 16px', display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:8 }}>
+            <div style={{ background: budget === 0 ? C.orangeBg : (overBudget ? C.redBg : C.greenBg), border: `1.5px solid ${budget === 0 ? C.orange : (overBudget ? C.redBorder : C.greenBorder)}`, borderRadius: 12, padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
               <div>
-                <div style={{ color:overBudget?C.red:C.green, fontSize:10, fontWeight:700, letterSpacing:'.8px', marginBottom:4 }}>TOTAL ESTIMASI BIAYA</div>
-                <div style={{ color:overBudget?C.red:C.green, fontWeight:800, fontSize:isMobile?18:22, letterSpacing:'-0.5px' }}>
-                  {fmtRate(totMin)}
-                  {totMax>totMin&&<span style={{ fontSize:isMobile?13:15, fontWeight:600, opacity:.7 }}> — {fmtRate(totMax)}</span>}
+                <div style={{ color: budget === 0 ? C.orange : (overBudget ? C.red : C.green), fontSize: 10, fontWeight: 700, letterSpacing: '.8px', marginBottom: 6 }}>{budget === 0 ? 'MODE KERJASAMA' : 'TOTAL ESTIMASI BIAYA'}</div>
+                <div style={{ color: budget === 0 ? C.orange : (overBudget ? C.red : C.green), fontWeight: 800, fontSize: isMobile ? 18 : 22, letterSpacing: '-0.5px' }}>
+                  {budget === 0 ? 'BARTER / 0 BUDGET' : (
+                    <>
+                      {fmtRate(totMin)}
+                      {totMax > totMin && <span style={{ fontSize: isMobile ? 13 : 15, fontWeight: 600, opacity: .7 }}> — {fmtRate(totMax)}</span>}
+                    </>
+                  )}
                 </div>
               </div>
-              {budget>0&&(
-                <div style={{ textAlign:'right' }}>
-                  <div style={{ color:C.textMuted, fontSize:10, fontWeight:600, marginBottom:2 }}>BUDGET CAMPAIGN</div>
-                  <div style={{ color:C.textSub, fontWeight:700, fontSize:14 }}>{fmtBudget(budget)}</div>
-                  <div style={{ color:overBudget?C.red:C.green, fontSize:11, fontWeight:700, marginTop:2 }}>
-                    {overBudget?`⚠ Over budget`:`✓ Sisa ~${fmtRate(budget-totMin)}`}
+              {budget > 0 ? (
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ color: C.textMuted, fontSize: 10, fontWeight: 600, marginBottom: 2 }}>BUDGET CAMPAIGN</div>
+                  <div style={{ color: C.textSub, fontWeight: 700, fontSize: 14 }}>{fmtBudget(budget)}</div>
+                  <div style={{ color: overBudget ? C.red : C.green, fontSize: 11, fontWeight: 700, marginTop: 2 }}>
+                    {overBudget ? `⚠ Over budget` : `✓ Sisa ~${fmtRate(budget - totMin)}`}
+                  </div>
+                </div>
+              ) : (
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ color: C.orange, background: '#fff', padding: '4px 10px', borderRadius: 20, fontSize: 11, fontWeight: 800, border: `1px solid ${C.orange}` }}>
+                    TIER-ONLY MODE
                   </div>
                 </div>
               )}
