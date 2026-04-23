@@ -5,8 +5,11 @@ backend/scripts/__pycache__/
 **/__pycache__/
 *.pyc
 
-# ML Models (file besar, jangan push)
+# ML Models & Data (Stored in HF Hub via hf_storage.py, not Git)
 backend/models/
+backend/data/*.xlsx
+backend/data/*.xls
+backend/data/*.json
 backend/data/kol_clean.pkl
 
 # Node

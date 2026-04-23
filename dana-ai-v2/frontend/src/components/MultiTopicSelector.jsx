@@ -6,13 +6,13 @@ const C = {
   border: '#E5E7EB',
 };
 
-const MultiTopicSelector = ({ selected, onChange }) => {
+const MultiTopicSelector = ({ selected = [], onChange }) => {
   const topics = ['lifestyle', 'parenting', 'mama', 'food', 'kuliner', 'travel', 'fashion', 'beauty', 'finance', 'gaming', 'edukasi', 'entertainment', 'bisnis', 'umkm', 'otomotif', 'olahraga', 'teknologi'];
   
   return (
     <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', background: '#F9FAFB', padding: 8, borderRadius: 8, border: `1px solid ${C.border}` }}>
       {topics.map(t => {
-        const active = selected.includes(t);
+        const active = (selected || []).includes(t);
         return (
           <div
             key={t}
