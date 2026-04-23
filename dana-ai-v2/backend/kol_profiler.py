@@ -53,42 +53,42 @@ Cross-niche yang BAGUS untuk DANA:
 
 # ── Goals Database ─────────────────────────────────────────────────────────────
 GOALS_SIGNALS: dict[str, dict] = {
-    "brand awareness":   {"intent": "jangkauan luas, awareness", "kol_fit": "reach tinggi, engagement luas, konten yang mudah viral", "dana_angle": "perkenalkan DANA ke audiens baru"},
-    "awareness":         {"intent": "jangkauan luas, awareness", "kol_fit": "reach tinggi, engagement luas, konten yang mudah viral", "dana_angle": "perkenalkan DANA ke audiens baru"},
-    "engagement":        {"intent": "interaksi tinggi, komunitas aktif", "kol_fit": "ER tinggi, komunitas engaged, sering reply/diskusi", "dana_angle": "trigger konversasi tentang cashless"},
-    "conversion":        {"intent": "dorong install atau transaksi DANA", "kol_fit": "audiens decision-ready, trust tinggi, sudah pakai e-wallet", "dana_angle": "CTA download + transaksi pertama"},
-    "install":           {"intent": "dorong install aplikasi DANA", "kol_fit": "audiens mobile-savvy, sudah familiar e-wallet", "dana_angle": "CTA download DANA"},
-    "transaksi":         {"intent": "mendorong transaksi aktif di DANA", "kol_fit": "audiens yang sudah punya kebiasaan bayar digital", "dana_angle": "QRIS, transfer, top-up"},
-    "edukasi":           {"intent": "edukasi fitur dan manfaat DANA", "kol_fit": "KOL yang trusted, konten informatif, audiens yang ingin belajar", "dana_angle": "tutorial fitur, tips keuangan digital"},
-    "retention":         {"intent": "pertahankan user lama tetap aktif", "kol_fit": "audiens yang sudah kenal DANA, perlu reminder fitur baru", "dana_angle": "fitur baru, promo cashback, loyalty"},
-    "product launch":    {"intent": "launch fitur/produk baru DANA", "kol_fit": "early adopter, tech-savvy, opinion leader", "dana_angle": "first look fitur baru, eksklusif"},
-    "promo":             {"intent": "promosi cashback atau promo khusus", "kol_fit": "audiens deal-hunter, ibu RT, mahasiswa", "dana_angle": "cashback, diskon, promo merchant"},
-    "umkm":              {"intent": "akuisisi merchant UMKM pakai QRIS", "kol_fit": "KOL entrepreneur, bisnis, kuliner", "dana_angle": "QRIS merchant, terima pembayaran digital"},
+    "brand awareness":   {"intent": "jangkauan luas, awareness", "kol_fit": "reach tinggi, engagement luas, konten yang mudah viral, platform TikTok/IG Reels", "dana_angle": "perkenalkan DANA sebagai e-wallet #1 yang stylish dan praktis untuk semua orang"},
+    "awareness":         {"intent": "jangkauan luas, awareness", "kol_fit": "reach tinggi, engagement luas, konten yang mudah viral", "dana_angle": "tingkatkan brand recall DANA di berbagai segmen audiens"},
+    "engagement":        {"intent": "interaksi tinggi, komunitas aktif", "kol_fit": "ER tinggi, komunitas engaged, sering reply/diskusi, dipercaya audiens", "dana_angle": "buat percakapan organik tentang gaya hidup cashless pakai DANA"},
+    "conversion":        {"intent": "dorong install atau transaksi DANA", "kol_fit": "audiens decision-ready, trust tinggi, sudah pakai e-wallet, konten persuasif", "dana_angle": "CTA download + transaksi pertama dengan promo menarik"},
+    "install":           {"intent": "dorong install aplikasi DANA", "kol_fit": "audiens mobile-savvy, tech-enthusiast, mahasiswa/pelajar", "dana_angle": "tunjukkan kemudahan registrasi dan keuntungan pakai DANA"},
+    "transaksi":         {"intent": "mendorong transaksi aktif di DANA", "kol_fit": "audiens yang sudah punya kebiasaan belanja online atau offline", "dana_angle": "fokus ke fitur spesifik: QRIS, transfer, atau bayar tagihan"},
+    "edukasi":           {"intent": "edukasi fitur dan manfaat DANA", "kol_fit": "KOL yang trusted, konten informatif, tutorial style, audiens yang ingin belajar", "dana_angle": "deep-dive fitur DANA (DANA Goals, DANA Protection, atau Investasi)"},
+    "retention":         {"intent": "pertahankan user lama tetap aktif", "kol_fit": "audiens yang sudah kenal DANA, perlu reminder fitur baru", "dana_angle": "tunjukkan update fitur terbaru dan promo eksklusif untuk user setia"},
+    "product launch":    {"intent": "launch fitur/produk baru DANA", "kol_fit": "tech-savvy, opinion leader, news/media style", "dana_angle": "first look fitur baru yang revolusioner dari DANA"},
+    "promo":             {"intent": "promosi cashback atau promo khusus", "kol_fit": "audiens deal-hunter, ibu RT, mahasiswa, pecinta diskon", "dana_angle": "pesta cashback, diskon merchant favorit, dan hemat pakai DANA"},
+    "umkm":              {"intent": "akuisisi merchant UMKM pakai QRIS", "kol_fit": "KOL entrepreneur, bisnis, kuliner, pemberdayaan ekonomi", "dana_angle": "DANA Bisnis untuk bantu UMKM terima pembayaran non-tunai dengan mudah"},
+    "literasi keuangan": {"intent": "edukasi keuangan digital yang aman", "kol_fit": "finance expert, trusted person, konten serius tapi menarik", "dana_angle": "keamanan transaksi dengan DANA Protection dan manajemen keuangan cerdas"},
 }
 
 # ── Topics/Niche Database ──────────────────────────────────────────────────────
 TOPICS_SIGNALS: dict[str, dict] = {
-    "lifestyle":     {"audience": "urban millennial perempuan 22-35, aktif sosmed, konsumtif digital", "dana_overlap": ["cashless-belanja", "bayar-tagihan", "top-up"], "content_fit": "everyday content, relatable, aspirational"},
-    "parenting":     {"audience": "ibu RT 25-40, family-oriented, manage keuangan rumah tangga", "dana_overlap": ["bayar-sekolah", "belanja-online", "transfer-keluarga"], "content_fit": "tips, edukasi, sharing pengalaman"},
-    "mama":          {"audience": "ibu RT 25-40, family-oriented, manage keuangan rumah tangga", "dana_overlap": ["bayar-sekolah", "belanja-online", "transfer-keluarga"], "content_fit": "tips, edukasi, sharing pengalaman"},
-    "food":          {"audience": "semua umur, kuliner enthusiast, sering jajan/makan luar", "dana_overlap": ["bayar-makanan-QRIS", "cashback-kuliner"], "content_fit": "review, mukbang, resep"},
-    "kuliner":       {"audience": "semua umur, kuliner enthusiast, sering jajan/makan luar", "dana_overlap": ["bayar-makanan-QRIS", "cashback-kuliner"], "content_fit": "review, mukbang, resep"},
-    "travel":        {"audience": "pekerja produktif 25-35, suka jalan-jalan, mobile lifestyle", "dana_overlap": ["beli-tiket", "booking-hotel", "transfer-aman"], "content_fit": "vlog, tips travel, destinasi"},
-    "fashion":       {"audience": "perempuan urban 18-30, fashion-forward, sering belanja online", "dana_overlap": ["belanja-cashless", "cashback-fashion"], "content_fit": "OOTD, styling, haul"},
-    "beauty":        {"audience": "perempuan urban 18-35, skincare enthusiast, belanja online rutin", "dana_overlap": ["belanja-cashless", "cashback-beauty", "top-up"], "content_fit": "review produk, tutorial"},
-    "skincare":      {"audience": "perempuan muda 18-30, concern dengan kulit, konsumtif beauty", "dana_overlap": ["belanja-cashless", "cashback-beauty"], "content_fit": "review, skincare routine"},
-    "finance":       {"audience": "professional 25-40, melek keuangan, investor pemula/menengah", "dana_overlap": ["transfer-aman", "top-up-investasi", "literasi-digital"], "content_fit": "edukasi keuangan, tips investasi"},
-    "keuangan":      {"audience": "professional 25-40, melek keuangan, investor pemula/menengah", "dana_overlap": ["transfer-aman", "top-up-investasi", "literasi-digital"], "content_fit": "edukasi keuangan, tips investasi"},
-    "investasi":     {"audience": "millennial 25-38, sudah investasi/saham, income stabil", "dana_overlap": ["top-up-investasi", "transfer-cepat", "literasi-finansial"], "content_fit": "analisis pasar, tips investasi"},
-    "gaming":        {"audience": "Gen Z laki-laki 15-25, mobile gamer, sering top-up", "dana_overlap": ["top-up-game", "cashback-gaming"], "content_fit": "gameplay, review game, tips"},
-    "edukasi":       {"audience": "pelajar/mahasiswa 15-25, orangtua, guru, orientasi belajar", "dana_overlap": ["terima-uang-saku", "bayar-SPP", "top-up"], "content_fit": "tutorial, tips belajar, motivasi"},
-    "entertainment": {"audience": "semua umur, Gen Z dominan, reach sangat luas", "dana_overlap": ["brand-awareness", "cashless-everyday"], "content_fit": "konten hiburan, viral, relatable"},
-    "comedy":        {"audience": "Gen Z dan millennial, suka konten ringan dan menghibur", "dana_overlap": ["brand-awareness", "cashless-everyday"], "content_fit": "skit, parodi, meme"},
-    "bisnis":        {"audience": "entrepreneur, UMKM owner, profesional 28-45", "dana_overlap": ["QRIS-merchant", "terima-pembayaran", "transfer-bisnis"], "content_fit": "tips bisnis, success story"},
-    "umkm":          {"audience": "pemilik usaha kecil, warung, toko online", "dana_overlap": ["QRIS-merchant", "terima-pembayaran-digital"], "content_fit": "tips jualan, sharing pengalaman"},
-    "otomotif":      {"audience": "laki-laki dewasa 25-45, punya kendaraan, produktif", "dana_overlap": ["bayar-servis", "beli-bensin-cashless"], "content_fit": "review mobil/motor, modifikasi"},
-    "olahraga":      {"audience": "aktif, health-conscious, Gen Z dan millennial", "dana_overlap": ["beli-suplemen-cashless", "bayar-gym"], "content_fit": "workout, tips fitness, challenge"},
-    "kesehatan":     {"audience": "health-conscious, 25-45, peduli hidup sehat", "dana_overlap": ["bayar-apotik", "beli-suplemen"], "content_fit": "tips kesehatan, review produk"},
+    "lifestyle":     {"audience": "urban millennial perempuan & laki-laki 22-35, aktif sosmed, konsumtif digital, suka mencoba hal baru", "dana_overlap": ["cashless-belanja", "bayar-tagihan", "top-up", "promo-hangout"], "content_fit": "everyday content, relatable, aspirational, vlog gaya hidup"},
+    "parenting":     {"audience": "ibu & ayah muda 25-40, family-oriented, fokus ke kesejahteraan keluarga dan efisiensi waktu", "dana_overlap": ["bayar-sekolah", "belanja-kebutuhan-RT", "transfer-keluarga", "asuransi-pendidikan"], "content_fit": "tips parenting, edukasi finansial keluarga, sharing pengalaman sehari-hari"},
+    "mama":          {"audience": "ibu rumah tangga & working mom 25-45, pengambil keputusan belanja rumah tangga", "dana_overlap": ["belanja-online", "bayar-tagihan-PLN-PDAM", "transfer-bulanan", "tabungan-anak"], "content_fit": "tips hemat, review produk rumah tangga, kegiatan dengan anak"},
+    "food":          {"audience": "foodies semua umur, hobi jajan, eksplorasi kuliner, pengguna setia QRIS di merchant", "dana_overlap": ["bayar-makanan-QRIS", "cashback-kuliner", "vaucher-makan"], "content_fit": "review makanan, mukbang, rekomendasi tempat makan baru"},
+    "kuliner":       {"audience": "pecinta makanan, sering mencari promo tempat makan, aktif di IG/TikTok kuliner", "dana_overlap": ["bayar-makanan-QRIS", "cashback-kuliner", "DANA-Vibe"], "content_fit": "cinematic food shots, review jujur, tips berburu promo makanan"},
+    "travel":        {"audience": "traveler, pekerja produktif 25-35, suka liburan singkat, butuh kepraktisan transaksi saat jalan", "dana_overlap": ["beli-tiket-pesawat/kereta", "booking-hotel", "DANA-internasional", "pembayaran-parkir"], "content_fit": "vlog perjalanan, tips travel hemat, rekomendasi destinasi"},
+    "fashion":       {"audience": "perempuan urban 18-35, fashion-forward, rutin belanja di e-commerce, suka diskon brand", "dana_overlap": ["belanja-fashion-online", "cashback-brand-lokal", "bayar-pakai-cicilan"], "content_fit": "OOTD, styling tips, haul belanja, review brand"},
+    "beauty":        {"audience": "perempuan 18-40, skincare & makeup enthusiast, aktif mencari review produk, konsumtif di beauty shop", "dana_overlap": ["belanja-skincare-online", "cashback-beauty-merchant", "bayar-tagihan-toko"], "content_fit": "review skincare/makeup, tutorial dandan, skincare routine"},
+    "finance":       {"audience": "profesional & mahasiswa 20-45, ingin melek finansial, tertarik pada investasi dan manajemen uang", "dana_overlap": ["investasi-emas/reksadana", "manajemen-uang-DANA-Goals", "keamanan-DANA-Protection"], "content_fit": "edukasi keuangan, tips menabung, analisis fitur finansial digital"},
+    "keuangan":      {"audience": "masyarakat yang ingin belajar hemat dan investasi, butuh alat bantu catat/kelola uang", "dana_overlap": ["DANA-Goals", "catat-transaksi", "investasi-emas", "transfer-bebas-biaya"], "content_fit": "tips budgeting, tutorial investasi pemula, perbandingan e-wallet"},
+    "investasi":     {"audience": "investor pemula hingga menengah, melek teknologi, mencari instrumen yang aman dan mudah", "dana_overlap": ["e-mas", "reksadana", "DANA-Siaga", "edukasi-saham"], "content_fit": "tips investasi berkala, review fitur investasi e-wallet, update pasar keuangan"},
+    "gaming":        {"audience": "Gen Z & Millennial laki-laki dominan, gamer mobile/PC, rutin melakukan top-up game", "dana_overlap": ["top-up-game-DANA", "cashback-gaming", "beli-voucher-GooglePlay"], "content_fit": "gameplay highlights, tutorial game, review skin baru, promo top-up"},
+    "edukasi":       {"audience": "pelajar, mahasiswa, guru, dan orang tua yang mementingkan pengembangan diri", "dana_overlap": ["pembayaran-kursus-online", "bayar-SPP", "kirim-uang-saku", "beli-buku"], "content_fit": "tips belajar, tutorial software, edukasi skill baru, info beasiswa"},
+    "entertainment": {"audience": "mass audience, pecinta hiburan, menyukai konten ringan, humor, dan update selebriti", "dana_overlap": ["brand-awareness", "cashless-lifestyle", "DANA-Games", "DANA-Surprise"], "content_fit": "konten viral, humor/comedy, update gosip, challenge seru"},
+    "comedy":        {"audience": "semua kalangan yang butuh hiburan, Gen Z-Millennial yang suka relatable humor", "dana_overlap": ["brand-awareness", "cashless-everyday", "promo-seru"], "content_fit": "skit komedi, parodi situasi sehari-hari, meme lucu"},
+    "bisnis":        {"audience": "pemilik bisnis, freelancer, UMKM, orang yang ingin memulai usaha", "dana_overlap": ["DANA-Bisnis", "terima-pembayaran-QRIS", "transfer-antar-bank-bisnis", "laporan-penjualan"], "content_fit": "tips bisnis pemula, success story, tutorial kelola keuangan usaha"},
+    "umkm":          {"audience": "pedagang kecil, pemilik toko online, pengrajin lokal, pengusaha mikro", "dana_overlap": ["QRIS-DANA-Bisnis", "pendataan-transaksi", "pembayaran-supplier"], "content_fit": "tips jualan laris, cara terima pembayaran digital, sharing modal usaha"},
+    "otomotif":      {"audience": "laki-laki 20-50, pecinta kendaraan, suka modifikasi, memperhatikan perawatan mesin", "dana_overlap": ["bayar-parkir-digital", "beli-bensin-cashless", "asuransi-kendaraan", "bayar-servis"], "content_fit": "review mobil/motor, tips perawatan, update teknologi otomotif"},
+    "olahraga":      {"audience": "individu aktif, pecinta kebugaran, anggota komunitas lari/sepeda/gym", "dana_overlap": ["bayar-member-gym", "beli-perlengkapan-olahraga", "asuransi-kesehatan"], "content_fit": "workout routine, tips diet sehat, review apparel olahraga"},
+    "teknologi":     {"audience": "early adopters, gadget lovers, orang yang selalu ingin tahu perkembangan tech terbaru", "dana_overlap": ["beli-gadget-cashless", "bayar-langganan-software", "keamanan-digital"], "content_fit": "unboxing gadget, review fitur tech, berita teknologi terbaru"},
 }
 
 
@@ -209,7 +209,7 @@ def _call_dify(inputs: dict) -> str:
     Returns raw text output dari LLM.
     """
     headers = {
-        "Authorization": f"Bearer {app-CmU0bexY0YNZA97mCUZAVBz2}",
+        "Authorization": "Bearer app-CmU0bexY0YNZA97mCUZAVBz2",
         "Content-Type":  "application/json",
     }
     payload = {

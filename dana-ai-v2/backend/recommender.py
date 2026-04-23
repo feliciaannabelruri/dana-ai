@@ -102,6 +102,8 @@ def build_contact(pic_contact, social_media, username):
         return {'type':'tiktok','url':f'https://tiktok.com/@{uname}','label':f'DM @{uname}'}
     if 'instagram' in sm or sm == 'ig':
         return {'type':'instagram','url':f'https://instagram.com/{uname}','label':f'DM @{uname}'}
+    if 'twitter' in sm or ' x ' in sm or sm == 'x':
+        return {'type':'twitter','url':f'https://twitter.com/{uname}','label':f'X @{uname}'}
     if uname:
         return {'type':'profile','url':f'https://instagram.com/{uname}','label':f'DM @{uname}'}
     return None
@@ -415,7 +417,11 @@ def recommend(
         }
 
     if content_type.lower() not in ('semua', 'all', ''):
-        mask = df['social_media'].str.lower().str.contains(content_type.lower(), na=False)
+        ct = content_type.lower()
+        if ct == 'twitter': ct = 'x'
+        mask = df['social_media'].str.lower().str.contains(ct, na=False)
+        if ct == 'x': # Special case for X to avoid matching letters in other words
+             mask = df['social_media'].str.lower().apply(lambda x: 'x' in str(x).split() or 'twitter' in str(x))
         df_f = df[mask] if mask.sum() >= 1 else df
     else:
         df_f = df.copy()

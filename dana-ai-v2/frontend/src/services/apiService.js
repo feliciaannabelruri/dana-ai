@@ -1,4 +1,4 @@
-﻿const BASE = process.env.REACT_APP_API_URL || 'https://feliciaaaaaaaaae-dana-ai-backend.hf.space';
+const BASE = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 export async function checkStatus() {
   const r = await fetch(`${BASE}/status`);
@@ -43,12 +43,6 @@ export async function trainModel() {
 }
 
 export async function getRecommendations(form) {
-  const zeroBudget = !form.budget || parseFloat(form.budget) <= 0;
-  const locations = form.locations && form.locations.length > 0 ? form.locations : undefined;
-  const tierSplit = form.tier_budget_split &&
-    Object.values(form.tier_budget_split).some(v => v > 0)
-    ? form.tier_budget_split : undefined;
-
   const payload = {
     campaign_name:          form.campaign_name,
     campaign_description:   form.campaign_description || '',
@@ -56,15 +50,17 @@ export async function getRecommendations(form) {
     topics:                 form.topics || '',
     target_audience:        form.target_audience || '',
     location:               form.location || 'nasional',
-    locations:              locations,
-    budget:                 zeroBudget ? 0 : parseFloat(form.budget),
-    budget_kol_pct:         form.budget_kol_pct || 0.70,
+    locations:              form.locations,
+    budget:                 form.zeroBudget ? 0 : parseFloat(form.budget_min || 0),
+    budget_kol_pct:         (form.budget_kol_pct || 70) / 100,
     num_kol:                parseInt(form.num_kol) || 5,
     num_media:              parseInt(form.num_media) || 3,
     content_type:           form.content_type || 'semua',
     preferred_tier:         form.preferred_tier || 'semua',
-    tier_budget_split:      tierSplit,
-    include_homeless_media: !zeroBudget,
+    tier_budget_split:      form.tier_budget_split,
+    include_kol:            form.include_kol ?? true,
+    include_homeless_media: form.include_homeless_media ?? true,
+    include_community:      form.include_community ?? true,
   };
 
   const r = await fetch(`${BASE}/recommend`, {
@@ -72,7 +68,17 @@ export async function getRecommendations(form) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
   });
-  if (!r.ok) { const e = await r.json(); throw new Error(e.detail || 'Gagal'); }
+  if (!r.ok) { const e = await r.json(); throw new Error(e.detail || 'Gagal generate rekomendasi'); }
+  return r.json();
+}
+
+export async function suggestParams(name, description) {
+  const r = await fetch(`${BASE}/suggest-params`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, description }),
+  });
+  if (!r.ok) throw new Error('Gagal auto-suggest');
   return r.json();
 }
 

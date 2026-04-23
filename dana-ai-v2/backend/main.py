@@ -1,4 +1,4 @@
-﻿from dotenv import load_dotenv
+from dotenv import load_dotenv
 load_dotenv()
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -70,7 +70,9 @@ class CampaignRequest(BaseModel):
     preferred_tier:       Optional[str] = "semua"
     tier_budget_split:    Optional[TierBudgetSplit] = None
 
+    include_kol:            bool = True
     include_homeless_media: bool = True
+    include_community:      bool = True
 
 
 @app.get("/")
@@ -495,26 +497,27 @@ def get_recommendations(req: CampaignRequest):
     all_kol_results: list[dict] = []
     seen_usernames:  set[str]   = set()
 
-    for loc in locations:
-        for run in tier_runs:
-            result = recommend(
-                topics               = req.topics or "",
-                goals                = req.goals or "",
-                campaign_description = req.campaign_description or "",
-                location             = loc,
-                budget_total         = run["budget_total"],
-                num_kol              = run["num_kol"],
-                content_type         = req.content_type or "semua",
-                preferred_tier       = run["tier"],
-                zero_budget_mode     = run["zero_budget"],
-            )
-            for kol in result.get("recommended_kol", []):
-                uname = kol.get("username", "")
-                if uname not in seen_usernames:
-                    # Tag lokasi asal untuk display
-                    kol["matched_location"] = loc
-                    all_kol_results.append(kol)
-                    seen_usernames.add(uname)
+    if req.include_kol:
+        for loc in locations:
+            for run in tier_runs:
+                result = recommend(
+                    topics               = req.topics or "",
+                    goals                = req.goals or "",
+                    campaign_description = req.campaign_description or "",
+                    location             = loc,
+                    budget_total         = run["budget_total"],
+                    num_kol              = run["num_kol"],
+                    content_type         = req.content_type or "semua",
+                    preferred_tier       = run["tier"],
+                    zero_budget_mode     = run["zero_budget"],
+                )
+                for kol in result.get("recommended_kol", []):
+                    uname = kol.get("username", "")
+                    if uname not in seen_usernames:
+                        # Tag lokasi asal untuk display
+                        kol["matched_location"] = loc
+                        all_kol_results.append(kol)
+                        seen_usernames.add(uname)
     all_kol_results.sort(key=lambda x: x["match_score"], reverse=True)
     top_kol = all_kol_results[:req.num_kol]
 
@@ -555,7 +558,7 @@ def get_recommendations(req: CampaignRequest):
         "campaign_patterns":  first_result.get("campaign_patterns"),
     }
 
-    if req.include_homeless_media and not zero_budget:
+    if req.include_homeless_media and req.include_homeless_media and not zero_budget:
         media_result = recommend_homeless_media(
             topics               = req.topics or "",
             goals                = req.goals or "",
@@ -587,13 +590,14 @@ def get_recommendations(req: CampaignRequest):
         )
         response['kol_homeless_free'] = kol_free_result
         response['kol_free_count']    = len(kol_free_result)
-    community_result = recommend_community(
-        topics               = req.topics or "",
-        goals                = req.goals or "",
-        campaign_description = req.campaign_description or "",
-        num_community        = req.num_media,
-    )
-    response['community'] = community_result
-    response['community_count'] = len(community_result)
+    if req.include_community:
+        community_result = recommend_community(
+            topics               = req.topics or "",
+            goals                = req.goals or "",
+            campaign_description = req.campaign_description or "",
+            num_community        = req.num_media,
+        )
+        response['community'] = community_result
+        response['community_count'] = len(community_result)
 
     return response
