@@ -4,7 +4,7 @@ from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, List
-import os, shutil, subprocess, sys, json, threading
+import os, shutil, subprocess, sys, json, threading, httpx
 
 from recommender import recommend, get_meta, load_models
 from homeless_recommender import recommend_homeless_media
@@ -73,6 +73,11 @@ class CampaignRequest(BaseModel):
     include_kol:            bool = True
     include_homeless_media: bool = True
     include_community:      bool = True
+
+
+class SuggestRequest(BaseModel):
+    name: str
+    description: Optional[str] = ""
 
 
 @app.get("/")
@@ -305,11 +310,10 @@ async def upload_kol_homeless_free(file: UploadFile = File(...)):
     with open(dest, 'wb') as f:
         shutil.copyfileobj(file.file, f)
 
-    # Parse ONLY kol_free — jangan timpa community_pool.json yang sudah ada
     parse_script = os.path.join(os.path.dirname(__file__), 'scripts', 'parse_free_pools.py')
     env = os.environ.copy()
     env['KOL_HOMELESS_PATH']  = dest
-    env['COMMUNITY_PATH']     = ''          # kosongkan agar community tidak di-reparse
+    env['COMMUNITY_PATH']     = ''        
     env['SKIP_COMMUNITY']     = '1'
 
     r = subprocess.run(
@@ -344,7 +348,7 @@ async def upload_community(file: UploadFile = File(...)):
 
     parse_script = os.path.join(os.path.dirname(__file__), 'scripts', 'parse_free_pools.py')
     env = os.environ.copy()
-    env['KOL_HOMELESS_PATH']  = ''          # kosongkan agar KOLHomeless tidak di-reparse
+    env['KOL_HOMELESS_PATH']  = ''          
     env['COMMUNITY_PATH']     = dest
     env['SKIP_KOL_FREE']      = '1'
 
@@ -444,7 +448,6 @@ def _resolve_tier_splits(req: CampaignRequest, num_kol: int, budget_kol: float) 
             "zero_budget":   zero_budget,
         }]
 
-    # Parse tier split
     raw = {
         "nano":  split.nano  or 0,
         "mikro": split.mikro or 0,
@@ -455,13 +458,12 @@ def _resolve_tier_splits(req: CampaignRequest, num_kol: int, budget_kol: float) 
     if total_pct <= 0:
         return [{"tier": "semua", "num_kol": num_kol, "budget_total": budget_kol, "zero_budget": zero_budget}]
 
-    # Normalize ke 100%
+   
     runs = []
     allocated_kol = 0
     tiers_with_pct = [(t, p) for t, p in raw.items() if p > 0]
     for i, (tier, pct) in enumerate(tiers_with_pct):
         frac = pct / total_pct
-        # Last tier gets remainder to avoid rounding loss
         if i == len(tiers_with_pct) - 1:
             n = num_kol - allocated_kol
         else:
@@ -514,7 +516,6 @@ def get_recommendations(req: CampaignRequest):
                 for kol in result.get("recommended_kol", []):
                     uname = kol.get("username", "")
                     if uname not in seen_usernames:
-                        # Tag lokasi asal untuk display
                         kol["matched_location"] = loc
                         all_kol_results.append(kol)
                         seen_usernames.add(uname)
@@ -601,3 +602,62 @@ def get_recommendations(req: CampaignRequest):
         response['community_count'] = len(community_result)
 
     return response
+
+
+@app.post("/suggest-params")
+async def suggest_params(req: SuggestRequest):
+    """
+    Memanggil Dify Workflow untuk mendapatkan saran parameter campaign.
+    """
+    api_key = os.environ.get("DIFY_SUGGEST_API_KEY", "app-peIuXch2YQEPyIdotcBAcXoE")
+    base_url = os.environ.get("DIFY_BASE_URL", "https://dify-app.ai.dana.id")
+    
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    
+    payload = {
+        "inputs": {
+            "campaign_name": req.name,
+            "campaign_description": req.description
+        },
+        "response_mode": "blocking",
+        "user": "dana-ai-user"
+    }
+
+    try:
+        async with httpx.AsyncClient() as client:
+            resp = await client.post(
+                f"{base_url}/v1/workflows/run",
+                headers=headers,
+                json=payload,
+                timeout=60.0
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            
+       
+            outputs = data.get("data", {}).get("outputs", {})
+            raw_text = outputs.get("text", "") or outputs.get("result", "") or ""
+           
+            clean_text = raw_text.replace("```json", "").replace("```", "").strip()
+            
+            try:
+     
+                suggestion = json.loads(clean_text)
+                return {"status": "ok", "suggestion": suggestion}
+            except:
+     
+                import re
+                match = re.search(r"\{.*\}", clean_text, re.DOTALL)
+                if match:
+                    suggestion = json.loads(match.group())
+                    return {"status": "ok", "suggestion": suggestion}
+                
+                print(f"DEBUG: Raw LLM output: {raw_text}")
+                return {"status": "error", "message": "Format output LLM bukan JSON yang valid"}
+                
+    except Exception as e:
+        print(f"Error Dify: {e}")
+        return {"status": "error", "message": str(e)}
