@@ -647,12 +647,97 @@ async def suggest_params(req: SuggestRequest):
                 if match:
                     suggestion = json.loads(match.group())
                     return {"status": "ok", "suggestion": suggestion}
-                
-                print(f"DEBUG: Raw LLM output: {raw_text}")
                 return {"status": "error", "message": "Format output LLM bukan JSON yang valid"}
                 
+    except (httpx.ConnectTimeout, httpx.ConnectError, httpx.TimeoutException) as e:
+        print(f"[WARN] Dify tidak dapat diakses (network/timeout): {e}")
+        # Fallback: rule-based suggestion
+        suggestion = _fallback_suggest(req.name, req.description)
+        return {"status": "ok", "suggestion": suggestion, "source": "fallback"}
     except Exception as e:
         import traceback
         print(f"Error Dify: {e}")
         print(traceback.format_exc())
         return {"status": "error", "message": str(e)}
+
+
+def _fallback_suggest(name: str, description: str) -> dict:
+    """Rule-based fallback saat Dify tidak bisa diakses."""
+    name_lower = (name or "").lower()
+    desc_lower = (description or "").lower()
+    combined   = f"{name_lower} {desc_lower}"
+
+    # Detect goals
+    if any(w in combined for w in ["awareness", "kenal", "brand", "perkenalan"]):
+        goals = "brand awareness"
+    elif any(w in combined for w in ["install", "download", "unduh"]):
+        goals = "install"
+    elif any(w in combined for w in ["transaksi", "bayar", "pakai", "conversion"]):
+        goals = "conversion"
+    elif any(w in combined for w in ["edukasi", "literasi", "belajar", "tutorial"]):
+        goals = "edukasi"
+    elif any(w in combined for w in ["promo", "cashback", "diskon", "hemat"]):
+        goals = "promo"
+    elif any(w in combined for w in ["umkm", "merchant", "qris", "bisnis"]):
+        goals = "umkm"
+    elif any(w in combined for w in ["engagement", "interaksi", "komunitas"]):
+        goals = "engagement"
+    else:
+        goals = "brand awareness"
+
+    # Detect topics
+    topics_list = []
+    topic_map = {
+        "lifestyle":  ["lifestyle", "gaya hidup", "sehari-hari"],
+        "parenting":  ["parenting", "ibu", "mama", "anak", "keluarga"],
+        "food":       ["food", "kuliner", "makanan", "makan"],
+        "finance":    ["keuangan", "finance", "investasi", "finansial"],
+        "fashion":    ["fashion", "style", "ootd", "pakaian"],
+        "beauty":     ["beauty", "skincare", "makeup", "kecantikan"],
+        "travel":     ["travel", "liburan", "wisata", "jalan"],
+        "gaming":     ["gaming", "game", "esports"],
+        "edukasi":    ["edukasi", "belajar", "pendidikan", "mahasiswa"],
+        "bisnis":     ["bisnis", "umkm", "entrepreneur", "usaha"],
+        "entertainment": ["hiburan", "entertainment", "comedy", "humor"],
+    }
+    for topic, keywords in topic_map.items():
+        if any(kw in combined for kw in keywords):
+            topics_list.append(topic)
+    if not topics_list:
+        topics_list = ["lifestyle"]
+    topics = ", ".join(topics_list[:3])
+
+    # Detect location
+    location = "nasional"
+    location_map = {
+        "jakarta": ["jakarta", "jabodetabek", "jaksel", "jakpus"],
+        "bandung": ["bandung"],
+        "surabaya": ["surabaya"],
+        "bali": ["bali"],
+        "yogyakarta": ["yogyakarta", "jogja"],
+    }
+    for loc, keywords in location_map.items():
+        if any(kw in combined for kw in keywords):
+            location = loc
+            break
+
+    # Detect tier
+    if any(w in combined for w in ["mega", "selebritis", "artis", "viral besar"]):
+        tier = "mega"
+    elif any(w in combined for w in ["makro", "macro", "besar"]):
+        tier = "makro"
+    elif any(w in combined for w in ["nano", "mikro", "kecil", "komunitas"]):
+        tier = "nano"
+    else:
+        tier = "mikro"
+
+    return {
+        "goals":          goals,
+        "topics":         topics,
+        "target_audience": "Pengguna aktif media sosial Indonesia, usia 18-35 tahun",
+        "location":       location,
+        "preferred_tier": tier,
+        "num_kol":        5,
+        "num_media":      3,
+        "content_type":   "semua",
+    }
