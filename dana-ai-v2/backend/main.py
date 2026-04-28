@@ -1,4 +1,4 @@
-from dotenv import load_dotenv
+﻿from dotenv import load_dotenv
 load_dotenv()
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -606,9 +606,6 @@ def get_recommendations(req: CampaignRequest):
 
 @app.post("/suggest-params")
 async def suggest_params(req: SuggestRequest):
-    """
-    Memanggil Dify Workflow untuk mendapatkan saran parameter campaign.
-    """
     api_key = os.environ.get("DIFY_SUGGEST_API_KEY", "app-peIuXch2YQEPyIdotcBAcXoE")
     base_url = os.environ.get("DIFY_BASE_URL", "https://dify-app.ai.dana.id")
     
@@ -637,18 +634,14 @@ async def suggest_params(req: SuggestRequest):
             resp.raise_for_status()
             data = resp.json()
             
-       
             outputs = data.get("data", {}).get("outputs", {})
             raw_text = outputs.get("text", "") or outputs.get("result", "") or ""
-           
             clean_text = raw_text.replace("```json", "").replace("```", "").strip()
             
             try:
-     
                 suggestion = json.loads(clean_text)
                 return {"status": "ok", "suggestion": suggestion}
-            except:
-     
+            except Exception:
                 import re
                 match = re.search(r"\{.*\}", clean_text, re.DOTALL)
                 if match:
@@ -659,5 +652,7 @@ async def suggest_params(req: SuggestRequest):
                 return {"status": "error", "message": "Format output LLM bukan JSON yang valid"}
                 
     except Exception as e:
+        import traceback
         print(f"Error Dify: {e}")
+        print(traceback.format_exc())
         return {"status": "error", "message": str(e)}
