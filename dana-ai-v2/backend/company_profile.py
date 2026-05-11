@@ -21,6 +21,8 @@ COMPANY_PROFILE = {
         "Cashback & promo belanja online",
         "Cicilan tanpa kartu kredit",
         "Terima gaji & pembayaran bisnis",
+        "Donasi & ZISWAF",
+        "Paperless transaction (ESG)",
     ],
 
     # ── Target segment DANA ───────────────────────────────────────────────────
@@ -32,6 +34,7 @@ COMPANY_PROFILE = {
         "umkm_entrepreneur":    {"age": "25-45", "need": "terima pembayaran QRIS, transfer ke supplier"},
         "income_menengah_bawah":{"need": "inklusi keuangan, tidak perlu rekening bank"},
         "income_menengah_atas": {"need": "cashback premium, transaksi besar, investasi"},
+        "eco_conscious":        {"need": "donasi, paperless transaction, sustainability, green initiative"},
     },
 
     # ── Brand tones ───────────────────────────────────────────────────────────
@@ -54,6 +57,8 @@ COMPANY_PROFILE = {
         "community building":   ["inspirational", "fun_relatable"],
         "viral campaign":       ["trendy_viral", "fun_relatable"],
         "repositioning brand":  ["inspirational", "professional"],
+        "esg campaign":         ["inspirational", "educational", "professional"],
+        "csr campaign":         ["inspirational", "professional"],
     },
 
     # ── Scoring weights ───────────────────────────────────────────────────────
@@ -81,6 +86,32 @@ COMPANY_PROFILE = {
 # LLM di kol_profiler.py akan provide reasoning yang lebih nuanced per-KOL
 
 CROSS_NICHE_MATRIX = {
+
+    # ── ESG & Sustainability ──────────────────────────────────────────────────
+    "esg": {
+        "score": 0.85,
+        "why": "Audiens peduli lingkungan & sosial, sejalan dengan inisiatif green & social impact DANA",
+        "dana_segments": ["millennial_pekerja", "gen_z", "eco_conscious"],
+        "best_dana_features": ["donasi", "paperless-transaction", "zakat"],
+    },
+    "sustainability": {
+        "score": 0.85,
+        "why": "Audiens peduli isu keberlanjutan dan inisiatif hijau",
+        "dana_segments": ["millennial_pekerja", "gen_z", "eco_conscious"],
+        "best_dana_features": ["donasi", "paperless-transaction"],
+    },
+    "lingkungan": {
+        "score": 0.80,
+        "why": "Konten lingkungan meningkatkan brand trust untuk kampanye paperless dan donasi",
+        "dana_segments": ["gen_z", "millennial_pekerja", "eco_conscious"],
+        "best_dana_features": ["paperless-transaction", "donasi"],
+    },
+    "sosial": {
+        "score": 0.80,
+        "why": "Audiens peduli sosial sangat relevan dengan fitur donasi dan ZISWAF DANA",
+        "dana_segments": ["ibu_rt", "millennial_pekerja", "eco_conscious"],
+        "best_dana_features": ["donasi", "bayar-zakat", "zakat"],
+    },
 
     # ── Direct finance (score tertinggi) ──────────────────────────────────────
     "finance": {

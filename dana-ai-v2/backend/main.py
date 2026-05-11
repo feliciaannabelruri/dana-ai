@@ -610,7 +610,7 @@ async def suggest_params(req: SuggestRequest):
     Memanggil Dify Workflow untuk mendapatkan saran parameter campaign.
     """
     api_key = os.environ.get("DIFY_SUGGEST_API_KEY", "app-peIuXch2YQEPyIdotcBAcXoE")
-    base_url = os.environ.get("DIFY_BASE_URL", "https://dify-app.ai.dana.id")
+    base_url = os.environ.get("DIFY_BASE_URL", "https://dify-api.ai.dana.id/v1")
     
     headers = {
         "Authorization": f"Bearer {api_key}",

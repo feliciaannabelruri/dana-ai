@@ -69,6 +69,10 @@ TOPIC_TO_CATEGORY = {
     "parenting": ["Girls News","Trending News"],
     "perempuan": ["Girls News","Trending News"],
     "misteri": ["Mystery,Facts,Fenomena"],
+    "esg": ["Trending News","Facts News","Mystery,Facts,Fenomena"],
+    "sustainability": ["Trending News","Facts News"],
+    "lingkungan": ["Trending News","Facts News"],
+    "sosial": ["Trending News","Facts News","Akun Gossip"],
 }
 
 TOPIC_MEDIA_AFFINITY = {
@@ -90,9 +94,13 @@ TOPIC_MEDIA_AFFINITY = {
     'beauty':       {'Girls News':0.9,'Akun Gossip':0.8,'Trending News':0.7},
     'fashion':      {'Girls News':0.85,'Akun Gossip':0.75,'Trending News':0.7},
     'parenting':    {'Girls News':0.8,'Trending News':0.6,'Facts News':0.5},
-    'health':       {'Trending News':0.7,'Facts News':0.75},
-    'misteri':      {'Mystery,Facts,Fenomena':1.0,'Facts News':0.7},
-    'perempuan':    {'Girls News':1.0,'Akun Gossip':0.8,'Trending News':0.7},
+    "health":       {'Trending News':0.7,'Facts News':0.75},
+    "misteri":      {'Mystery,Facts,Fenomena':1.0,'Facts News':0.7},
+    "perempuan":    {'Girls News':1.0,'Akun Gossip':0.8,'Trending News':0.7},
+    "esg":          {'Trending News':0.9,'Facts News':0.9,'Mystery,Facts,Fenomena':0.7},
+    "sustainability": {'Trending News':0.85,'Facts News':0.85},
+    "lingkungan":   {'Trending News':0.8,'Facts News':0.85},
+    "sosial":       {'Trending News':0.9,'Facts News':0.8,'Akun Gossip':0.6},
 }
 
 CAT_TIER_MAP = {
