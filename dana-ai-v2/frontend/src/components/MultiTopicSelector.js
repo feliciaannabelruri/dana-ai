@@ -7,7 +7,7 @@ const C = {
 };
 
 const MultiTopicSelector = ({ selected = [], onChange }) => {
-  const topics = ['lifestyle', 'parenting', 'mama', 'food', 'kuliner', 'travel', 'fashion', 'beauty', 'finance', 'gaming', 'edukasi', 'entertainment', 'bisnis', 'umkm', 'otomotif', 'olahraga', 'teknologi'];
+  const topics = ['lifestyle', 'parenting', 'mama', 'food', 'kuliner', 'travel', 'fashion', 'beauty', 'finance', 'gaming', 'edukasi', 'entertainment', 'bisnis', 'umkm', 'otomotif', 'olahraga', 'teknologi', 'esg', 'sustainability'];
   const selArr = Array.isArray(selected) ? selected : [];
 
   return (

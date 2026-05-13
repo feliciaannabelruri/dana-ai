@@ -89,7 +89,7 @@ const CampaignForm = ({
             <Field label="Goals">
               <select style={INP} value={form.goals} onChange={e => sf({ goals: e.target.value })}>
                 <option value="">Pilih goals...</option>
-                {['brand awareness', 'edukasi', 'engagement', 'conversion', 'transaksi', 'promo', 'umkm', 'literasi keuangan'].map(g => <option key={g} value={g}>{g.toUpperCase()}</option>)}
+                {['brand awareness', 'edukasi', 'engagement', 'conversion', 'transaksi', 'promo', 'umkm', 'literasi keuangan', 'esg campaign', 'csr campaign'].map(g => <option key={g} value={g}>{g.toUpperCase()}</option>)}
               </select>
             </Field>
             <Field label="Target Audience"><input style={INP} placeholder="Urban Millennial, Ibu RT" value={form.target_audience} onChange={e => sf({ target_audience: e.target.value })} /></Field>

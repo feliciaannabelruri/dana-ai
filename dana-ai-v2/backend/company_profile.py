@@ -1,6 +1,4 @@
 COMPANY_PROFILE = {
-
-    # ── Identitas brand ───────────────────────────────────────────────────────
     "company_name": "DANA Indonesia",
     "industry":     "fintech",
     "sub_industry": "digital wallet",
@@ -12,7 +10,6 @@ COMPANY_PROFILE = {
         "cashless society dan kemudahan transaksi digital untuk semua kalangan."
     ),
 
-    # ── Fitur DANA yang paling sering dipromote ───────────────────────────────
     "key_features": [
         "Transfer uang gratis antar bank",
         "Bayar tagihan listrik, BPJS, internet",
@@ -25,7 +22,6 @@ COMPANY_PROFILE = {
         "Paperless transaction (ESG)",
     ],
 
-    # ── Target segment DANA ───────────────────────────────────────────────────
     "target_segments": {
         "gen_z":                {"age": "18-25", "need": "cashless, top-up game, transfer ke teman"},
         "millennial_pekerja":   {"age": "25-35", "need": "gajian, bayar tagihan, transfer, belanja"},
@@ -37,7 +33,6 @@ COMPANY_PROFILE = {
         "eco_conscious":        {"need": "donasi, paperless transaction, sustainability, green initiative"},
     },
 
-    # ── Brand tones ───────────────────────────────────────────────────────────
     "brand_tones": [
         "educational",
         "inspirational",
@@ -46,7 +41,6 @@ COMPANY_PROFILE = {
         "trendy_viral",
     ],
 
-    # ── Goals → tone mapping ──────────────────────────────────────────────────
     "goals_to_tone": {
         "brand awareness":      ["fun_relatable", "trendy_viral"],
         "edukasi audience":     ["educational", "professional"],
@@ -61,33 +55,16 @@ COMPANY_PROFILE = {
         "csr campaign":         ["inspirational", "professional"],
     },
 
-    # ── Scoring weights ───────────────────────────────────────────────────────
     "scoring": {
-        "direct_finance_boost":   0.22,   # finance/investasi KOL → langsung tinggi
-        "cross_niche_max_boost":  0.18,   # lifestyle/parenting → ada audience DANA
+        "direct_finance_boost":   0.22,  
+        "cross_niche_max_boost":  0.18,  
         "neutral_category_score": 0.50,
         "irrelevant_score":       0.35,
     },
 }
 
-
-# ══════════════════════════════════════════════════════════════════════════════
-# CROSS-NICHE SCORING MATRIX
-# ══════════════════════════════════════════════════════════════════════════════
-#
-# Format: category_keyword → {
-#   "score": float (0-1),
-#   "why": "penjelasan singkat kenapa audiensnya overlap sama DANA user",
-#   "dana_segments": [list segment DANA yang kemungkinan ada di audiens ini],
-#   "best_dana_features": [fitur DANA yang paling relevan untuk dipromote ke audiens ini],
-# }
-#
-# Ini adalah "knowledge base" yang dipakai oleh score_kol_fit()
-# LLM di kol_profiler.py akan provide reasoning yang lebih nuanced per-KOL
-
 CROSS_NICHE_MATRIX = {
 
-    # ── ESG & Sustainability ──────────────────────────────────────────────────
     "esg": {
         "score": 0.85,
         "why": "Audiens peduli lingkungan & sosial, sejalan dengan inisiatif green & social impact DANA",
@@ -113,7 +90,6 @@ CROSS_NICHE_MATRIX = {
         "best_dana_features": ["donasi", "bayar-zakat", "zakat"],
     },
 
-    # ── Direct finance (score tertinggi) ──────────────────────────────────────
     "finance": {
         "score": 0.92,
         "why": "Audiens langsung: orang yang aware soal keuangan digital",
@@ -151,7 +127,6 @@ CROSS_NICHE_MATRIX = {
         "best_dana_features": ["transfer-gratis", "bayar-tagihan"],
     },
 
-    # ── Parenting (cross-niche tinggi) ────────────────────────────────────────
     "parenting": {
         "score": 0.80,
         "why": "Ibu RT = core DANA user: bayar sekolah, belanja online, tagihan rumah",
@@ -177,7 +152,6 @@ CROSS_NICHE_MATRIX = {
         "best_dana_features": ["transfer-uang-saku", "bayar-sekolah"],
     },
 
-    # ── Lifestyle (cross-niche medium-tinggi) ─────────────────────────────────
     "lifestyle": {
         "score": 0.72,
         "why": "Audiens lifestyle = urban millennial yang cashless sehari-hari",
@@ -209,7 +183,6 @@ CROSS_NICHE_MATRIX = {
         "best_dana_features": ["literasi-keuangan", "cashback"],
     },
 
-    # ── Food & kuliner ────────────────────────────────────────────────────────
     "food": {
         "score": 0.65,
         "why": "Food creator = audiens yang sering bayar makanan, QRIS di restoran",
@@ -235,7 +208,6 @@ CROSS_NICHE_MATRIX = {
         "best_dana_features": ["belanja-online", "cashback"],
     },
 
-    # ── Travel ────────────────────────────────────────────────────────────────
     "travel": {
         "score": 0.65,
         "why": "Traveler = pekerja produktif yang beli tiket, booking hotel",
@@ -255,7 +227,6 @@ CROSS_NICHE_MATRIX = {
         "best_dana_features": ["beli-tiket", "cashback", "bayar-hotel"],
     },
 
-    # ── Fashion & beauty ──────────────────────────────────────────────────────
     "fashion": {
         "score": 0.65,
         "why": "Fashion creator = perempuan urban yang belanja online aktif",
@@ -281,7 +252,6 @@ CROSS_NICHE_MATRIX = {
         "best_dana_features": ["cashback-belanja"],
     },
 
-    # ── Edukasi & career ──────────────────────────────────────────────────────
     "edukasi": {
         "score": 0.70,
         "why": "Edukasikonten = mahasiswa/pelajar yang terima uang saku via transfer",
@@ -319,7 +289,6 @@ CROSS_NICHE_MATRIX = {
         "best_dana_features": ["literasi-keuangan", "cashback"],
     },
 
-    # ── Gaming & entertainment ────────────────────────────────────────────────
     "gaming": {
         "score": 0.62,
         "why": "Gamer = top-up game via DANA, audience Gen Z",
@@ -356,8 +325,6 @@ CROSS_NICHE_MATRIX = {
         "dana_segments": ["gen_z"],
         "best_dana_features": ["brand-awareness"],
     },
-
-    # ── Health & fitness ──────────────────────────────────────────────────────
     "olahraga": {
         "score": 0.52,
         "why": "Audience olahraga = aktif, urban, butuh bayar gym/studio",
@@ -377,7 +344,6 @@ CROSS_NICHE_MATRIX = {
         "best_dana_features": ["bayar-BPJS", "transfer"],
     },
 
-    # ── Shopping ──────────────────────────────────────────────────────────────
     "belanja": {
         "score": 0.72,
         "why": "Konten belanja = direct match ke cashback & belanja online DANA",
@@ -397,7 +363,6 @@ CROSS_NICHE_MATRIX = {
         "best_dana_features": ["cashback-belanja"],
     },
 
-    # ── Low relevance ─────────────────────────────────────────────────────────
     "otomotif": {
         "score": 0.42,
         "why": "Audience otomotif = laki-laki, beli sparepart → transfer bisa",
@@ -424,10 +389,6 @@ CROSS_NICHE_MATRIX = {
     },
 }
 
-
-# ══════════════════════════════════════════════════════════════════════════════
-# HELPERS
-# ══════════════════════════════════════════════════════════════════════════════
 
 def score_kol_fit(category_text: str, topics: str = "", goals: str = "") -> float:
     """
@@ -481,8 +442,6 @@ def get_context_enriched_query(
     Menambahkan konteks DANA + CROSS_NICHE angle.
     """
     p = COMPANY_PROFILE
-
-    # Tone berdasarkan goals
     g = str(goals).lower()
     tones = []
     for key, tone_list in p["goals_to_tone"].items():
@@ -491,7 +450,6 @@ def get_context_enriched_query(
             break
     tone_str = ", ".join(tones) if tones else "educational, trustworthy"
 
-    # Cross-niche context berdasarkan topics
     t = str(topics).lower()
     cross_niche_hint = ""
     for keyword, data in CROSS_NICHE_MATRIX.items():

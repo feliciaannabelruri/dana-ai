@@ -1,10 +1,3 @@
-"""
-homeless_recommender.py  — Layer 1 + Layer 3
-============================================
-FIXED: Hard exact location filter.
-- Nasional → semua media
-- Kota X   → hanya media dengan location_norm == kota X (strict, no bleed)
-"""
 import json, os
 import numpy as np
 import joblib
@@ -227,10 +220,8 @@ def recommend_homeless_media(topics="", goals="", campaign_description="",
 
     print(f"   [LOC] Homeless Media — Input: '{location}' → normalized: '{target_loc}'")
 
-    # ── STEP 1: Hard filter lokasi SEBELUM scoring ───────────────
     all_media = filter_media_by_location(all_media, target_loc)
 
-    # Kalau tidak ada media yang lolos filter
     if len(all_media) == 0:
         return {
             'recommended_media':        [],
@@ -242,7 +233,6 @@ def recommend_homeless_media(topics="", goals="", campaign_description="",
             'warning':                  f"Tidak ada Homeless Media untuk lokasi '{location}'. Coba pilih 'Nasional'.",
         }
 
-    # ── STEP 2: Filter platform ──────────────────────────────────
     filtered = all_media
     if content_type.lower() not in ('semua','all',''):
         ct = content_type.lower()
@@ -257,13 +247,12 @@ def recommend_homeless_media(topics="", goals="", campaign_description="",
         cat        = media.get('category','')
         cat_tier   = CAT_TIER_MAP.get(cat, 2)
         is_nasional= int(media_loc == 'nasional')
-        loc_match  = 1  # selalu 1 karena sudah difilter sebelumnya
+        loc_match  = 1  
 
         relevance_score = get_topic_media_score(topic_text, cat)
         budget_score    = get_budget_score(budget_per_media, rate_min, rate_max)
         reach_score     = get_reach_score(followers)
 
-        # loc_score selalu 1.0 karena sudah hard filter
         loc_score = 1.0
 
         layer1 = 0.35*relevance_score + 0.30*budget_score + 0.10*loc_score + 0.25*reach_score
