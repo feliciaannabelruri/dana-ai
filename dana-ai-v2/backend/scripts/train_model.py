@@ -63,15 +63,6 @@ def build_category_embeddings(df, st_model):
 # ═══════════════════════════════════════════════════════════════
 
 def build_tabular_features(df, patterns, scaler=None, fit=True):
-    """
-    Buat fitur tabular untuk RF/XGBoost/RBM:
-    - Location one-hot
-    - Tier score
-    - followers_log, rate_min, rate_max (normalized)
-    - ER score (real atau estimasi dari patterns)
-    - Pattern score dari campaign insight
-    """
-    # Location one-hot
     loc_onehot = pd.get_dummies(
         df['location_norm'].apply(lambda x: x if x in LOCATION_LIST else 'other')
     ).reindex(columns=LOCATION_LIST, fill_value=0).values.astype(float)
@@ -93,7 +84,6 @@ def build_tabular_features(df, patterns, scaler=None, fit=True):
     for _, row in df.iterrows():
         tier_name = TIER_NAME_MAP.get(int(row.get('tier_score', 2)), 'mikro')
 
-        # ── ER score ─────────────────────────────────────────────
         if row.get('has_er_data') and not pd.isna(row.get('avg_er_pct', float('nan'))):
             er = float(row['avg_er_pct'])
             er_s = 1.0 if er>=20 else 0.85 if er>=10 else 0.70 if er>=5 else 0.50 if er>=2 else 0.30
@@ -105,7 +95,6 @@ def build_tabular_features(df, patterns, scaler=None, fit=True):
             er_s = 0.65 if n<10_000 else 0.55 if n<50_000 else 0.45 if n<200_000 else 0.35 if n<1_000_000 else 0.25
         er_scores.append(er_s)
 
-        # ── Pattern score ─────────────────────────────────────────
         if not patterns or 'tier_stats' not in patterns:
             pattern_scores.append(0.5)
             continue
@@ -149,17 +138,12 @@ def build_tabular_features(df, patterns, scaler=None, fit=True):
 # ═══════════════════════════════════════════════════════════════
 
 def train_random_forest(df, tabular_features, patterns):
-    """
-    Random Forest untuk ranking — belajar memprediksi "skor kualitas" KOL
-    berdasarkan kombinasi fitur tabular.
-    """
     print("\n[RF] Training Random Forest (ranking model)...")
 
     overall_avg_er = patterns.get('overall_avg_er', 5.0) if patterns else 5.0
     tier_stats     = patterns.get('tier_stats', {}) if patterns else {}
     best_tier      = patterns.get('best_tier', 'mikro') if patterns else 'mikro'
 
-    # Buat synthetic quality score sebagai target
     y = []
     for _, row in df.iterrows():
         tier_name = TIER_NAME_MAP.get(int(row.get('tier_score', 2)), 'mikro')
@@ -203,19 +187,15 @@ def train_random_forest(df, tabular_features, patterns):
     )
     rf.fit(tabular_features, y)
 
-    # ── Metrics ──────────────────────────────────────────────────
     y_pred = rf.predict(tabular_features)
     mae    = float(np.mean(np.abs(y - y_pred)))
     rmse   = float(np.sqrt(np.mean((y - y_pred) ** 2)))
 
-    # Cross-validation (5-fold)
-    from sklearn.model_selection import cross_val_score
     cv_scores = cross_val_score(rf, tabular_features, y, cv=min(5, len(y)//5 or 2),
                                 scoring='neg_mean_absolute_error', n_jobs=-1)
     cv_mae    = float(-cv_scores.mean())
     cv_std    = float(cv_scores.std())
 
-    # Feature importance
     feat_names  = LOCATION_LIST + ['followers_log','tier_score','rate_min','rate_max','er_score','pattern_score']
     importances = sorted(zip(feat_names, rf.feature_importances_), key=lambda x: -x[1])
     feat_imp_dict = {k: round(float(v), 4) for k, v in importances}
@@ -246,14 +226,6 @@ def train_random_forest(df, tabular_features, patterns):
 # ═══════════════════════════════════════════════════════════════
 
 def train_xgboost_er_predictor(df, tabular_features, patterns):
-    """
-    XGBoost untuk memprediksi ER KOL baru yang tidak ada di insight.
-
-    Training: KOL yang ada data ER nyata (has_er_data=True) → supervised
-    Inference: KOL baru → prediksi ER-nya berdasarkan fitur yang ada
-
-    Jika tidak cukup KOL dengan real ER, pakai pattern-based synthetic data.
-    """
     print("\n[XGB] Training XGBoost ER predictor...")
 
     try:
@@ -262,18 +234,15 @@ def train_xgboost_er_predictor(df, tabular_features, patterns):
         print("   [SKIP] xgboost tidak terinstall. Jalankan: pip install xgboost")
         return None, None
 
-    # Ambil KOL yang punya real ER sebagai training data
     mask_real = df['has_er_data'] & df['avg_er_pct'].notna()
     n_real    = mask_real.sum()
     print(f"   KOL dengan real ER: {n_real}")
 
     if n_real >= 5:
-        # Supervised dari real data
         X_train = tabular_features[mask_real.values]
         y_train = df.loc[mask_real, 'avg_er_pct'].values.astype(float)
         print(f"   Training supervised dari {n_real} KOL dengan real ER...")
     else:
-        # Fallback: buat synthetic training dari patterns
         print(f"   Data real ER kurang ({n_real}), pakai pattern-based synthetic training...")
         X_train = tabular_features
         overall  = patterns.get('overall_avg_er', 5.0) if patterns else 5.0
@@ -286,7 +255,6 @@ def train_xgboost_er_predictor(df, tabular_features, patterns):
             else:
                 n = row.get('followers_num', 0)
                 base_er = 12 if n<10_000 else 8 if n<50_000 else 5 if n<200_000 else 3 if n<1_000_000 else 2
-            # Tambah noise kecil agar model belajar variasi
             noise = np.random.normal(0, base_er * 0.1)
             y_train.append(max(0, base_er + noise))
         y_train = np.array(y_train)
@@ -306,7 +274,6 @@ def train_xgboost_er_predictor(df, tabular_features, patterns):
     )
     xgb_model.fit(X_train, y_train)
 
-    # ── Metrics ──────────────────────────────────────────────────
     y_pred_all = xgb_model.predict(tabular_features)
     y_pred_train_only = xgb_model.predict(X_train)
     mae_train  = float(np.mean(np.abs(y_train - y_pred_train_only)))
@@ -334,24 +301,12 @@ def train_xgboost_er_predictor(df, tabular_features, patterns):
 # ═══════════════════════════════════════════════════════════════
 
 def train_rbm(tabular_features):
-    """
-    RBM (Restricted Boltzmann Machine) sebagai unsupervised feature extractor.
-
-    RBM belajar representasi latent dari fitur tabular KOL — menangkap
-    pola tersembunyi seperti "kombinasi tier X + followers Y + lokasi Z
-    cenderung co-occur pada KOL berkualitas tinggi".
-
-    Output: latent features (hidden units) yang dipakai sebagai fitur tambahan
-    saat ranking di recommender.py — gabung dengan HF embeddings.
-    """
     print("\n[RBM] Training Restricted Boltzmann Machine...")
 
-    # Binarize fitur untuk BernoulliRBM (butuh input 0-1)
     scaler_rbm = MinMaxScaler()
     X_binary   = scaler_rbm.fit_transform(tabular_features)
 
-    # RBM pipeline
-    n_components = min(64, tabular_features.shape[1] * 2)  # hidden units
+    n_components = min(64, tabular_features.shape[1] * 2)
     rbm = BernoulliRBM(
         n_components=n_components,
         learning_rate=0.01,
@@ -362,10 +317,8 @@ def train_rbm(tabular_features):
     )
     rbm.fit(X_binary)
 
-    # Ekstrak latent features untuk semua KOL
     latent_features = rbm.transform(X_binary)
 
-    # ── Metrics: reconstruction error ────────────────────────────
     X_reconstructed = rbm.gibbs(X_binary)
     recon_error = float(np.mean(np.abs(X_binary - X_reconstructed)))
     pseudo_ll   = float(rbm.score_samples(X_binary).mean())
@@ -398,12 +351,10 @@ def main():
     print("  HuggingFace + KNN + RF + XGBoost + RBM")
     print("=" * 55)
 
-    # ── Load data ─────────────────────────────────────────────
     print("\n[DATA] Loading KOL data...")
     df = joblib.load(DATA_PATH)
     print(f"   {len(df)} KOL | {df['has_er_data'].sum()} dengan real ER")
 
-    # ── Load campaign patterns ────────────────────────────────
     print("\n[PATTERNS] Loading campaign patterns from insight...")
     patterns = load_campaign_patterns()
     if patterns and patterns.get('tier_stats'):
@@ -446,20 +397,34 @@ def main():
     rbm_model, rbm_scaler, latent_features, rbm_metrics = train_rbm(tabular_features)
 
     # ── Save all artifacts ────────────────────────────────────
+    # FIX: Save HF model name as string instead of pickling the model object.
+    # Pickling SentenceTransformer breaks across library version upgrades.
+    # The recommender loads it fresh at runtime using the name string.
     print("\n[SAVE] Saving all model artifacts...")
-    joblib.dump(df,             os.path.join(MODELS_DIR, 'kol_df.pkl'))
-    joblib.dump(X_full,         os.path.join(MODELS_DIR, 'feature_matrix.pkl'))
-    joblib.dump(cat_embeddings, os.path.join(MODELS_DIR, 'cat_embeddings.pkl'))
-    joblib.dump(tabular_features,os.path.join(MODELS_DIR, 'tabular_features.pkl'))
-    joblib.dump(latent_features, os.path.join(MODELS_DIR, 'rbm_latent.pkl'))
-    joblib.dump(scaler,          os.path.join(MODELS_DIR, 'scaler.pkl'))
-    joblib.dump(knn,             os.path.join(MODELS_DIR, 'knn.pkl'))
-    joblib.dump(st_model,        os.path.join(MODELS_DIR, 'st_model.pkl'))
-    joblib.dump(rf_model,        os.path.join(MODELS_DIR, 'rf_model.pkl'))
-    joblib.dump(rbm_model,       os.path.join(MODELS_DIR, 'rbm_model.pkl'))
-    joblib.dump(rbm_scaler,      os.path.join(MODELS_DIR, 'rbm_scaler.pkl'))
+    joblib.dump(df,              os.path.join(MODELS_DIR, 'kol_df.pkl'))
+    joblib.dump(X_full,          os.path.join(MODELS_DIR, 'feature_matrix.pkl'))
+    joblib.dump(cat_embeddings,  os.path.join(MODELS_DIR, 'cat_embeddings.pkl'))
+    joblib.dump(tabular_features, os.path.join(MODELS_DIR, 'tabular_features.pkl'))
+    joblib.dump(latent_features,  os.path.join(MODELS_DIR, 'rbm_latent.pkl'))
+    joblib.dump(scaler,           os.path.join(MODELS_DIR, 'scaler.pkl'))
+    joblib.dump(knn,              os.path.join(MODELS_DIR, 'knn.pkl'))
+    joblib.dump(rf_model,         os.path.join(MODELS_DIR, 'rf_model.pkl'))
+    joblib.dump(rbm_model,        os.path.join(MODELS_DIR, 'rbm_model.pkl'))
+    joblib.dump(rbm_scaler,       os.path.join(MODELS_DIR, 'rbm_scaler.pkl'))
+
+    # Save HF model name as plain text — version-safe
+    with open(os.path.join(MODELS_DIR, 'st_model_name.txt'), 'w') as f:
+        f.write(HF_MODEL_NAME)
+    print(f"   [OK] st_model_name.txt saved (model name: {HF_MODEL_NAME})")
+
+    # Delete old stale pickle if it exists from a previous run
+    old_pkl = os.path.join(MODELS_DIR, 'st_model.pkl')
+    if os.path.exists(old_pkl):
+        os.remove(old_pkl)
+        print(f"   [OK] Removed stale st_model.pkl")
+
     if xgb_model:
-        joblib.dump(xgb_model,   os.path.join(MODELS_DIR, 'xgb_model.pkl'))
+        joblib.dump(xgb_model, os.path.join(MODELS_DIR, 'xgb_model.pkl'))
 
     if patterns:
         with open(os.path.join(MODELS_DIR, 'campaign_patterns.json'), 'w') as f:
@@ -487,7 +452,6 @@ def main():
             'rbm':           True,
             'huggingface':   True,
         },
-        # ── Per-model metrics ──────────────────────────────────
         'metrics': {
             'random_forest': rf_metrics,
             'xgboost':       xgb_metrics,
@@ -502,7 +466,7 @@ def main():
     print(f"\n{'='*55}")
     print(f"  TRAINING COMPLETE")
     print(f"{'='*55}")
-    print(f"  HuggingFace  : {HF_MODEL_NAME}")
+    print(f"  HuggingFace  : {HF_MODEL_NAME} (saved as name string)")
     print(f"  KNN          : fitted (k={k})")
     print(f"  Random Forest: {rf_model.n_estimators} trees, {tabular_features.shape[1]} features")
     print(f"  XGBoost      : {'OK' if xgb_model else 'SKIP (install xgboost)'}")

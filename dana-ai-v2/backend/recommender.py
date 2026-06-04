@@ -60,17 +60,71 @@ WEIGHTS = {
     'rf':          0.14,
     'xgb_er':      0.11,
     'rbm':         0.07,
-    'budget':      0.10,   
+    'budget':      0.10,
     'location':    0.08,
     'brand_fit':   0.08,
     'pattern':     0.03,
     'tier':        0.01,
-    'llm_profile': 0.18,  
+    'llm_profile': 0.18,
 }
 
-PRE_FILTER_MULT = 4  
+PRE_FILTER_MULT = 4
 
 _cache = {}
+
+# ── SentenceTransformer loader (version-safe) ─────────────────────────────────
+_st_model_instance = None
+
+def _load_st_model():
+    """
+    Load SentenceTransformer fresh from the saved model name string.
+    This is version-safe: we never pickle the model object itself.
+    Falls back to the old st_model.pkl path for backward compat during transition.
+    """
+    global _st_model_instance
+    if _st_model_instance is not None:
+        return _st_model_instance
+
+    from sentence_transformers import SentenceTransformer
+
+    # Primary: read model name from text file (new approach)
+    name_file = os.path.join(MODELS_DIR, 'st_model_name.txt')
+    if os.path.exists(name_file):
+        with open(name_file, 'r') as f:
+            model_name = f.read().strip()
+        print(f"[HF] Loading SentenceTransformer: {model_name}")
+        _st_model_instance = SentenceTransformer(model_name)
+        print("[OK] SentenceTransformer loaded (from name file)")
+        return _st_model_instance
+
+    # Fallback: try loading the old pickle (may fail on version mismatch)
+    old_pkl = os.path.join(MODELS_DIR, 'st_model.pkl')
+    if os.path.exists(old_pkl):
+        try:
+            print("[HF] Trying legacy st_model.pkl...")
+            _st_model_instance = joblib.load(old_pkl)
+            print("[OK] SentenceTransformer loaded (from legacy pkl)")
+            return _st_model_instance
+        except Exception as e:
+            print(f"[WARN] Legacy pkl load failed: {e}")
+            print("[HF] Falling back to downloading model by name...")
+            default_name = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+            _st_model_instance = SentenceTransformer(default_name)
+            # Save name file so next startup is fast
+            with open(name_file, 'w') as f:
+                f.write(default_name)
+            print("[OK] SentenceTransformer loaded (downloaded fallback)")
+            return _st_model_instance
+
+    # Last resort: download default model
+    print("[HF] No model file found — downloading default model...")
+    default_name = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+    _st_model_instance = SentenceTransformer(default_name)
+    with open(name_file, 'w') as f:
+        f.write(default_name)
+    print("[OK] SentenceTransformer loaded (fresh download)")
+    return _st_model_instance
+
 
 def to_int(v):
     try:
@@ -113,13 +167,17 @@ def load_models():
     if _cache: return _cache
 
     print("[*] Loading all models...")
+
+    # Load SentenceTransformer using version-safe helper
+    st_model = _load_st_model()
+
     _cache = {
         'df':             joblib.load(os.path.join(MODELS_DIR, 'kol_df.pkl')),
         'X':              joblib.load(os.path.join(MODELS_DIR, 'feature_matrix.pkl')),
         'cat_embeddings': joblib.load(os.path.join(MODELS_DIR, 'cat_embeddings.pkl')),
         'scaler':         joblib.load(os.path.join(MODELS_DIR, 'scaler.pkl')),
         'knn':            joblib.load(os.path.join(MODELS_DIR, 'knn.pkl')),
-        'st_model':       joblib.load(os.path.join(MODELS_DIR, 'st_model.pkl')),
+        'st_model':       st_model,
     }
 
     for key, filename in [
@@ -165,10 +223,6 @@ def filter_by_location(df, target_loc):
 
 
 def filter_by_tier(df, preferred_tier: str):
-    """
-    Hard filter tier untuk zero_budget_mode atau preferred_tier eksplisit.
-    'semua' → tidak difilter.
-    """
     if not preferred_tier or preferred_tier.lower() in ('semua', 'all', ''):
         return df
     tier_val = TIER_VAL_MAP.get(preferred_tier.lower())
@@ -181,10 +235,6 @@ def filter_by_tier(df, preferred_tier: str):
 
 
 def encode_query(topics, goals, description, st_model, target_audience=""):
-    """
-    v4: Enrich query dengan sinyal goals+topics dari database sebelum encode.
-    Multi-topic didukung.
-    """
     enriched = enrich_goals_topics(goals, topics)
     goals_signal  = enriched["goals_signal"]
     audience_hint = enriched["combined_audience"]
@@ -328,9 +378,6 @@ def score_rbm(kol_idx, m):
 
 
 def score_budget(rate_min, rate_max, budget_per_kol, zero_budget_mode=False):
-    """
-    zero_budget_mode=True → return 0.5 (netral, tidak penalti tidak reward)
-    """
     if zero_budget_mode:
         return 0.5
     rate_min = to_int(rate_min)
@@ -364,17 +411,12 @@ def score_pattern(row, patterns):
 
 
 def score_tier(tier_score, preferred_tier, zero_budget_mode=False):
-    """
-    zero_budget_mode=True → tier exact match = 1.0, non-match = 0.0 (mutlak)
-    zero_budget_mode=False → soft scoring seperti sebelumnya
-    """
     pref_map = {'semua': None, 'nano':1, 'mikro':2, 'makro':3, 'mega':4}
     pref = pref_map.get((preferred_tier or 'semua').lower())
     if pref is None:
         return 0.7
 
     if zero_budget_mode:
-        # Hard match: exact tier only
         return 1.0 if int(float(tier_score)) == pref else 0.0
     else:
         return max(0.0, 1.0 - abs(float(tier_score) - pref) * 0.3)
@@ -420,7 +462,7 @@ def recommend(
         ct = content_type.lower()
         if ct == 'twitter': ct = 'x'
         mask = df['social_media'].str.lower().str.contains(ct, na=False)
-        if ct == 'x': # Special case for X to avoid matching letters in other words
+        if ct == 'x':
              mask = df['social_media'].str.lower().apply(lambda x: 'x' in str(x).split() or 'twitter' in str(x))
         df_f = df[mask] if mask.sum() >= 1 else df
     else:
