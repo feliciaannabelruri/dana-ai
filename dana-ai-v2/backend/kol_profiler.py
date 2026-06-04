@@ -2,9 +2,9 @@ import os
 import json
 import hashlib
 import re
-import httpx
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from groq import Groq
 
 # ── Cache (Upstash REST, fallback ke file cache) ───────────────────────────────
 try:
@@ -19,9 +19,16 @@ except ImportError:
 CACHE_DIR = Path("data/profile_cache")
 CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
-DIFY_BASE_URL = os.environ.get("DIFY_BASE_URL", "https://dify-app.ai.dana.id")
-DIFY_API_KEY  = os.environ.get("DIFY_API_KEY", "app-CmU0bexY0YNZA97mCUZAVBz2")
-DIFY_ENDPOINT = f"{DIFY_BASE_URL}/v1/workflows/run"
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
+GROQ_MODEL   = os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile")
+
+_groq_client = None
+
+def _get_groq_client() -> Groq:
+    global _groq_client
+    if _groq_client is None:
+        _groq_client = Groq(api_key=GROQ_API_KEY)
+    return _groq_client
 
 # ── DANA Context ───────────────────────────────────────────────────────────────
 DANA_CONTEXT = """
@@ -202,43 +209,64 @@ def _tier_label(kol: dict) -> str:
     return {1: "Nano (<10K)", 2: "Mikro (10K-100K)", 3: "Makro (100K-1M)", 4: "Mega (>1M)"}.get(tier, "Mikro")
 
 
-# ── Core: Call Dify Workflow ───────────────────────────────────────────────────
-def _call_dify(inputs: dict) -> str:
+# ── Core: Call Groq ────────────────────────────────────────────────────────────
+def _call_groq(inputs: dict) -> str:
     """
-    Kirim request ke Dify Workflow API.
-    Returns raw text output dari LLM.
+    Call Groq API untuk profiling KOL.
+    Returns raw JSON string dari model.
     """
-    headers = {
-        "Authorization": "Bearer app-CmU0bexY0YNZA97mCUZAVBz2",
-        "Content-Type":  "application/json",
-    }
-    payload = {
-        "inputs":        inputs,
-        "response_mode": "blocking",
-        "user":          "kol-profiler",
-    }
-
-    response = httpx.post(
-        DIFY_ENDPOINT,
-        headers=headers,
-        json=payload,
-        timeout=120.0,  # reasoning model bisa lambat
+    system_prompt = (
+        "Kamu adalah AI analyst untuk kampanye marketing brand DANA Indonesia. "
+        "Berikan analisis profil KOL dalam format JSON yang valid.\n\n"
+        + DANA_CONTEXT
     )
-    response.raise_for_status()
 
-    data = response.json()
+    user_prompt = (
+        f"Analisis KOL berikut untuk kampanye DANA:\n\n"
+        f"Username: {inputs.get('username', '')}\n"
+        f"Platform: {inputs.get('social_media', '')}\n"
+        f"Kategori konten: {inputs.get('category', '')}\n"
+        f"Tier: {inputs.get('tier', '')}\n"
+        f"Followers: {inputs.get('followers', '')}\n"
+        f"Lokasi: {inputs.get('location', '')}\n\n"
+        f"Detail campaign:\n"
+        f"Goals: {inputs.get('goals', '')}\n"
+        f"Topik: {inputs.get('topics', '')}\n"
+        f"Deskripsi: {inputs.get('description', '')}\n"
+        f"Intent: {inputs.get('goals_intent', '')}\n"
+        f"Ideal KOL fit: {inputs.get('kol_fit_ideal', '')}\n"
+        f"DANA angle: {inputs.get('dana_angle', '')}\n"
+        f"Prediksi audiens: {inputs.get('predicted_audience', '')}\n"
+        f"Prediksi DANA overlap: {inputs.get('predicted_dana_overlap', '')}\n\n"
+        "Berikan analisis HANYA dalam format JSON dengan field berikut:\n"
+        "{\n"
+        '  "audience_profile": "string",\n'
+        '  "audience_dana_overlap": ["string"],\n'
+        '  "content_style": "string",\n'
+        '  "cross_niche_angle": "string",\n'
+        '  "dana_use_cases": ["string"],\n'
+        '  "campaign_fit_reason": "string",\n'
+        '  "fit_score": 0.0,\n'
+        '  "risk_flag": "string atau kosong",\n'
+        '  "summary": "GO: / NO-GO: / REVIEW: ...",\n'
+        '  "cross_topics": ["string"],\n'
+        '  "audience_overlap": ["string"]\n'
+        "}\n\n"
+        "Respond ONLY with valid JSON. No markdown, no preamble, no explanation."
+    )
 
-    # Dify workflow output ada di data.data.outputs
-    outputs = data.get("data", {}).get("outputs", {})
-
-    # Ambil field text dari output (sesuai nama variable di Output node Dify)
-    text = outputs.get("text", "") or outputs.get("LLM", "") or ""
-
-    # Kalau output adalah dict (structured), convert ke string dulu
-    if isinstance(text, dict):
-        return json.dumps(text, ensure_ascii=False)
-
-    return str(text)
+    client = _get_groq_client()
+    response = client.chat.completions.create(
+        model=GROQ_MODEL,
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user",   "content": user_prompt},
+        ],
+        max_tokens=1000,
+        temperature=0.3,
+        response_format={"type": "json_object"},
+    )
+    return response.choices[0].message.content
 
 
 # ── Core: Profile single KOL ───────────────────────────────────────────────────
@@ -269,7 +297,7 @@ def get_kol_profile(kol: dict, campaign: dict) -> dict:
     predicted_audience = enriched["combined_audience"]
     predicted_overlap  = ", ".join(enriched["combined_overlap"])
 
-    # 4. Siapkan inputs untuk Dify workflow
+    # 4. Siapkan inputs untuk Groq
     inputs = {
         "username":               username,
         "social_media":           kol.get("social_media", ""),
@@ -288,7 +316,7 @@ def get_kol_profile(kol: dict, campaign: dict) -> dict:
     }
 
     try:
-        raw_text = _call_dify(inputs)
+        raw_text = _call_groq(inputs)
         profile  = _normalize_profile(_extract_json(raw_text))
 
         # Simpan ke cache
@@ -307,7 +335,7 @@ def get_kol_profile(kol: dict, campaign: dict) -> dict:
 def batch_profile_kols(
     kol_list: list[dict],
     campaign: dict,
-    max_workers: int = 3,  # lebih konservatif untuk reasoning model
+    max_workers: int = 4,
 ) -> dict[str, dict]:
     results: dict[str, dict] = {}
 

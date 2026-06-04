@@ -606,138 +606,53 @@ def get_recommendations(req: CampaignRequest):
 
 @app.post("/suggest-params")
 async def suggest_params(req: SuggestRequest):
-    api_key = os.environ.get("DIFY_SUGGEST_API_KEY", "app-peIuXch2YQEPyIdotcBAcXoE")
-    base_url = os.environ.get("DIFY_BASE_URL", "https://dify-api.ai.dana.id/v1")
-    
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json"
-    }
-    
-    payload = {
-        "inputs": {
-            "campaign_name": req.name,
-            "campaign_description": req.description
-        },
-        "response_mode": "blocking",
-        "user": "dana-ai-user"
-    }
+    from groq import Groq
 
-    try:
-        async with httpx.AsyncClient() as client:
-            resp = await client.post(
-                f"{base_url}/v1/workflows/run",
-                headers=headers,
-                json=payload,
-                timeout=60.0
-            )
-            resp.raise_for_status()
-            data = resp.json()
-            
-            outputs = data.get("data", {}).get("outputs", {})
-            raw_text = outputs.get("text", "") or outputs.get("result", "") or ""
-            clean_text = raw_text.replace("```json", "").replace("```", "").strip()
-            
-            try:
-                suggestion = json.loads(clean_text)
-                return {"status": "ok", "suggestion": suggestion}
-            except Exception:
-                import re
-                match = re.search(r"\{.*\}", clean_text, re.DOTALL)
-                if match:
-                    suggestion = json.loads(match.group())
-                    return {"status": "ok", "suggestion": suggestion}
-                return {"status": "error", "message": "Format output LLM bukan JSON yang valid"}
-                
-    except (httpx.ConnectTimeout, httpx.ConnectError, httpx.TimeoutException) as e:
-        print(f"[WARN] Dify tidak dapat diakses (network/timeout): {e}")
-        # Fallback: rule-based suggestion
+    groq_key   = os.environ.get("GROQ_API_KEY", "")
+    groq_model = os.environ.get("GROQ_MODEL", "llama-3.1-8b-instant")  # pakai 8b untuk suggest, lebih cepat
+
+    if not groq_key:
         suggestion = _fallback_suggest(req.name, req.description)
         return {"status": "ok", "suggestion": suggestion, "source": "fallback"}
+
+    system_prompt = (
+        "Kamu adalah AI assistant untuk DANA Indonesia campaign planning. "
+        "Berikan saran parameter campaign dalam format JSON valid. "
+        "Respond ONLY with JSON, no markdown, no explanation."
+    )
+    user_prompt = (
+        f"Campaign name: {req.name}\n"
+        f"Description: {req.description}\n\n"
+        "Suggest campaign parameters as JSON:\n"
+        "{\n"
+        '  "goals": "brand awareness",\n'
+        '  "topics": "lifestyle, finance",\n'
+        '  "target_audience": "string",\n'
+        '  "location": "nasional",\n'
+        '  "preferred_tier": "mikro",\n'
+        '  "num_kol": 5,\n'
+        '  "num_media": 3,\n'
+        '  "content_type": "semua"\n'
+        "}"
+    )
+
+    try:
+        client = Groq(api_key=groq_key)
+        response = client.chat.completions.create(
+            model=groq_model,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user",   "content": user_prompt},
+            ],
+            max_tokens=400,
+            temperature=0.4,
+            response_format={"type": "json_object"},
+        )
+        raw = response.choices[0].message.content
+        suggestion = json.loads(raw)
+        return {"status": "ok", "suggestion": suggestion}
+
     except Exception as e:
-        import traceback
-        print(f"Error Dify: {e}")
-        print(traceback.format_exc())
-        return {"status": "error", "message": str(e)}
-
-
-def _fallback_suggest(name: str, description: str) -> dict:
-    """Rule-based fallback saat Dify tidak bisa diakses."""
-    name_lower = (name or "").lower()
-    desc_lower = (description or "").lower()
-    combined   = f"{name_lower} {desc_lower}"
-
-    # Detect goals
-    if any(w in combined for w in ["awareness", "kenal", "brand", "perkenalan"]):
-        goals = "brand awareness"
-    elif any(w in combined for w in ["install", "download", "unduh"]):
-        goals = "install"
-    elif any(w in combined for w in ["transaksi", "bayar", "pakai", "conversion"]):
-        goals = "conversion"
-    elif any(w in combined for w in ["edukasi", "literasi", "belajar", "tutorial"]):
-        goals = "edukasi"
-    elif any(w in combined for w in ["promo", "cashback", "diskon", "hemat"]):
-        goals = "promo"
-    elif any(w in combined for w in ["umkm", "merchant", "qris", "bisnis"]):
-        goals = "umkm"
-    elif any(w in combined for w in ["engagement", "interaksi", "komunitas"]):
-        goals = "engagement"
-    else:
-        goals = "brand awareness"
-
-    # Detect topics
-    topics_list = []
-    topic_map = {
-        "lifestyle":  ["lifestyle", "gaya hidup", "sehari-hari"],
-        "parenting":  ["parenting", "ibu", "mama", "anak", "keluarga"],
-        "food":       ["food", "kuliner", "makanan", "makan"],
-        "finance":    ["keuangan", "finance", "investasi", "finansial"],
-        "fashion":    ["fashion", "style", "ootd", "pakaian"],
-        "beauty":     ["beauty", "skincare", "makeup", "kecantikan"],
-        "travel":     ["travel", "liburan", "wisata", "jalan"],
-        "gaming":     ["gaming", "game", "esports"],
-        "edukasi":    ["edukasi", "belajar", "pendidikan", "mahasiswa"],
-        "bisnis":     ["bisnis", "umkm", "entrepreneur", "usaha"],
-        "entertainment": ["hiburan", "entertainment", "comedy", "humor"],
-    }
-    for topic, keywords in topic_map.items():
-        if any(kw in combined for kw in keywords):
-            topics_list.append(topic)
-    if not topics_list:
-        topics_list = ["lifestyle"]
-    topics = ", ".join(topics_list[:3])
-
-    # Detect location
-    location = "nasional"
-    location_map = {
-        "jakarta": ["jakarta", "jabodetabek", "jaksel", "jakpus"],
-        "bandung": ["bandung"],
-        "surabaya": ["surabaya"],
-        "bali": ["bali"],
-        "yogyakarta": ["yogyakarta", "jogja"],
-    }
-    for loc, keywords in location_map.items():
-        if any(kw in combined for kw in keywords):
-            location = loc
-            break
-
-    # Detect tier
-    if any(w in combined for w in ["mega", "selebritis", "artis", "viral besar"]):
-        tier = "mega"
-    elif any(w in combined for w in ["makro", "macro", "besar"]):
-        tier = "makro"
-    elif any(w in combined for w in ["nano", "mikro", "kecil", "komunitas"]):
-        tier = "nano"
-    else:
-        tier = "mikro"
-
-    return {
-        "goals":          goals,
-        "topics":         topics,
-        "target_audience": "Pengguna aktif media sosial Indonesia, usia 18-35 tahun",
-        "location":       location,
-        "preferred_tier": tier,
-        "num_kol":        5,
-        "num_media":      3,
-        "content_type":   "semua",
-    }
+        print(f"[WARN] Groq suggest-params gagal: {e}")
+        suggestion = _fallback_suggest(req.name, req.description)
+        return {"status": "ok", "suggestion": suggestion, "source": "fallback"}
