@@ -3,6 +3,7 @@ import Header from './components/Header';
 import SetupPanel from './components/SetupPanel';
 import CampaignForm from './components/CampaignForm';
 import ResultPage from './components/ResultPage';
+import FlagDashboard from './components/FlagDashboard';
 import LoadingScreen from './components/LoadingScreen';
 import ShareView, { encodeShareData } from './components/ShareView';
 import { 
@@ -180,7 +181,16 @@ export default function App() {
       <Header status={status || { status: 'loading' }} onRefresh={() => checkStatus().then(sStatus)} />
 
       <div style={{ maxWidth: 700, margin: '0 auto', padding: `24px ${px}px 60px` }}>
-        {page === 'form' ? (
+        {(page === 'form' || page === 'flags') && (
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 24 }}>
+            <div style={{ display: 'inline-flex', background: '#fff', border: `1px solid ${C.border}`, borderRadius: 12, padding: 4, gap: 4 }}>
+              <TabBtn active={page === 'form'} onClick={() => sPage('form')} label="Recommender" />
+              <TabBtn active={page === 'flags'} onClick={() => sPage('flags')} label="Risk Flags" />
+            </div>
+          </div>
+        )}
+
+        {page === 'form' && (
           <>
             <div className="fu" style={{ textAlign: 'center', marginBottom: 24 }}>
               <h1 style={{ fontSize: isMobile ? 22 : 32, fontWeight: 800, color: C.text, margin: '0 0 8px', letterSpacing: '-0.7px', lineHeight: 1.2 }}>KOL & Media Recommender</h1>
@@ -205,9 +215,11 @@ export default function App() {
 
             <p style={{ textAlign: 'center', color: C.textMuted, fontSize: 11, marginTop: 24 }}>DANA AI v3 · Multi-Location · Multi-Topic · Tier Split · Groq LLM Profiling</p>
           </>
-        ) : (
-          <ResultPage result={result} onBack={() => sPage('form')} onShare={hShare} />
         )}
+
+        {page === 'flags' && <FlagDashboard onBack={() => sPage('form')} isMobile={isMobile} />}
+
+        {page === 'result' && <ResultPage result={result} onBack={() => sPage('form')} onShare={hShare} />}
       </div>
 
       {shareModal && (
@@ -224,5 +236,17 @@ export default function App() {
         </div>
       )}
     </div>
+  );
+}
+
+function TabBtn({ active, onClick, label }) {
+  return (
+    <button onClick={onClick} style={{
+      padding: '9px 18px', borderRadius: 9, border: 'none', cursor: 'pointer',
+      fontFamily: 'inherit', fontSize: 13, fontWeight: 700,
+      background: active ? C.blue : 'transparent',
+      color: active ? '#fff' : C.textSub,
+      transition: 'all .15s',
+    }}>{label}</button>
   );
 }
