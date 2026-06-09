@@ -17,6 +17,17 @@ except ImportError:
     def get_kol_cross_niche_info(cat): return {}
     print("[WARN] company_profile.py tidak ditemukan — brand fit scoring dinonaktifkan")
 
+# ── KOL Risk Intelligence & Flag System ──────────────────────────────────────
+try:
+    from kol_flags import get_flag_bundle
+    _FLAGS_LOADED = True
+    print("[OK] KOL flag system loaded")
+except Exception as e:
+    _FLAGS_LOADED = False
+    def get_flag_bundle(u):
+        return {"filter_out": False, "penalty": 0.0, "active": [], "summary": "", "severity": "clear"}
+    print(f"[WARN] kol_flags.py tidak ditemukan — risk flag dinonaktifkan ({e})")
+
 MODELS_DIR = os.path.join(os.path.dirname(__file__), 'models')
 
 LOCATION_GROUPS = {
@@ -66,6 +77,10 @@ WEIGHTS = {
     'pattern':     0.03,
     'tier':        0.01,
     'llm_profile': 0.18,
+    # 'flag_penalty' TIDAK masuk additive sum di atas (totalnya tetap 1.00).
+    # Diterapkan secara MULTIPLIKATIF setelah final score dihitung:
+    #   critical -> KOL di-filter out, warning -> final *= (1 - penalty), watch -> 0
+    'flag_penalty': 0.30,
 }
 
 PRE_FILTER_MULT = 4
@@ -519,6 +534,12 @@ def recommend(
             WEIGHTS['llm_profile'] * s_llm
         )
 
+        # ── KOL Risk Flags: critical filters out, warning penalizes score ──────
+        flag_bundle = get_flag_bundle(to_str(row['username']))
+        if flag_bundle["filter_out"]:
+            continue  # critical flag -> exclude KOL sepenuhnya
+        final = final * (1 - flag_bundle["penalty"])
+
         rate_card = {}
         if to_int(row['rate_tiktok']) > 0:  rate_card['Tiktok']   = to_int(row['rate_tiktok'])
         if to_int(row['rate_ig']) > 0:       rate_card['IG Reels'] = to_int(row['rate_ig'])
@@ -617,6 +638,10 @@ def recommend(
             'avg_er_pct':     er_display,
             'xgb_er_pred':    xgb_er_pred,
             'match_score':    round(float(final) * 100, 1),
+            'flags':            flag_bundle["active"],
+            'flag_severity':    flag_bundle["severity"],
+            'flag_penalty_pct': round(flag_bundle["penalty"] * 100, 1),
+            'flag_summary':     flag_bundle["summary"],
             'score_detail': {
                 'semantic (HF)':     to_float(s_sem * 100),
                 'brand fit':         to_float(s_brand * 100),

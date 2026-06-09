@@ -782,3 +782,118 @@ def _fallback_suggest(name: str, description: str) -> dict:
         "num_media":       3,
         "content_type":    content_type,
     }
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  KOL RISK INTELLIGENCE & FLAG SYSTEM
+# ══════════════════════════════════════════════════════════════════════════════
+import kol_flags
+
+
+class FlagCreate(BaseModel):
+    username:        str
+    reason:          str
+    type:            Optional[str] = "brand_safety"   # brand_safety|performance|relationship|critical|competitive
+    severity:        Optional[str] = "watch"          # critical|warning|watch
+    source:          Optional[str] = "manual"         # manual|auto|community
+    context:         Optional[str] = ""
+    detected_by:     Optional[str] = ""
+    status:          Optional[str] = "active"
+    expires_in_days: Optional[int] = None
+
+
+class FlagStatusUpdate(BaseModel):
+    status: str                       # detected|reviewed|active|dismissed|resolved
+    by:     Optional[str] = ""
+
+
+class NewsScanRequest(BaseModel):
+    username:  str
+    category:  Optional[str] = ""
+    full_name: Optional[str] = ""
+
+
+@app.get("/flags/meta")
+def flags_meta():
+    """Taxonomy + daftar kompetitor untuk UI."""
+    return {
+        "types":       kol_flags.FLAG_TYPES,
+        "severities":  list(kol_flags.SEVERITIES),
+        "sources":     list(kol_flags.SOURCES),
+        "statuses":    list(kol_flags.STATUSES),
+        "competitors": kol_flags.COMPETITORS,
+    }
+
+
+@app.get("/flags")
+def flags_all():
+    return kol_flags.list_all()
+
+
+@app.get("/flags/{username}")
+def flags_for_user(username: str):
+    return {
+        "username": username,
+        "all":      kol_flags.list_for_user(username),
+        "bundle":   kol_flags.get_flag_bundle(username),
+    }
+
+
+@app.post("/flags")
+def flags_create(req: FlagCreate):
+    try:
+        flag = kol_flags.add_flag(
+            username        = req.username,
+            reason          = req.reason,
+            type            = req.type,
+            severity        = req.severity,
+            source          = req.source,
+            context         = req.context or "",
+            detected_by     = req.detected_by or "",
+            status          = req.status or "active",
+            expires_in_days = req.expires_in_days,
+        )
+        return {"status": "ok", "flag": flag,
+                "bundle": kol_flags.get_flag_bundle(req.username)}
+    except ValueError as e:
+        raise HTTPException(400, str(e))
+
+
+@app.patch("/flags/{flag_id}")
+def flags_update(flag_id: str, req: FlagStatusUpdate):
+    """Manual override oleh campaign manager (review/dismiss/resolve)."""
+    try:
+        flag = kol_flags.update_status(flag_id, req.status, by=req.by or "")
+        return {"status": "ok", "flag": flag,
+                "bundle": kol_flags.get_flag_bundle(flag["username"])}
+    except KeyError as e:
+        raise HTTPException(404, str(e))
+    except ValueError as e:
+        raise HTTPException(400, str(e))
+
+
+@app.delete("/flags/{flag_id}")
+def flags_delete(flag_id: str):
+    ok = kol_flags.delete_flag(flag_id)
+    if not ok:
+        raise HTTPException(404, f"flag {flag_id} tidak ditemukan")
+    return {"status": "ok", "deleted": flag_id}
+
+
+@app.post("/flags/scan-er")
+def flags_scan_er():
+    """Layer 2 auto: deteksi anomali ER dari er_data.json yang sudah ada."""
+    created = kol_flags.scan_er_anomalies()
+    return {"status": "ok", "created": len(created), "flags": created}
+
+
+@app.post("/flags/scan-news")
+def flags_scan_news(req: NewsScanRequest):
+    """Layer 2 auto: scan reputasi/berita negatif via Groq."""
+    result = kol_flags.scan_news_groq(
+        username  = req.username,
+        category  = req.category or "",
+        full_name = req.full_name or "",
+    )
+    return {"status": "ok", "result": result,
+            "bundle": kol_flags.get_flag_bundle(req.username)}

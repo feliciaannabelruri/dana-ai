@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import LLMProfileBadge from './LLMProfileBadge';
+import FlagBadge from './FlagBadge';
 
 const C = {
   blue: '#1A6FE8',
@@ -103,6 +104,7 @@ export default function KOLCard({ kol, rank }) {
         </div>
         {kol.rate_card && Object.keys(kol.rate_card).length > 0 && <div style={{ background: C.bgGray, borderRadius: 8, padding: '10px 12px', marginBottom: 10 }}><div style={{ color: C.textMuted, fontSize: 10, fontWeight: 700, letterSpacing: '.8px', marginBottom: 6 }}>RATE CARD</div>{Object.entries(kol.rate_card).map(([p, r]) => <div key={p} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}><span style={{ color: C.textSub, fontSize: 12 }}>{p}</span><span style={{ color: C.gold, fontWeight: 700, fontSize: 12 }}>{fmtR(r)}</span></div>)}</div>}
         {kol.reasoning && <div style={{ background: C.blueLight, borderRadius: 8, padding: '8px 10px', marginBottom: 10, display: 'flex', gap: 7, alignItems: 'flex-start' }}><span style={{ color: C.blue, flexShrink: 0, marginTop: 1 }}>{Ic.bulb(12)}</span><span style={{ color: C.blue, fontSize: 12, lineHeight: 1.6 }}>{kol.reasoning}</span></div>}
+        <FlagBadge kol={kol} />
         {kol.llm_profile && kol.llm_profile.summary && <LLMProfileBadge profile={kol.llm_profile} matchScore={kol.match_score} />}
         {kol.score_detail && <>
           <button onClick={() => sO(o => !o)} style={{ background: 'none', border: `1px solid ${C.border}`, color: C.textSub, borderRadius: 8, padding: '10px 12px', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', width: '100%', marginBottom: open ? 8 : 0, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>

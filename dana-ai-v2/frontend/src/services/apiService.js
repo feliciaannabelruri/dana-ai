@@ -1,4 +1,4 @@
-const BASE = process.env.REACT_APP_API_URL || 'https://feliciaaaaaaaaae-dana-ai-backend.hf.space';
+﻿const BASE = process.env.REACT_APP_API_URL || 'https://feliciaaaaaaaaae-dana-ai-backend.hf.space';
 
 export async function checkStatus() {
   const r = await fetch(`${BASE}/status`);
@@ -95,5 +95,66 @@ export async function uploadCommunity(file) {
   form.append('file', file);
   const r = await fetch(`${BASE}/upload-community`, { method: 'POST', body: form });
   if (!r.ok) { const e = await r.json(); throw new Error(e.detail || 'Upload Community gagal'); }
+  return r.json();
+}
+// ── KOL Risk Intelligence & Flag System ──────────────────────────────────────
+export async function getFlagMeta() {
+  const r = await fetch(`${BASE}/flags/meta`);
+  if (!r.ok) throw new Error('Gagal load flag meta');
+  return r.json();
+}
+
+export async function getAllFlags() {
+  const r = await fetch(`${BASE}/flags`);
+  if (!r.ok) throw new Error('Gagal load semua flags');
+  return r.json();
+}
+
+export async function getKolFlags(username) {
+  const r = await fetch(`${BASE}/flags/${encodeURIComponent(username)}`);
+  if (!r.ok) throw new Error('Gagal load flags');
+  return r.json();
+}
+
+export async function addKolFlag(payload) {
+  // payload: { username, reason, type, severity, source, context, detected_by, status, expires_in_days }
+  const r = await fetch(`${BASE}/flags`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(e.detail || 'Gagal tambah flag'); }
+  return r.json();
+}
+
+export async function updateKolFlag(flagId, status, by = '') {
+  const r = await fetch(`${BASE}/flags/${flagId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status, by }),
+  });
+  if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(e.detail || 'Gagal update flag'); }
+  return r.json();
+}
+
+export async function deleteKolFlag(flagId) {
+  const r = await fetch(`${BASE}/flags/${flagId}`, { method: 'DELETE' });
+  if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(e.detail || 'Gagal hapus flag'); }
+  return r.json();
+}
+
+export async function scanErAnomalies() {
+  const r = await fetch(`${BASE}/flags/scan-er`, { method: 'POST' });
+  if (!r.ok) throw new Error('Gagal scan ER');
+  return r.json();
+}
+
+export async function scanKolNews(username, category = '', fullName = '') {
+  const r = await fetch(`${BASE}/flags/scan-news`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, category, full_name: fullName }),
+  });
+  if (!r.ok) throw new Error('Gagal scan news');
   return r.json();
 }
