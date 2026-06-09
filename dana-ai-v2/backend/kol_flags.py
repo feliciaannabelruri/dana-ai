@@ -347,49 +347,172 @@ def scan_er_anomalies(er_data: dict = None, detected_by: str = "auto-scan") -> l
     return created
 
 
-# ── Layer 2: Groq news / reputation scan ──────────────────────────────────────
+# ── Web search providers (Layer 2 evidence gathering) ─────────────────────────
+# Set SALAH SATU env var berikut untuk mengaktifkan pencarian web nyata:
+#   SERPER_API_KEY  -> https://serper.dev   (Google results, free tier ~2500 query)
+#   TAVILY_API_KEY  -> https://tavily.com    (LLM-friendly search, free tier)
+# Pilih provider via SEARCH_PROVIDER ("serper" | "tavily" | "auto"). Default "auto".
+
+def _search_serper(query: str, num: int = 6) -> list:
+    import httpx
+    key = os.environ.get("SERPER_API_KEY", "")
+    if not key:
+        return []
+    try:
+        r = httpx.post(
+            "https://google.serper.dev/search",
+            headers={"X-API-KEY": key, "Content-Type": "application/json"},
+            json={"q": query, "gl": "id", "hl": "id", "num": num},
+            timeout=12,
+        )
+        r.raise_for_status()
+        data = r.json()
+        out = []
+        for it in (data.get("organic", []) or [])[:num]:
+            out.append({
+                "title":   it.get("title", ""),
+                "snippet": it.get("snippet", ""),
+                "url":     it.get("link", ""),
+                "date":    it.get("date", ""),
+            })
+        return out
+    except Exception:
+        return []
+
+
+def _search_tavily(query: str, num: int = 6) -> list:
+    import httpx
+    key = os.environ.get("TAVILY_API_KEY", "")
+    if not key:
+        return []
+    try:
+        r = httpx.post(
+            "https://api.tavily.com/search",
+            headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+            json={"query": query, "max_results": num, "search_depth": "basic"},
+            timeout=15,
+        )
+        r.raise_for_status()
+        data = r.json()
+        out = []
+        for it in (data.get("results", []) or [])[:num]:
+            out.append({
+                "title":   it.get("title", ""),
+                "snippet": it.get("content", ""),
+                "url":     it.get("url", ""),
+                "date":    it.get("published_date", ""),
+            })
+        return out
+    except Exception:
+        return []
+
+
+def _web_search(queries: list, per_query: int = 5) -> tuple:
+    """
+    Jalankan pencarian web lintas query, dedupe by URL.
+    Returns (results, provider). provider="" kalau tidak ada key.
+    """
+    provider = os.environ.get("SEARCH_PROVIDER", "auto").lower()
+    has_serper = bool(os.environ.get("SERPER_API_KEY"))
+    has_tavily = bool(os.environ.get("TAVILY_API_KEY"))
+
+    if provider == "serper" or (provider == "auto" and has_serper):
+        fn, name = _search_serper, "serper"
+    elif provider == "tavily" or (provider == "auto" and has_tavily):
+        fn, name = _search_tavily, "tavily"
+    else:
+        return [], ""
+
+    seen, results = set(), []
+    for q in queries:
+        for item in fn(q, per_query):
+            u = item.get("url", "")
+            if u and u not in seen:
+                seen.add(u)
+                results.append(item)
+    return results, name
+
+
+# ── Layer 2: Web-search + Groq reputation scan ────────────────────────────────
 def scan_news_groq(username: str, category: str = "", full_name: str = "") -> dict:
     """
-    Scan reputasi/berita negatif via Groq LLM.
-    Catatan: LLM tidak punya akses web real-time, jadi prompt meminta model
-    HANYA melaporkan jika benar-benar punya pengetahuan publik yang relevan,
-    dan menyertakan confidence. Flag dibuat hanya bila risk_found & confidence cukup.
+    Scan reputasi/berita negatif: CARI DI WEB DULU lalu nilai dengan Groq.
 
-    Returns {risk_found, severity, type, reason, context, confidence, flag_created, source}
+    Alur:
+      1. Bangun query pencarian (drama/kontroversi/kasus) untuk KOL.
+      2. Panggil search API (Serper/Tavily) -> kumpulkan artikel terkait.
+      3. Kirim cuplikan hasil ke Groq untuk dinilai (HANYA berdasarkan hasil cari).
+      4. Buat flag bila risk_found & confidence cukup; simpan URL bukti di context.
+
+    Tanpa SEARCH key -> fallback ke penilaian berbasis pengetahuan model saja
+    (lebih lemah, hanya untuk figur yang sangat dikenal).
+
+    Returns {risk_found, severity, type, reason, context, confidence,
+             flag_created, source, searched, evidence}
     """
-    uname = _norm(username)
+    uname      = _norm(username)
     groq_key   = os.environ.get("GROQ_API_KEY", "")
     groq_model = os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile")
 
     if not groq_key:
-        return {"risk_found": False, "source": "fallback",
+        return {"risk_found": False, "source": "fallback", "searched": False,
                 "reason": "GROQ_API_KEY belum di-set", "flag_created": False}
+
+    # 1-2. Pencarian web
+    name_term = full_name.strip() if full_name.strip() else uname
+    queries = [
+        f'"{name_term}" kontroversi OR drama OR kasus',
+        f'{name_term} influencer skandal OR dihujat OR diboikot',
+    ]
+    evidence, provider = _web_search(queries, per_query=5)
+    searched = bool(provider)
+
+    # Bangun blok bukti untuk prompt
+    if evidence:
+        ev_lines = []
+        for i, e in enumerate(evidence[:8], 1):
+            ev_lines.append(
+                f"{i}. {e['title']} ({e.get('date','')})\n   {e['snippet']}\n   {e['url']}"
+            )
+        evidence_block = "\n".join(ev_lines)
+        grounding = (
+            "Nilai HANYA berdasarkan HASIL PENCARIAN di bawah. Jangan pakai pengetahuan lain "
+            "dan jangan mengarang. Jika hasil pencarian TIDAK menunjukkan masalah negatif yang "
+            "jelas tentang orang ini, set risk_found=false. Abaikan hasil yang jelas membahas "
+            "orang/akun berbeda."
+        )
+        evidence_text = f"\n\nHASIL PENCARIAN WEB:\n{evidence_block}\n"
+    else:
+        grounding = (
+            "Kamu TIDAK punya akses internet real-time dan tidak ada hasil pencarian tersedia. "
+            "Laporkan risiko HANYA bila kamu benar-benar punya pengetahuan publik spesifik. "
+            "Jika tidak yakin, set risk_found=false dan confidence rendah. JANGAN mengarang."
+        )
+        evidence_text = "\n\n(Tidak ada hasil pencarian web — andalkan pengetahuan terbatas.)\n"
 
     try:
         from groq import Groq
         client = Groq(api_key=groq_key)
 
         system_prompt = (
-            "Kamu adalah brand-safety analyst untuk DANA Indonesia. "
-            "Tugasmu menilai apakah seorang KOL/influencer punya RIWAYAT PUBLIK NEGATIF "
-            "(drama viral, cancel culture, konten kontroversial SARA/politik, kasus hukum, "
-            "promosi scam/judi/produk ilegal, akun pernah di-takedown). "
-            "PENTING: Kamu TIDAK punya akses internet real-time. Laporkan risiko HANYA bila "
-            "kamu benar-benar punya pengetahuan publik yang spesifik. Jika tidak yakin atau "
-            "tidak punya info, set risk_found=false dan confidence rendah. JANGAN mengarang. "
-            "Respond ONLY valid JSON, no markdown."
+            "Kamu adalah brand-safety analyst untuk DANA Indonesia. Tugasmu menilai apakah "
+            "seorang KOL/influencer punya RIWAYAT PUBLIK NEGATIF (drama viral, cancel culture, "
+            "konten kontroversial SARA/politik, kasus hukum, promosi scam/judi/produk ilegal, "
+            "akun pernah di-takedown). " + grounding + " Respond ONLY valid JSON, no markdown."
         )
         user_prompt = (
             f"Username: @{uname}\n"
             f"Nama: {full_name}\n"
-            f"Kategori konten: {category}\n\n"
+            f"Kategori konten: {category}\n"
+            f"{evidence_text}\n"
             "Format JSON:\n"
             "{\n"
             '  "risk_found": true/false,\n'
             '  "severity": "critical|warning|watch",\n'
             '  "type": "brand_safety|critical|performance|relationship",\n'
-            '  "reason": "ringkas, faktual",\n'
+            '  "reason": "ringkas, faktual, sebut inti isunya",\n'
             '  "context": "kapan aman / tidak aman dipakai",\n'
+            '  "evidence_idx": [nomor hasil pencarian yang dijadikan dasar],\n'
             '  "confidence": 0.0\n'
             "}"
         )
@@ -400,7 +523,7 @@ def scan_news_groq(username: str, category: str = "", full_name: str = "") -> di
                 {"role": "system", "content": system_prompt},
                 {"role": "user",   "content": user_prompt},
             ],
-            max_tokens=400,
+            max_tokens=500,
             temperature=0.2,
             response_format={"type": "json_object"},
         )
@@ -408,16 +531,36 @@ def scan_news_groq(username: str, category: str = "", full_name: str = "") -> di
 
         risk = bool(result.get("risk_found"))
         conf = float(result.get("confidence", 0) or 0)
+        # Dengan bukti web ambang lebih rendah; tanpa bukti tetap ketat.
+        threshold = 0.5 if searched else 0.55
         flag_created = False
 
-        # buat flag hanya jika ada risiko & confidence cukup meyakinkan
-        if risk and conf >= 0.55:
+        # Kumpulkan URL bukti yang dirujuk model
+        ev_urls = []
+        try:
+            for idx in (result.get("evidence_idx") or []):
+                j = int(idx) - 1
+                if 0 <= j < len(evidence):
+                    ev_urls.append(evidence[j]["url"])
+        except Exception:
+            pass
+        if not ev_urls and evidence:
+            ev_urls = [e["url"] for e in evidence[:2]]
+
+        if risk and conf >= threshold:
             sev = result.get("severity", "watch")
             if sev not in SEVERITIES:
                 sev = "watch"
             ftype = result.get("type", "brand_safety")
             if ftype not in FLAG_TYPES:
                 ftype = "brand_safety"
+
+            ctx = result.get("context", "")
+            ctx += f" (AI confidence {int(conf * 100)}%"
+            ctx += f", via {provider})" if searched else ", tanpa pencarian web)"
+            if ev_urls:
+                ctx += " | Sumber: " + " ; ".join(ev_urls[:3])
+
             with _lock:
                 data = _load()
                 _clear_auto_rule(data, uname, "groq_news_scan")
@@ -430,8 +573,8 @@ def scan_news_groq(username: str, category: str = "", full_name: str = "") -> di
                     "source":      "auto",
                     "status":      "detected",
                     "reason":      result.get("reason", "Terdeteksi potensi risiko reputasi"),
-                    "context":     result.get("context", "") + f" (AI confidence {int(conf*100)}%)",
-                    "detected_by": f"groq:{groq_model}",
+                    "context":     ctx,
+                    "detected_by": f"groq:{groq_model}+{provider or 'no-web'}",
                     "rule":        "groq_news_scan",
                     "created_at":  _now_iso(),
                     "updated_at":  _now_iso(),
@@ -442,9 +585,11 @@ def scan_news_groq(username: str, category: str = "", full_name: str = "") -> di
                 flag_created = True
 
         result["flag_created"] = flag_created
-        result["source"] = f"groq:{groq_model}"
+        result["searched"]     = searched
+        result["evidence"]     = [{"title": e["title"], "url": e["url"]} for e in evidence[:5]]
+        result["source"]       = f"groq:{groq_model}" + (f"+{provider}" if searched else "")
         return result
 
     except Exception as e:
-        return {"risk_found": False, "source": "error",
-                "reason": f"Groq scan gagal: {e}", "flag_created": False}
+        return {"risk_found": False, "source": "error", "searched": searched,
+                "reason": f"Scan gagal: {e}", "flag_created": False}
