@@ -103,13 +103,15 @@ export default function FlagBadge({ kol, onPenaltyChange }) {
   }
 
   async function runNewsScan() {
-    setBusy(true); setScanMsg('Scanning…');
+    setBusy(true); setScanMsg('Mencari di web…');
     try {
       const res = await scanKolNews(kol.username, kol.category || '');
       const r = res.result || {};
-      setScanMsg(r.flag_created ? 'Risiko terdeteksi — flag dibuat.'
+      const n = (r.evidence || []).length;
+      const prefix = r.searched ? `Cek ${n} sumber web. ` : '(tanpa pencarian web) ';
+      setScanMsg(prefix + (r.flag_created ? 'Risiko terdeteksi — flag dibuat.'
         : r.risk_found ? 'Indikasi risiko (confidence rendah) — tidak di-flag.'
-          : 'Bersih: tidak ada risiko reputasi terdeteksi.');
+          : 'Bersih: tidak ada risiko reputasi terdeteksi.'));
       await refresh();
     } catch (e) { setScanMsg(e.message); }
     setBusy(false);
