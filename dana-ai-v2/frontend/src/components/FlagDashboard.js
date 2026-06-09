@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { C } from './common/Atoms';
-import { getAllFlags, scanErAnomalies, updateKolFlag, deleteKolFlag } from '../services/apiService';
+import { getAllFlags, scanErAnomalies, scanKolNews, updateKolFlag, deleteKolFlag } from '../services/apiService';
 
 const SEV = {
   critical: { c: '#B91C1C', bg: '#FEF2F2', br: '#FECACA', label: 'Critical' },
@@ -37,6 +37,9 @@ export default function FlagDashboard({ onBack, isMobile }) {
   const [sevFilter, setSevFilter] = useState('all');
   const [showInactive, setShowInactive] = useState(false);
   const [openUser, setOpenUser] = useState(null);
+  const [newsUser, setNewsUser] = useState('');
+  const [newsMsg, setNewsMsg] = useState('');
+  const [scanProg, setScanProg] = useState(null); // {done,total} saat batch scan
 
   async function refresh() {
     setLoading(true);
@@ -66,6 +69,48 @@ export default function FlagDashboard({ onBack, isMobile }) {
     setBusy(true);
     try { await deleteKolFlag(id); await refresh(); }
     catch (e) { setMsg(e.message); }
+    setBusy(false);
+  }
+
+  function newsResultMsg(uname, r) {
+    const n = (r.evidence || []).length;
+    const prefix = r.searched ? `Cek ${n} sumber web. ` : '(tanpa pencarian web) ';
+    const body = r.flag_created ? 'Risiko terdeteksi — flag dibuat.'
+      : r.risk_found ? 'Indikasi risiko (confidence rendah) — tidak di-flag.'
+        : 'Bersih: tidak ada risiko terdeteksi.';
+    return `@${uname}: ${prefix}${body}`;
+  }
+
+  async function scanOne(uname) {
+    const u = (uname || '').trim().replace(/^@/, '');
+    if (!u) return;
+    setBusy(true); setNewsMsg(`Mencari di web untuk @${u}…`);
+    try {
+      const res = await scanKolNews(u);
+      setNewsMsg(newsResultMsg(u, res.result || {}));
+      await refresh();
+    } catch (e) { setNewsMsg(e.message); }
+    setBusy(false);
+  }
+
+  async function scanAllFlagged() {
+    const users = Object.keys(raw || {});
+    if (!users.length) { setNewsMsg('Belum ada KOL ter-flag untuk di-scan.'); return; }
+    setBusy(true);
+    let created = 0;
+    for (let i = 0; i < users.length; i++) {
+      setScanProg({ done: i, total: users.length });
+      setNewsMsg(`Scanning web ${i + 1}/${users.length}: @${users[i]}…`);
+      try {
+        const res = await scanKolNews(users[i]);
+        if (res?.result?.flag_created) created += 1;
+      } catch (e) { /* lanjut KOL berikutnya */ }
+      // jeda biar aman rate limit (Groq + search API)
+      if (i < users.length - 1) await new Promise(r => setTimeout(r, 1200));
+    }
+    setScanProg(null);
+    setNewsMsg(`Selesai scan ${users.length} KOL — ${created} flag baru dibuat.`);
+    await refresh();
     setBusy(false);
   }
 
@@ -123,6 +168,27 @@ export default function FlagDashboard({ onBack, isMobile }) {
         <Stat label="Critical" value={stats.crit} color={SEV.critical.c} />
         <Stat label="Warning" value={stats.warn} color={SEV.warning.c} />
         <Stat label="Watch" value={stats.watch} color={SEV.watch.c} />
+      </div>
+
+      {/* News & reputation scan (web + AI) */}
+      <div style={{ background: '#fff', border: `1px solid ${C.border}`, borderRadius: 12, padding: 14, marginBottom: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 4 }}>
+          <span style={{ color: C.blue, display: 'flex' }}>{ic.scan(14)}</span>
+          <span style={{ fontWeight: 700, fontSize: 14 }}>News &amp; Reputation Scan</span>
+          <span style={{ fontSize: 11, color: C.textMuted }}>web + AI</span>
+        </div>
+        <p style={{ fontSize: 12, color: C.textSub, margin: '0 0 10px' }}>Cari berita/isu publik tentang KOL via web, lalu dinilai AI. Butuh SERPER_API_KEY/TAVILY_API_KEY di backend; tanpa itu jalan mode terbatas.</p>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+          <input value={newsUser} onChange={e => setNewsUser(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') scanOne(newsUser); }} placeholder="username KOL…" style={{ flex: '1 1 180px', minWidth: 140, padding: '9px 12px', borderRadius: 9, border: `1px solid ${C.border}`, fontSize: 13, fontFamily: 'inherit' }} />
+          <button onClick={() => scanOne(newsUser)} disabled={busy || !newsUser.trim()} style={btn({ background: C.blue, color: '#fff', opacity: (busy || !newsUser.trim()) ? 0.5 : 1 })}>{ic.scan(13)} Scan KOL</button>
+          <button onClick={scanAllFlagged} disabled={busy} style={btn({ background: '#fff', color: C.textSub, border: `1px solid ${C.border}` })}>{ic.scan(13)} Scan semua flagged ({Object.keys(raw || {}).length})</button>
+        </div>
+        {scanProg && (
+          <div style={{ height: 4, background: C.bgGray2, borderRadius: 2, overflow: 'hidden', marginTop: 10 }}>
+            <div style={{ width: `${Math.round((scanProg.done / Math.max(scanProg.total, 1)) * 100)}%`, height: '100%', background: C.blue, transition: 'width .3s' }} />
+          </div>
+        )}
+        {newsMsg && <div style={{ fontSize: 12, color: C.textSub, marginTop: 8, lineHeight: 1.5 }}>{newsMsg}</div>}
       </div>
 
       {msg && <div style={{ background: C.blueLight, color: C.blue, borderRadius: 8, padding: '8px 12px', fontSize: 12, marginBottom: 14 }}>{msg}</div>}
