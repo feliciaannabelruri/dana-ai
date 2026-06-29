@@ -3,7 +3,6 @@ import Header from './components/Header';
 import SetupPanel from './components/SetupPanel';
 import CampaignForm from './components/CampaignForm';
 import ResultPage from './components/ResultPage';
-import FlagDashboard from './components/FlagDashboard';
 import LoadingScreen from './components/LoadingScreen';
 import ShareView, { encodeShareData } from './components/ShareView';
 import { 
@@ -181,14 +180,6 @@ export default function App() {
       <Header status={status || { status: 'loading' }} onRefresh={() => checkStatus().then(sStatus)} />
 
       <div style={{ maxWidth: 700, margin: '0 auto', padding: `24px ${px}px 60px` }}>
-        {(page === 'form' || page === 'flags') && (
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 24 }}>
-            <div style={{ display: 'inline-flex', background: '#fff', border: `1px solid ${C.border}`, borderRadius: 12, padding: 4, gap: 4 }}>
-              <TabBtn active={page === 'form'} onClick={() => sPage('form')} label="Recommender" />
-              <TabBtn active={page === 'flags'} onClick={() => sPage('flags')} label="Risk Flags" />
-            </div>
-          </div>
-        )}
 
         {page === 'form' && (
           <>
@@ -217,9 +208,7 @@ export default function App() {
           </>
         )}
 
-        {page === 'flags' && <FlagDashboard onBack={() => sPage('form')} isMobile={isMobile} />}
-
-        {page === 'result' && <ResultPage result={result} onBack={() => sPage('form')} onShare={hShare} />}
+{page === 'result' && <ResultPage result={result} onBack={() => sPage('form')} onShare={hShare} />}
       </div>
 
       {shareModal && (
