@@ -27,6 +27,60 @@ app.add_middleware(
 MODELS_DIR = os.path.join(os.path.dirname(__file__), 'models')
 DATA_DIR   = os.path.join(os.path.dirname(__file__), 'data')
 
+# ── Focus Cities (Defence + Expansion) ──────────────────────────────────────
+# Source: internal TAM data. Region = normalisasi ke LOCATION_GROUPS.
+FOCUS_CITIES = [
+    # ── Defence Cities ──────────────────────────────────────────────────────
+    {"city": "Sidoarjo",           "province": "Jawa Timur",    "tam": 1506634, "region": "surabaya",    "type": "defence"},
+    {"city": "Gresik",             "province": "Jawa Timur",    "tam": 945924,  "region": "surabaya",    "type": "defence"},
+    {"city": "Mojokerto",          "province": "Jawa Timur",    "tam": 798543,  "region": "surabaya",    "type": "defence"},
+    {"city": "Kota Malang",        "province": "Jawa Timur",    "tam": 604299,  "region": "malang",      "type": "defence"},
+    {"city": "Kota Semarang",      "province": "Jawa Tengah",   "tam": 1251005, "region": "semarang",    "type": "defence"},
+    {"city": "Klaten",             "province": "Jawa Tengah",   "tam": 944881,  "region": "jawa_tengah", "type": "defence"},
+    {"city": "Kabupaten Semarang", "province": "Jawa Tengah",   "tam": 797898,  "region": "semarang",    "type": "defence"},
+    {"city": "Kendal",             "province": "Jawa Tengah",   "tam": 781854,  "region": "jawa_tengah", "type": "defence"},
+    {"city": "Kota Medan",         "province": "Sumatera Utara","tam": 1834886, "region": "sumatra",     "type": "defence"},
+    {"city": "Kota Bandar Lampung","province": "Lampung",       "tam": 893912,  "region": "sumatra",     "type": "defence"},
+    {"city": "Bogor",              "province": "Jawa Barat",    "tam": 2668823, "region": "jakarta",     "type": "defence"},
+    {"city": "Bandung",            "province": "Jawa Barat",    "tam": 1871639, "region": "bandung",     "type": "defence"},
+    {"city": "Bekasi",             "province": "Jawa Barat",    "tam": 1266529, "region": "jakarta",     "type": "defence"},
+    {"city": "Karawang",           "province": "Jawa Barat",    "tam": 1116521, "region": "jakarta",     "type": "defence"},
+    {"city": "Bandung Barat",      "province": "Jawa Barat",    "tam": 976574,  "region": "bandung",     "type": "defence"},
+    {"city": "Jakarta Timur",      "province": "DKI Jakarta",   "tam": 1773665, "region": "jakarta",     "type": "defence"},
+    {"city": "Jakarta Barat",      "province": "DKI Jakarta",   "tam": 1277125, "region": "jakarta",     "type": "defence"},
+    {"city": "Jakarta Selatan",    "province": "DKI Jakarta",   "tam": 1053687, "region": "jakarta",     "type": "defence"},
+    {"city": "Jakarta Utara",      "province": "DKI Jakarta",   "tam": 917965,  "region": "jakarta",     "type": "defence"},
+    {"city": "Jakarta Pusat",      "province": "DKI Jakarta",   "tam": 426982,  "region": "jakarta",     "type": "defence"},
+    # ── Expansion Cities ────────────────────────────────────────────────────
+    {"city": "Malang",             "province": "Jawa Timur",    "tam": 1471542, "region": "malang",      "type": "expansion"},
+    {"city": "Kediri",             "province": "Jawa Timur",    "tam": 942768,  "region": "jawa_timur",  "type": "expansion"},
+    {"city": "Pasuruan",           "province": "Jawa Timur",    "tam": 914582,  "region": "jawa_timur",  "type": "expansion"},
+    {"city": "Lamongan",           "province": "Jawa Timur",    "tam": 756828,  "region": "jawa_timur",  "type": "expansion"},
+    {"city": "Jombang",            "province": "Jawa Timur",    "tam": 739801,  "region": "jawa_timur",  "type": "expansion"},
+    {"city": "Tuban",              "province": "Jawa Timur",    "tam": 700418,  "region": "jawa_timur",  "type": "expansion"},
+    {"city": "Bangkalan",          "province": "Jawa Timur",    "tam": 641793,  "region": "jawa_timur",  "type": "expansion"},
+    {"city": "Brebes",             "province": "Jawa Tengah",   "tam": 1250502, "region": "jawa_tengah", "type": "expansion"},
+    {"city": "Cilacap",            "province": "Jawa Tengah",   "tam": 1196937, "region": "jawa_tengah", "type": "expansion"},
+    {"city": "Tegal",              "province": "Jawa Tengah",   "tam": 999106,  "region": "jawa_tengah", "type": "expansion"},
+    {"city": "Banyumas",           "province": "Jawa Tengah",   "tam": 987247,  "region": "jawa_tengah", "type": "expansion"},
+    {"city": "Pemalang",           "province": "Jawa Tengah",   "tam": 924284,  "region": "jawa_tengah", "type": "expansion"},
+    {"city": "Kebumen",            "province": "Jawa Tengah",   "tam": 860573,  "region": "jawa_tengah", "type": "expansion"},
+    {"city": "Purbalingga",        "province": "Jawa Tengah",   "tam": 593249,  "region": "jawa_tengah", "type": "expansion"},
+    {"city": "Deli Serdang",       "province": "Sumatera Utara","tam": 911048,  "region": "sumatra",     "type": "expansion"},
+    {"city": "Langkat",            "province": "Sumatera Utara","tam": 634863,  "region": "sumatra",     "type": "expansion"},
+    {"city": "Simalungun",         "province": "Sumatera Utara","tam": 632185,  "region": "sumatra",     "type": "expansion"},
+    {"city": "Lampung Tengah",     "province": "Lampung",       "tam": 901305,  "region": "sumatra",     "type": "expansion"},
+    {"city": "Lampung Timur",      "province": "Lampung",       "tam": 689292,  "region": "sumatra",     "type": "expansion"},
+    {"city": "Lampung Selatan",    "province": "Lampung",       "tam": 565513,  "region": "sumatra",     "type": "expansion"},
+    {"city": "Sukabumi",           "province": "Jawa Barat",    "tam": 1556818, "region": "bandung",     "type": "expansion"},
+    {"city": "Garut",              "province": "Jawa Barat",    "tam": 1512874, "region": "bandung",     "type": "expansion"},
+    {"city": "Cianjur",            "province": "Jawa Barat",    "tam": 1454067, "region": "bandung",     "type": "expansion"},
+    {"city": "Cirebon",            "province": "Jawa Barat",    "tam": 1356863, "region": "cirebon",     "type": "expansion"},
+    {"city": "Subang",             "province": "Jawa Barat",    "tam": 884295,  "region": "bandung",     "type": "expansion"},
+]
+
+FOCUS_CITY_LOOKUP = {c["city"].lower(): c for c in FOCUS_CITIES}
+
 
 @app.on_event("startup")
 async def startup():
@@ -168,6 +222,19 @@ def get_locations():
 
     result = []
     result.append({"value": "nasional", "label": "🌏 Nasional (Semua Indonesia)", "group": "nasional"})
+
+    # Focus cities — always included, sorted by TAM desc
+    for city in sorted(FOCUS_CITIES, key=lambda x: x["tam"], reverse=True):
+        result.append({
+            "value":    city["city"],
+            "label":    city["city"],
+            "group":    "Defence Cities" if city["type"] == "defence" else "Expansion Cities",
+            "norm":     city["region"],
+            "tam":      city["tam"],
+            "province": city["province"],
+            "focus":    True,
+            "focus_type": city["type"],
+        })
 
     for region in region_order:
         if region == "nasional":
@@ -420,13 +487,20 @@ def _resolve_locations(req: CampaignRequest) -> list[str]:
     - locations: ["jakarta", "bandung"]  → multi-location
     - location: "jakarta, bandung"       → comma-separated string
     - location: "nasional"               → single
+    Focus city names are mapped to their region automatically.
     """
     if req.locations and len(req.locations) > 0:
-        locs = [l.strip() for l in req.locations if l.strip()]
+        raw = [l.strip() for l in req.locations if l.strip()]
     elif req.location and "," in req.location:
-        locs = [l.strip() for l in req.location.split(",") if l.strip()]
+        raw = [l.strip() for l in req.location.split(",") if l.strip()]
     else:
-        locs = [req.location or "nasional"]
+        raw = [req.location or "nasional"]
+
+    # Map focus city names → their region
+    locs = []
+    for l in raw:
+        fc = FOCUS_CITY_LOOKUP.get(l.lower())
+        locs.append(fc["region"] if fc else l)
     return locs if locs else ["nasional"]
 
 

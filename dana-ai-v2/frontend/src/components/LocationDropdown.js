@@ -81,19 +81,26 @@ const LocationDropdown = ({ options = [], selected = [], onChange, loading }) =>
           <div onClick={() => { toggle('nasional'); setOpen(false); }} style={{ padding: '10px 14px', cursor: 'pointer', background: isNas ? C.blueLight : 'transparent', color: isNas ? C.blue : C.text, fontWeight: isNas ? 700 : 400, fontSize: 13, borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', gap: 8 }}>
             {isNas && Ic.check(12)}🌏 Nasional (Semua Indonesia)
           </div>
-          {Object.entries(grouped).filter(([g]) => g !== 'nasional').map(([group, locs]) => (
-            <div key={group}>
-              <div style={{ padding: '6px 14px 4px', fontSize: 10, fontWeight: 700, color: C.textMuted, letterSpacing: '.5px', background: C.bgGray }}>{group.toUpperCase()}</div>
-              {locs.filter(l => l && l.value !== 'nasional').map(loc => {
-                const on = selArr.includes(loc.value);
-                return (
-                  <div key={loc.value} onClick={() => toggle(loc.value)} style={{ padding: '9px 14px', cursor: 'pointer', background: on ? C.blueLight : 'transparent', color: on ? C.blue : C.text, fontSize: 13, fontWeight: on ? 600 : 400, display: 'flex', alignItems: 'center', gap: 8, transition: 'background .08s' }}>
-                    {on ? Ic.check(12) : <span style={{ width: 12 }} />}{loc.label}
-                  </div>
-                );
-              })}
-            </div>
-          ))}
+          {Object.entries(grouped).filter(([g]) => g !== 'nasional').map(([group, locs]) => {
+            const isFocus = group === 'Defence Cities' || group === 'Expansion Cities';
+            const groupBg  = isFocus ? (group === 'Defence Cities' ? '#FFF7ED' : '#F0FDF4') : C.bgGray;
+            const groupClr = isFocus ? (group === 'Defence Cities' ? '#C2410C' : '#15803D') : C.textMuted;
+            return (
+              <div key={group}>
+                <div style={{ padding: '6px 14px 4px', fontSize: 10, fontWeight: 700, color: groupClr, letterSpacing: '.5px', background: groupBg }}>{group.toUpperCase()}</div>
+                {locs.filter(l => l && l.value !== 'nasional').map(loc => {
+                  const on = selArr.includes(loc.value);
+                  return (
+                    <div key={loc.value} onClick={() => toggle(loc.value)} style={{ padding: '8px 14px', cursor: 'pointer', background: on ? C.blueLight : 'transparent', fontSize: 13, fontWeight: on ? 600 : 400, display: 'flex', alignItems: 'center', gap: 8, transition: 'background .08s' }}>
+                      <span style={{ color: on ? C.blue : 'transparent', flexShrink: 0 }}>{Ic.check(12)}</span>
+                      <span style={{ flex: 1, color: on ? C.blue : C.text }}>{loc.label}</span>
+                      {loc.province && !on && <span style={{ fontSize: 10, color: C.textMuted, flexShrink: 0 }}>{loc.province.replace('Jawa ', 'Jawa ').replace('Sumatera ', 'Sum. ')}</span>}
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
