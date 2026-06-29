@@ -55,7 +55,7 @@ export default function App() {
   const [form, sForm] = useState({
     campaign_name: '', campaign_description: '', goals: '', target_audience: '',
     selTopics: [], selLocs: ['nasional'],
-    budget_min: '5000000', budget_max: '50000000', budget_kol_pct: 70,
+    budget_min: '5000000', budget_max: '50000000', budget_kol_pct: 60, budget_hm_pct: 30,
     num_kol: 5, num_media: 3, content_type: 'semua',
     tierMode: 'single', preferred_tier: 'semua',
     tier_split: { nano: 0, mikro: 0, makro: 0, mega: 0 },

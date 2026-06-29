@@ -15,12 +15,13 @@ const PRESETS = [
   { label: 'Kecil', min: 5e6, max: 25e6, desc: '5–25jt' },
   { label: 'Medium', min: 25e6, max: 100e6, desc: '25–100jt' },
   { label: 'Besar', min: 100e6, max: 500e6, desc: '100–500jt' },
-  { label: 'Premium', min: 500e6, max: 2e9, desc: '500jt–2M' }
+  { label: 'Premium', min: 500e6, max: 2e9, desc: '500jt–2M' },
+  { label: 'Enterprise', min: 2e9, max: 5e9, desc: '2–5M' }
 ];
 
 const SMAX = 1000;
-const l2v = p => { const lo = Math.log(500000), hi = Math.log(2e9); return Math.round(Math.exp(lo + (p / SMAX) * (hi - lo))); };
-const v2l = v => { if (!v || v <= 0) return 200; const lo = Math.log(500000), hi = Math.log(2e9); return Math.round(((Math.log(Math.max(500000, Math.min(2e9, v))) - lo) / (hi - lo)) * SMAX); };
+const l2v = p => { const lo = Math.log(500000), hi = Math.log(5e9); return Math.round(Math.exp(lo + (p / SMAX) * (hi - lo))); };
+const v2l = v => { if (!v || v <= 0) return 200; const lo = Math.log(500000), hi = Math.log(5e9); return Math.round(((Math.log(Math.max(500000, Math.min(5e9, v))) - lo) / (hi - lo)) * SMAX); };
 const getP = v => { for (const p of PRESETS) if (v >= p.min && v <= p.max) return p; return v < PRESETS[0].min ? PRESETS[0] : PRESETS[PRESETS.length - 1]; };
 
 const fmtB = n => {
