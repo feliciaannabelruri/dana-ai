@@ -5,6 +5,14 @@ DATA_DIR   = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
 KOL_FREE_PATH = os.path.join(DATA_DIR, 'kol_homeless_free.json')
 COMM_PATH     = os.path.join(DATA_DIR, 'community_pool.json')
 
+try:
+    from kol_flags import get_flag_bundle as _get_flag_bundle
+    _FLAGS_LOADED = True
+except Exception:
+    _FLAGS_LOADED = False
+    def _get_flag_bundle(u):
+        return {"filter_out": False, "penalty": 0.0, "active": [], "summary": "", "severity": "clear"}
+
 CATEGORY_KEYWORDS = {
     # KOL free categories
     'media/news':          ['media', 'berita', 'news', 'jurnalis', 'pers'],
@@ -140,6 +148,7 @@ def recommend_kol_free(topics, goals, campaign_description, num_kol=5):
         final = s_cat * 0.4 + s_follow * 0.4 + s_appr * 0.2
 
         contact_info = _contact_display(item)
+        flag_bundle  = _get_flag_bundle(item.get('username', ''))
 
         scored.append({
             'id':              item['id'],
@@ -162,6 +171,9 @@ def recommend_kol_free(topics, goals, campaign_description, num_kol=5):
             'rate_min':        0,
             'rate_max':        0,
             'reasoning':       _build_kol_reasoning(s_cat, s_follow, s_appr, item),
+            'flags':           flag_bundle['active'],
+            'flag_severity':   flag_bundle['severity'],
+            'flag_summary':    flag_bundle['summary'],
         })
 
     scored.sort(key=lambda x: x['match_score'], reverse=True)
@@ -202,6 +214,7 @@ def recommend_community(topics, goals, campaign_description, num_community=5):
         final = s_cat * 0.6 + s_appr * 0.4
 
         contact_info = _contact_display(item)
+        flag_bundle  = _get_flag_bundle(item.get('username', ''))
 
         scored.append({
             'id':              item['id'],
@@ -222,6 +235,9 @@ def recommend_community(topics, goals, campaign_description, num_community=5):
             'rate_min':        0,
             'rate_max':        0,
             'reasoning':       _build_comm_reasoning(s_cat, s_appr, item),
+            'flags':           flag_bundle['active'],
+            'flag_severity':   flag_bundle['severity'],
+            'flag_summary':    flag_bundle['summary'],
         })
 
     scored.sort(key=lambda x: x['match_score'], reverse=True)

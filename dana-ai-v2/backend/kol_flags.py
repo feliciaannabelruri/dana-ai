@@ -353,64 +353,59 @@ def scan_er_anomalies(er_data: dict = None, detected_by: str = "auto-scan") -> l
 #   TAVILY_API_KEY  -> https://tavily.com    (LLM-friendly search, free tier)
 # Pilih provider via SEARCH_PROVIDER ("serper" | "tavily" | "auto"). Default "auto".
 
-def _search_serper(query: str, num: int = 6) -> list:
+def _search_serper(query: str, num: int = 8) -> list:
+    """Serper: gabung hasil /search (organic) + /news (lebih recency). Raise on error."""
     import httpx
     key = os.environ.get("SERPER_API_KEY", "")
     if not key:
         return []
+    out, headers = [], {"X-API-KEY": key, "Content-Type": "application/json"}
+    body = {"q": query, "gl": "id", "hl": "id", "num": num}
+
+    # /search (primary) — raise kalau gagal supaya error terlihat (mis. 403 key salah)
+    r = httpx.post("https://google.serper.dev/search", headers=headers, json=body, timeout=15)
+    r.raise_for_status()
+    for it in (r.json().get("organic", []) or [])[:num]:
+        out.append({"title": it.get("title", ""), "snippet": it.get("snippet", ""),
+                    "url": it.get("link", ""), "date": it.get("date", "")})
+
+    # /news (best-effort, jangan gagalkan keseluruhan kalau error)
     try:
-        r = httpx.post(
-            "https://google.serper.dev/search",
-            headers={"X-API-KEY": key, "Content-Type": "application/json"},
-            json={"q": query, "gl": "id", "hl": "id", "num": num},
-            timeout=12,
-        )
-        r.raise_for_status()
-        data = r.json()
-        out = []
-        for it in (data.get("organic", []) or [])[:num]:
-            out.append({
-                "title":   it.get("title", ""),
-                "snippet": it.get("snippet", ""),
-                "url":     it.get("link", ""),
-                "date":    it.get("date", ""),
-            })
-        return out
+        rn = httpx.post("https://google.serper.dev/news", headers=headers, json=body, timeout=15)
+        rn.raise_for_status()
+        for it in (rn.json().get("news", []) or [])[:num]:
+            out.append({"title": it.get("title", ""), "snippet": it.get("snippet", ""),
+                        "url": it.get("link", ""), "date": it.get("date", "")})
     except Exception:
-        return []
+        pass
+    return out
 
 
-def _search_tavily(query: str, num: int = 6) -> list:
+def _search_tavily(query: str, num: int = 8) -> list:
+    """Tavily search. Raise on error."""
     import httpx
     key = os.environ.get("TAVILY_API_KEY", "")
     if not key:
         return []
-    try:
-        r = httpx.post(
-            "https://api.tavily.com/search",
-            headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
-            json={"query": query, "max_results": num, "search_depth": "basic"},
-            timeout=15,
-        )
-        r.raise_for_status()
-        data = r.json()
-        out = []
-        for it in (data.get("results", []) or [])[:num]:
-            out.append({
-                "title":   it.get("title", ""),
-                "snippet": it.get("content", ""),
-                "url":     it.get("url", ""),
-                "date":    it.get("published_date", ""),
-            })
-        return out
-    except Exception:
-        return []
+    r = httpx.post(
+        "https://api.tavily.com/search",
+        headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+        json={"query": query, "max_results": num, "search_depth": "basic", "topic": "news"},
+        timeout=20,
+    )
+    r.raise_for_status()
+    out = []
+    for it in (r.json().get("results", []) or [])[:num]:
+        out.append({"title": it.get("title", ""), "snippet": it.get("content", ""),
+                    "url": it.get("url", ""), "date": it.get("published_date", "")})
+    return out
 
 
-def _web_search(queries: list, per_query: int = 5) -> tuple:
+def _web_search(queries: list, per_query: int = 8) -> tuple:
     """
     Jalankan pencarian web lintas query, dedupe by URL.
-    Returns (results, provider). provider="" kalau tidak ada key.
+    Returns (results, provider, error). provider="" kalau tidak ada key.
+    error = pesan error pertama yang ketemu (None kalau sukses).
     """
     provider = os.environ.get("SEARCH_PROVIDER", "auto").lower()
     has_serper = bool(os.environ.get("SERPER_API_KEY"))
@@ -421,16 +416,22 @@ def _web_search(queries: list, per_query: int = 5) -> tuple:
     elif provider == "tavily" or (provider == "auto" and has_tavily):
         fn, name = _search_tavily, "tavily"
     else:
-        return [], ""
+        return [], "", None
 
-    seen, results = set(), []
+    seen, results, error = set(), [], None
     for q in queries:
-        for item in fn(q, per_query):
+        try:
+            items = fn(q, per_query)
+        except Exception as e:
+            if error is None:
+                error = f"{name}: {e}"
+            items = []
+        for item in items:
             u = item.get("url", "")
             if u and u not in seen:
                 seen.add(u)
                 results.append(item)
-    return results, name
+    return results, name, error
 
 
 # ── Layer 2: Web-search + Groq reputation scan ────────────────────────────────
@@ -458,13 +459,13 @@ def scan_news_groq(username: str, category: str = "", full_name: str = "") -> di
         return {"risk_found": False, "source": "fallback", "searched": False,
                 "reason": "GROQ_API_KEY belum di-set", "flag_created": False}
 
-    # 1-2. Pencarian web
+    # 1-2. Pencarian web (query natural & lebar — hindari tanda kutip/OR yang menyempitkan)
     name_term = full_name.strip() if full_name.strip() else uname
     queries = [
-        f'"{name_term}" kontroversi OR drama OR kasus',
-        f'{name_term} influencer skandal OR dihujat OR diboikot',
+        f'{name_term} kontroversi kasus drama masalah',
+        f'{name_term} berita terbaru',
     ]
-    evidence, provider = _web_search(queries, per_query=5)
+    evidence, provider, search_error = _web_search(queries, per_query=8)
     searched = bool(provider)
 
     # Bangun blok bukti untuk prompt
@@ -586,10 +587,47 @@ def scan_news_groq(username: str, category: str = "", full_name: str = "") -> di
 
         result["flag_created"] = flag_created
         result["searched"]     = searched
+        result["search_error"] = search_error
         result["evidence"]     = [{"title": e["title"], "url": e["url"]} for e in evidence[:5]]
         result["source"]       = f"groq:{groq_model}" + (f"+{provider}" if searched else "")
         return result
 
     except Exception as e:
         return {"risk_found": False, "source": "error", "searched": searched,
+                "search_error": search_error,
                 "reason": f"Scan gagal: {e}", "flag_created": False}
+
+
+# ── Auto-scan helpers (untuk integrasi campaign recommender) ──────────────────
+def is_recently_scanned(username: str, max_age_hours: int = 168) -> bool:
+    """True jika groq_news_scan sudah dijalankan dalam max_age_hours terakhir."""
+    uname = _norm(username)
+    for f in _load().get(uname, []):
+        if f.get("rule") == "groq_news_scan":
+            try:
+                created = datetime.fromisoformat(f["created_at"])
+                age_h = (datetime.now(timezone.utc) - created).total_seconds() / 3600
+                if age_h <= max_age_hours:
+                    return True
+            except Exception:
+                pass
+    return False
+
+
+def scan_if_stale(
+    username: str,
+    category: str = "",
+    full_name: str = "",
+    max_age_hours: int = 168,
+) -> dict:
+    """
+    Jalankan scan reputasi online hanya jika belum di-scan dalam max_age_hours.
+    Return flag_bundle terbaru setelah scan (atau bundle lama jika skip).
+    Aman dipanggil concurrent — lock sudah di-handle di scan_news_groq.
+    """
+    if not is_recently_scanned(username, max_age_hours):
+        try:
+            scan_news_groq(username, category, full_name)
+        except Exception:
+            pass
+    return get_flag_bundle(username)

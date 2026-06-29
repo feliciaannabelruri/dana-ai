@@ -73,7 +73,9 @@ export default function FlagDashboard({ onBack, isMobile }) {
   }
 
   function newsResultMsg(uname, r) {
+    if (r.search_error) return `@${uname}: pencarian web error — ${r.search_error}. Cek SERPER_API_KEY di backend.`;
     const n = (r.evidence || []).length;
+    if (r.searched && n === 0) return `@${uname}: 0 hasil web. Coba ketik nama lengkap (mis. "Sarwendah Tan"), bukan username.`;
     const prefix = r.searched ? `Cek ${n} sumber web. ` : '(tanpa pencarian web) ';
     const body = r.flag_created ? 'Risiko terdeteksi — flag dibuat.'
       : r.risk_found ? 'Indikasi risiko (confidence rendah) — tidak di-flag.'

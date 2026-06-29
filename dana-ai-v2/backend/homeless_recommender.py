@@ -8,6 +8,16 @@ HOMELESS_MEDIA_PATH = os.path.join(DATA_DIR, 'homeless_media.json')
 
 _rf_cache = {}
 
+try:
+    from kol_flags import get_flag_bundle as _get_flag_bundle, scan_if_stale as _scan_if_stale
+    _FLAGS_LOADED = True
+except Exception:
+    _FLAGS_LOADED = False
+    def _get_flag_bundle(u):
+        return {"filter_out": False, "penalty": 0.0, "active": [], "summary": "", "severity": "clear"}
+    def _scan_if_stale(u, cat="", full_name=""):
+        return _get_flag_bundle(u)
+
 LOCATION_GROUPS = {
     "jakarta":      ["jakarta","jaksel","jakpus","jakbar","jaktim","jakut","jkt",
                      "gading serpong","tangerang","depok","bekasi","bogor","bsd",
@@ -195,9 +205,9 @@ def get_reach_score(followers):
     return 0.18
 
 
-def predict_rf(rf, gb, fv):
+def predict_rf(rf, gb, fv, w_rf=0.6):
     x = np.array(fv).reshape(1,-1)
-    return float(np.clip(0.6*float(rf.predict(x)[0]) + 0.4*float(gb.predict(x)[0]), 0.0, 1.0))
+    return float(np.clip(w_rf*float(rf.predict(x)[0]) + (1-w_rf)*float(gb.predict(x)[0]), 0.0, 1.0))
 
 
 def recommend_homeless_media(topics="", goals="", campaign_description="",
@@ -265,7 +275,8 @@ def recommend_homeless_media(topics="", goals="", campaign_description="",
                 min(budget_per_media / max(rate_min,1), 10.0),
                 is_nasional, loc_match, int(cat_tier),
             ]
-            layer3 = predict_rf(rf_models['rf'], rf_models['gb'], fv)
+            w_rf   = rf_models.get('meta', {}).get('ensemble_weight_rf', 0.6)
+            layer3 = predict_rf(rf_models['rf'], rf_models['gb'], fv, w_rf=w_rf)
             final  = 0.40 * layer1 + 0.60 * layer3
         else:
             layer3 = None
@@ -292,6 +303,7 @@ def recommend_homeless_media(topics="", goals="", campaign_description="",
         if has_layer3 and layer3 is not None:
             score_detail['RF ensemble'] = round(layer3*100, 1)
 
+        flag_bundle = _get_flag_bundle(media['username'])
         results.append({
             'id':            media['id'],
             'username':      media['username'],
@@ -310,6 +322,9 @@ def recommend_homeless_media(topics="", goals="", campaign_description="",
             'score_detail':  score_detail,
             'layer3_active': has_layer3,
             'reasoning':     ' & '.join(reasons) if reasons else 'Media placement potensial',
+            'flags':         flag_bundle['active'],
+            'flag_severity': flag_bundle['severity'],
+            'flag_summary':  flag_bundle['summary'],
         })
 
     results.sort(key=lambda x: x['match_score'], reverse=True)

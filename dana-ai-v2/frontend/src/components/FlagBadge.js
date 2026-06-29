@@ -108,10 +108,16 @@ export default function FlagBadge({ kol, onPenaltyChange }) {
       const res = await scanKolNews(kol.username, kol.category || '');
       const r = res.result || {};
       const n = (r.evidence || []).length;
-      const prefix = r.searched ? `Cek ${n} sumber web. ` : '(tanpa pencarian web) ';
-      setScanMsg(prefix + (r.flag_created ? 'Risiko terdeteksi — flag dibuat.'
-        : r.risk_found ? 'Indikasi risiko (confidence rendah) — tidak di-flag.'
-          : 'Bersih: tidak ada risiko reputasi terdeteksi.'));
+      if (r.search_error) {
+        setScanMsg(`Pencarian web error — ${r.search_error}. Cek SERPER_API_KEY di backend.`);
+      } else if (r.searched && n === 0) {
+        setScanMsg('0 hasil web — coba scan pakai nama lengkap KOL dari dashboard.');
+      } else {
+        const prefix = r.searched ? `Cek ${n} sumber web. ` : '(tanpa pencarian web) ';
+        setScanMsg(prefix + (r.flag_created ? 'Risiko terdeteksi — flag dibuat.'
+          : r.risk_found ? 'Indikasi risiko (confidence rendah) — tidak di-flag.'
+            : 'Bersih: tidak ada risiko reputasi terdeteksi.'));
+      }
       await refresh();
     } catch (e) { setScanMsg(e.message); }
     setBusy(false);

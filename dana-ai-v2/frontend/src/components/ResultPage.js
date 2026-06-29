@@ -93,6 +93,48 @@ function Chip({ label, color=C.blue, bg=C.blueLight, icon=null }) {
   );
 }
 
+const RISK_CFG = {
+  critical: { bg:'#FEF2F2', border:'#FCA5A5', color:'#DC2626', barColor:'#DC2626', label:'Risiko Tinggi',
+    icon: (s=11) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg> },
+  warning:  { bg:'#FFFBEB', border:'#FCD34D', color:'#D97706', barColor:'#D97706', label:'Peringatan',
+    icon: (s=11) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> },
+  watch:    { bg:'#FFF7ED', border:'#FDBA74', color:'#EA580C', barColor:'#EA580C', label:'Perlu Pantau',
+    icon: (s=11) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> },
+};
+
+function RiskBadge({ severity, summary }) {
+  const cfg = RISK_CFG[severity];
+  if (!cfg) return null;
+  return (
+    <span title={summary || ''} style={{
+      background:cfg.bg, border:`1px solid ${cfg.border}`, color:cfg.color,
+      borderRadius:20, padding:'2px 8px', fontSize:10, fontWeight:800,
+      display:'inline-flex', alignItems:'center', gap:3,
+      cursor: summary ? 'help' : 'default', whiteSpace:'nowrap', flexShrink:0,
+    }}>
+      <span style={{display:'flex'}}>{cfg.icon(10)}</span>
+      {cfg.label}
+    </span>
+  );
+}
+
+function RiskBanner({ severity, summary, flagCount }) {
+  const cfg = RISK_CFG[severity];
+  if (!cfg || !summary) return null;
+  return (
+    <div style={{
+      background:cfg.bg, border:`1px solid ${cfg.border}`, borderRadius:8,
+      padding:'8px 10px', marginBottom:12,
+      display:'flex', alignItems:'flex-start', gap:6,
+    }}>
+      <span style={{color:cfg.color, flexShrink:0, marginTop:1, display:'flex'}}>{cfg.icon(12)}</span>
+      <span style={{color:cfg.color, fontSize:11, lineHeight:1.5, fontWeight:600}}>
+        {flagCount > 1 ? `${flagCount} isu terdeteksi — ` : ''}{summary}
+      </span>
+    </div>
+  );
+}
+
 function ScoreBar({ score, color=C.blue }) {
   const [w,setW]=useState(0);
   useState(()=>{ const t=setTimeout(()=>setW(score),200); return ()=>clearTimeout(t); });
@@ -127,30 +169,39 @@ function KOLCard({ kol, rank }) {
   const cc=cStyles[kol.contact_action?.type]||cStyles.instagram;
   const profileUrl=getProfileUrl(kol.username,kol.social_media);
   const platformColor=isTK?'#BE123C':'#BE185D';
+  const riskCfg    = RISK_CFG[kol.flag_severity];
+  const cardBorder = riskCfg ? `1.5px solid ${riskCfg.border}` : `1px solid ${C.border}`;
+  const topBarBg   = riskCfg ? riskCfg.barColor : (rank<=3?rc:C.blue);
 
   return (
-    <div style={{ background:C.bg, border:`1px solid ${C.border}`, borderRadius:12, overflow:'hidden' }}>
-      <div style={{ height:3, background:rank<=3?rc:C.blue }}/>
+    <div style={{ background:C.bg, border:cardBorder, borderRadius:12, overflow:'hidden' }}>
+      <div style={{ height:3, background:topBarBg }}/>
       <div style={{ padding:16 }}>
         {/* Header */}
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:14, gap:8 }}>
           <div style={{ display:'flex', gap:10, alignItems:'center', minWidth:0 }}>
-            <div style={{ width:38, height:38, borderRadius:8, background:isTK?'#FFF1F2':C.blueLight, display:'flex', alignItems:'center', justifyContent:'center', color:isTK?'#BE123C':C.blue, flexShrink:0 }}>
-              {isTK?Icon.tiktok(17):Icon.instagram(17)}
+            <div style={{ width:38, height:38, borderRadius:8, background:riskCfg?riskCfg.bg:isTK?'#FFF1F2':C.blueLight, display:'flex', alignItems:'center', justifyContent:'center', color:riskCfg?riskCfg.color:isTK?'#BE123C':C.blue, flexShrink:0 }}>
+              {riskCfg ? riskCfg.icon(17) : isTK?Icon.tiktok(17):Icon.instagram(17)}
             </div>
             <div style={{ minWidth:0 }}>
-              <a href={profileUrl} target="_blank" rel="noopener noreferrer"
-                style={{ display:'inline-flex', alignItems:'center', gap:4, fontWeight:700, color:C.text, fontSize:14, textDecoration:'none', maxWidth:'100%', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', transition:'color .15s' }}
-                onMouseEnter={e=>{e.currentTarget.style.color=platformColor;}}
-                onMouseLeave={e=>{e.currentTarget.style.color=C.text;}}>
-                <span style={{ overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>@{kol.username}</span>
-                <span style={{ flexShrink:0, opacity:.5 }}>{Icon.externalLink(10)}</span>
-              </a>
-              <div style={{ color:C.textMuted, fontSize:11, marginTop:1, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{kol.category}</div>
+              <div style={{ display:'flex', alignItems:'center', gap:5, flexWrap:'wrap', marginBottom:2 }}>
+                <a href={profileUrl} target="_blank" rel="noopener noreferrer"
+                  style={{ display:'inline-flex', alignItems:'center', gap:4, fontWeight:700, color:riskCfg?riskCfg.color:C.text, fontSize:14, textDecoration:'none', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', transition:'color .15s' }}
+                  onMouseEnter={e=>{e.currentTarget.style.color=riskCfg?riskCfg.color:platformColor;}}
+                  onMouseLeave={e=>{e.currentTarget.style.color=riskCfg?riskCfg.color:C.text;}}>
+                  <span style={{ overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>@{kol.username}</span>
+                  <span style={{ flexShrink:0, opacity:.5 }}>{Icon.externalLink(10)}</span>
+                </a>
+                <RiskBadge severity={kol.flag_severity} summary={kol.flag_summary}/>
+              </div>
+              <div style={{ color:C.textMuted, fontSize:11, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{kol.category}</div>
             </div>
           </div>
           <span style={{ background:rank<=3?rc:C.blueLight, color:rank<=3?'#fff':C.blue, borderRadius:20, padding:'2px 10px', fontSize:12, fontWeight:700, flexShrink:0 }}>#{rank}</span>
         </div>
+
+        {/* Risk banner */}
+        <RiskBanner severity={kol.flag_severity} summary={kol.flag_summary} flagCount={(kol.flags||[]).length}/>
 
         {/* Score */}
         <div style={{ marginBottom:12 }}>
@@ -253,23 +304,31 @@ function HomelessMediaCard({ media, rank }) {
   const cc=cStyles[media.contact_action?.type]||cStyles.instagram;
   const isTK=media.social_media?.toLowerCase().includes('tiktok');
   const profileUrl=getProfileUrl(media.username,media.social_media);
+  const riskCfg    = RISK_CFG[media.flag_severity];
+  const cardBorder = riskCfg ? `1.5px solid ${riskCfg.border}` : `1px solid ${C.border}`;
+  const topBarBg   = riskCfg ? riskCfg.barColor : `linear-gradient(90deg,${C.teal},${C.blue})`;
 
   return (
-    <div style={{ background:C.bg, border:`1px solid ${C.border}`, borderRadius:12, overflow:'hidden' }}>
-      <div style={{ height:3, background:`linear-gradient(90deg,${C.teal},${C.blue})` }}/>
+    <div style={{ background:C.bg, border:cardBorder, borderRadius:12, overflow:'hidden' }}>
+      <div style={{ height:3, background:topBarBg }}/>
       <div style={{ padding:16 }}>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:14, gap:8 }}>
           <div style={{ display:'flex', gap:10, alignItems:'center', minWidth:0 }}>
-            <div style={{ width:38, height:38, borderRadius:8, background:C.tealBg, display:'flex', alignItems:'center', justifyContent:'center', color:C.teal, flexShrink:0 }}>{Icon.newspaper(17)}</div>
+            <div style={{ width:38, height:38, borderRadius:8, background:riskCfg?riskCfg.bg:C.tealBg, display:'flex', alignItems:'center', justifyContent:'center', color:riskCfg?riskCfg.color:C.teal, flexShrink:0 }}>
+              {riskCfg ? riskCfg.icon(17) : Icon.newspaper(17)}
+            </div>
             <div style={{ minWidth:0 }}>
-              <a href={profileUrl} target="_blank" rel="noopener noreferrer"
-                style={{ display:'inline-flex', alignItems:'center', gap:4, fontWeight:700, color:C.text, fontSize:14, textDecoration:'none', maxWidth:'100%', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', transition:'color .15s' }}
-                onMouseEnter={e=>{e.currentTarget.style.color=C.teal;}}
-                onMouseLeave={e=>{e.currentTarget.style.color=C.text;}}>
-                <span style={{ overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>@{media.username}</span>
-                <span style={{ flexShrink:0, opacity:.5 }}>{Icon.externalLink(10)}</span>
-              </a>
-              <div style={{ color:C.textMuted, fontSize:11, marginTop:1 }}>{media.category}</div>
+              <div style={{ display:'flex', alignItems:'center', gap:5, flexWrap:'wrap', marginBottom:2 }}>
+                <a href={profileUrl} target="_blank" rel="noopener noreferrer"
+                  style={{ display:'inline-flex', alignItems:'center', gap:4, fontWeight:700, color:riskCfg?riskCfg.color:C.text, fontSize:14, textDecoration:'none', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', transition:'color .15s' }}
+                  onMouseEnter={e=>{e.currentTarget.style.color=riskCfg?riskCfg.color:C.teal;}}
+                  onMouseLeave={e=>{e.currentTarget.style.color=riskCfg?riskCfg.color:C.text;}}>
+                  <span style={{ overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>@{media.username}</span>
+                  <span style={{ flexShrink:0, opacity:.5 }}>{Icon.externalLink(10)}</span>
+                </a>
+                <RiskBadge severity={media.flag_severity} summary={media.flag_summary}/>
+              </div>
+              <div style={{ color:C.textMuted, fontSize:11 }}>{media.category}</div>
             </div>
           </div>
           <div style={{ display:'flex', gap:5, alignItems:'center', flexShrink:0 }}>
@@ -277,6 +336,9 @@ function HomelessMediaCard({ media, rank }) {
             <span style={{ background:C.teal, color:'#fff', borderRadius:20, padding:'2px 10px', fontSize:12, fontWeight:700 }}>#{rank}</span>
           </div>
         </div>
+
+        {/* Risk banner */}
+        <RiskBanner severity={media.flag_severity} summary={media.flag_summary} flagCount={(media.flags||[]).length}/>
 
         <div style={{ marginBottom:12 }}>
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
@@ -378,30 +440,39 @@ function FreePoolCard({ item, rank, accentColor, accentBg, accentDark, type }) {
     : item.approachability >= 0.7 ? C.gold : C.textMuted;
   const approachBg = item.approachability >= 0.9 ? C.greenBg
     : item.approachability >= 0.7 ? C.goldBg : C.bgGray2;
+  const riskCfg    = RISK_CFG[item.flag_severity];
+  const cardBorder = riskCfg ? `1.5px solid ${riskCfg.border}` : `1px solid ${C.border}`;
+  const topBarBg   = riskCfg ? riskCfg.barColor : `linear-gradient(90deg,${accentColor},${accentColor}88)`;
 
   return (
-    <div style={{background:C.bg,border:`1px solid ${C.border}`,borderRadius:12,overflow:'hidden'}}>
-      <div style={{height:3,background:`linear-gradient(90deg,${accentColor},${accentColor}88)`}}/>
+    <div style={{background:C.bg,border:cardBorder,borderRadius:12,overflow:'hidden'}}>
+      <div style={{height:3,background:topBarBg}}/>
       <div style={{padding:16}}>
         {/* Header */}
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:14,gap:8}}>
           <div style={{display:'flex',gap:10,alignItems:'center',minWidth:0}}>
-            <div style={{width:38,height:38,borderRadius:8,background:accentBg,display:'flex',alignItems:'center',justifyContent:'center',color:accentColor,flexShrink:0,fontWeight:800,fontSize:14}}>
-              {type==='community'?'🤝':'👤'}
+            <div style={{width:38,height:38,borderRadius:8,background:riskCfg?riskCfg.bg:accentBg,display:'flex',alignItems:'center',justifyContent:'center',color:riskCfg?riskCfg.color:accentColor,flexShrink:0,fontWeight:800,fontSize:14}}>
+              {riskCfg ? riskCfg.icon(17) : (type==='community'?'🤝':'👤')}
             </div>
             <div style={{minWidth:0}}>
-              <div style={{fontWeight:700,color:C.text,fontSize:14,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
-                {type==='community'
-                  ? (item.nama_komunitas||item.username)
-                  : `@${item.username}`}
+              <div style={{display:'flex',alignItems:'center',gap:5,flexWrap:'wrap',marginBottom:2}}>
+                <span style={{fontWeight:700,color:riskCfg?riskCfg.color:C.text,fontSize:14,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
+                  {type==='community'
+                    ? (item.nama_komunitas||item.username)
+                    : `@${item.username}`}
+                </span>
+                <RiskBadge severity={item.flag_severity} summary={item.flag_summary}/>
               </div>
-              <div style={{color:C.textMuted,fontSize:11,marginTop:1}}>{item.category}</div>
+              <div style={{color:C.textMuted,fontSize:11}}>{item.category}</div>
             </div>
           </div>
           <div style={{display:'flex',gap:5,alignItems:'center',flexShrink:0}}>
             <span style={{background:accentColor,color:'#fff',borderRadius:20,padding:'2px 10px',fontSize:12,fontWeight:700}}>#{rank}</span>
           </div>
         </div>
+
+        {/* Risk banner */}
+        <RiskBanner severity={item.flag_severity} summary={item.flag_summary} flagCount={(item.flags||[]).length}/>
 
         {/* Match Score */}
         <div style={{marginBottom:12}}>

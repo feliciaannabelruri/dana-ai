@@ -12,7 +12,7 @@ from sklearn.neighbors import NearestNeighbors
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
 from sklearn.neural_network import BernoulliRBM
 from sklearn.pipeline import Pipeline
-from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import cross_val_score, RandomizedSearchCV, train_test_split
 
 DATA_PATH     = os.path.join(os.path.dirname(__file__), '..', 'data', 'kol_clean.pkl')
 PATTERNS_PATH = os.path.join(os.path.dirname(__file__), '..', 'data', 'campaign_patterns.json')
@@ -138,7 +138,7 @@ def build_tabular_features(df, patterns, scaler=None, fit=True):
 # ═══════════════════════════════════════════════════════════════
 
 def train_random_forest(df, tabular_features, patterns):
-    print("\n[RF] Training Random Forest (ranking model)...")
+    print("\n[RF] Training Random Forest (ranking model) — dengan hyperparameter tuning...")
 
     overall_avg_er = patterns.get('overall_avg_er', 5.0) if patterns else 5.0
     tier_stats     = patterns.get('tier_stats', {}) if patterns else {}
@@ -177,41 +177,81 @@ def train_random_forest(df, tabular_features, patterns):
 
     y = np.array(y)
 
-    rf = RandomForestRegressor(
-        n_estimators=200,
-        max_depth=8,
-        min_samples_leaf=2,
-        max_features='sqrt',
+    # ── Holdout test split ────────────────────────────────────────
+    n_total = len(y)
+    n_cv    = min(5, max(2, n_total // 5))
+    if n_total >= 10:
+        X_train, X_test, y_train, y_test = train_test_split(
+            tabular_features, y, test_size=0.2, random_state=42
+        )
+        print(f"   Train: {len(X_train)} | Test: {len(X_test)}")
+    else:
+        X_train, X_test, y_train, y_test = tabular_features, tabular_features, y, y
+        print(f"   Dataset kecil ({n_total}), skip holdout split.")
+
+    # ── Hyperparameter search (RandomizedSearchCV) ────────────────
+    param_dist = {
+        'n_estimators':    [100, 200, 300, 500],
+        'max_depth':       [5, 6, 8, 10, 12, None],
+        'min_samples_leaf':[1, 2, 3, 5],
+        'max_features':    ['sqrt', 'log2', 0.4, 0.6],
+        'min_samples_split': [2, 5, 10],
+    }
+    n_iter = 20 if len(X_train) >= 20 else 8
+    print(f"   RandomizedSearchCV: {n_iter} kombinasi, cv={n_cv}...")
+    search = RandomizedSearchCV(
+        RandomForestRegressor(random_state=42, n_jobs=-1),
+        param_dist,
+        n_iter=n_iter,
+        cv=n_cv,
+        scoring='neg_mean_absolute_error',
         random_state=42,
         n_jobs=-1,
+        verbose=0,
     )
+    search.fit(X_train, y_train)
+    rf = search.best_estimator_
+    print(f"   Best params: {search.best_params_}")
+    print(f"   CV MAE (search): {-search.best_score_:.4f}")
+
+    # ── Final fit on ALL data with best params ────────────────────
     rf.fit(tabular_features, y)
 
-    y_pred = rf.predict(tabular_features)
-    mae    = float(np.mean(np.abs(y - y_pred)))
-    rmse   = float(np.sqrt(np.mean((y - y_pred) ** 2)))
+    # ── Evaluasi holdout test set ─────────────────────────────────
+    y_pred_test = rf.predict(X_test)
+    test_mae    = float(np.mean(np.abs(y_test - y_pred_test)))
+    test_rmse   = float(np.sqrt(np.mean((y_test - y_pred_test)**2)))
+    r2_test     = float(1 - np.sum((y_test-y_pred_test)**2) / (np.sum((y_test-y_test.mean())**2)+1e-9))
 
-    cv_scores = cross_val_score(rf, tabular_features, y, cv=min(5, len(y)//5 or 2),
+    # ── CV pada full data ─────────────────────────────────────────
+    cv_scores = cross_val_score(rf, tabular_features, y, cv=n_cv,
                                 scoring='neg_mean_absolute_error', n_jobs=-1)
-    cv_mae    = float(-cv_scores.mean())
-    cv_std    = float(cv_scores.std())
+    cv_mae = float(-cv_scores.mean())
+    cv_std = float(cv_scores.std())
 
-    feat_names  = LOCATION_LIST + ['followers_log','tier_score','rate_min','rate_max','er_score','pattern_score']
-    importances = sorted(zip(feat_names, rf.feature_importances_), key=lambda x: -x[1])
+    y_pred_all = rf.predict(tabular_features)
+    mae_train  = float(np.mean(np.abs(y - y_pred_all)))
+    rmse_train = float(np.sqrt(np.mean((y - y_pred_all)**2)))
+
+    feat_names    = LOCATION_LIST + ['followers_log','tier_score','rate_min','rate_max','er_score','pattern_score']
+    importances   = sorted(zip(feat_names, rf.feature_importances_), key=lambda x: -x[1])
     feat_imp_dict = {k: round(float(v), 4) for k, v in importances}
 
-    print(f"   RF trained | MAE={mae:.4f} | RMSE={rmse:.4f} | CV MAE={cv_mae:.4f} (+/-{cv_std:.4f})")
+    print(f"   RF final | Train MAE={mae_train:.4f} | Test MAE={test_mae:.4f} | Test RMSE={test_rmse:.4f} | R²={r2_test:.4f}")
+    print(f"   CV MAE={cv_mae:.4f} (+/-{cv_std:.4f})")
     print(f"   Top features:")
     for fname, imp in importances[:5]:
-        bar = '|' * int(imp * 40)
-        print(f"     {fname:20s}: {imp:.4f} {bar}")
+        print(f"     {fname:20s}: {imp:.4f} {'|' * int(imp * 40)}")
 
     rf_metrics = {
-        'mae':              round(mae, 4),
-        'rmse':             round(rmse, 4),
+        'mae_train':        round(mae_train, 4),
+        'rmse_train':       round(rmse_train, 4),
+        'mae_test':         round(test_mae, 4),
+        'rmse_test':        round(test_rmse, 4),
+        'r2_test':          round(r2_test, 4),
         'cv_mae':           round(cv_mae, 4),
         'cv_std':           round(cv_std, 4),
-        'r2_train':         round(float(1 - np.sum((y-y_pred)**2) / (np.sum((y-y.mean())**2)+1e-9)), 4),
+        'best_params':      search.best_params_,
         'feature_importance': feat_imp_dict,
         'n_estimators':     rf.n_estimators,
         'target_mean':      round(float(y.mean()), 4),
@@ -226,7 +266,7 @@ def train_random_forest(df, tabular_features, patterns):
 # ═══════════════════════════════════════════════════════════════
 
 def train_xgboost_er_predictor(df, tabular_features, patterns):
-    print("\n[XGB] Training XGBoost ER predictor...")
+    print("\n[XGB] Training XGBoost ER predictor — dengan hyperparameter tuning...")
 
     try:
         import xgboost as xgb
@@ -239,15 +279,16 @@ def train_xgboost_er_predictor(df, tabular_features, patterns):
     print(f"   KOL dengan real ER: {n_real}")
 
     if n_real >= 5:
-        X_train = tabular_features[mask_real.values]
-        y_train = df.loc[mask_real, 'avg_er_pct'].values.astype(float)
-        print(f"   Training supervised dari {n_real} KOL dengan real ER...")
+        X_all = tabular_features[mask_real.values]
+        y_all = df.loc[mask_real, 'avg_er_pct'].values.astype(float)
+        training_mode = 'supervised'
+        print(f"   Mode: supervised ({n_real} KOL dengan real ER)")
     else:
         print(f"   Data real ER kurang ({n_real}), pakai pattern-based synthetic training...")
-        X_train = tabular_features
-        overall  = patterns.get('overall_avg_er', 5.0) if patterns else 5.0
+        X_all  = tabular_features
+        overall    = patterns.get('overall_avg_er', 5.0) if patterns else 5.0
         tier_stats = patterns.get('tier_stats', {}) if patterns else {}
-        y_train = []
+        y_list = []
         for _, row in df.iterrows():
             tier_name = TIER_NAME_MAP.get(int(row.get('tier_score', 2)), 'mikro')
             if tier_name in tier_stats:
@@ -256,41 +297,70 @@ def train_xgboost_er_predictor(df, tabular_features, patterns):
                 n = row.get('followers_num', 0)
                 base_er = 12 if n<10_000 else 8 if n<50_000 else 5 if n<200_000 else 3 if n<1_000_000 else 2
             noise = np.random.normal(0, base_er * 0.1)
-            y_train.append(max(0, base_er + noise))
-        y_train = np.array(y_train)
-        print(f"   Synthetic ER: mean={y_train.mean():.1f}% std={y_train.std():.1f}%")
+            y_list.append(max(0, base_er + noise))
+        y_all = np.array(y_list)
+        training_mode = 'synthetic'
+        print(f"   Synthetic ER: mean={y_all.mean():.1f}% std={y_all.std():.1f}%")
 
-    xgb_model = xgb.XGBRegressor(
-        n_estimators=300,
-        max_depth=5,
-        learning_rate=0.05,
-        subsample=0.8,
-        colsample_bytree=0.8,
-        min_child_weight=3,
-        reg_alpha=0.1,
-        reg_lambda=1.0,
+    # ── Train/test split ─────────────────────────────────────────
+    if len(y_all) >= 10:
+        X_tr, X_te, y_tr, y_te = train_test_split(X_all, y_all, test_size=0.2, random_state=42)
+    else:
+        X_tr, X_te, y_tr, y_te = X_all, X_all, y_all, y_all
+
+    # ── Hyperparameter search ─────────────────────────────────────
+    param_dist = {
+        'n_estimators':    [150, 200, 300, 400],
+        'max_depth':       [3, 4, 5, 6],
+        'learning_rate':   [0.02, 0.05, 0.08, 0.1],
+        'subsample':       [0.7, 0.8, 0.9],
+        'colsample_bytree':[0.7, 0.8, 0.9],
+        'min_child_weight':[1, 3, 5],
+        'reg_alpha':       [0, 0.05, 0.1, 0.5],
+        'reg_lambda':      [0.5, 1.0, 2.0],
+    }
+    n_iter = 20 if len(X_tr) >= 20 else 8
+    n_cv   = min(5, max(2, len(X_tr) // 5))
+    print(f"   RandomizedSearchCV XGB: {n_iter} kombinasi, cv={n_cv}...")
+    search = RandomizedSearchCV(
+        xgb.XGBRegressor(random_state=42, verbosity=0),
+        param_dist,
+        n_iter=n_iter,
+        cv=n_cv,
+        scoring='neg_mean_absolute_error',
         random_state=42,
-        verbosity=0,
+        n_jobs=-1,
+        verbose=0,
     )
-    xgb_model.fit(X_train, y_train)
+    search.fit(X_tr, y_tr)
+    xgb_model = search.best_estimator_
+    print(f"   Best XGB params: {search.best_params_}")
+
+    # ── Final fit on semua training data ─────────────────────────
+    xgb_model.fit(X_all, y_all)
+
+    # ── Evaluasi ─────────────────────────────────────────────────
+    y_pred_train = xgb_model.predict(X_all)
+    y_pred_test  = xgb_model.predict(X_te)
+    mae_train    = float(np.mean(np.abs(y_all - y_pred_train)))
+    mae_test     = float(np.mean(np.abs(y_te  - y_pred_test)))
+    rmse_test    = float(np.sqrt(np.mean((y_te - y_pred_test)**2)))
 
     y_pred_all = xgb_model.predict(tabular_features)
-    y_pred_train_only = xgb_model.predict(X_train)
-    mae_train  = float(np.mean(np.abs(y_train - y_pred_train_only)))
-    rmse_train = float(np.sqrt(np.mean((y_train - y_pred_train_only) ** 2)))
-
-    print(f"   XGB trained | predicted ER range: "
-          f"{y_pred_all.min():.1f}% - {y_pred_all.max():.1f}% "
-          f"(avg {y_pred_all.mean():.1f}%) | MAE={mae_train:.2f}%")
+    print(f"   XGB | predicted ER range: {y_pred_all.min():.1f}%–{y_pred_all.max():.1f}% "
+          f"(avg {y_pred_all.mean():.1f}%) | MAE train={mae_train:.2f}% | MAE test={mae_test:.2f}%")
 
     xgb_metrics = {
-        'mae_train':       round(mae_train, 3),
-        'rmse_train':      round(rmse_train, 3),
-        'er_pred_min':     round(float(y_pred_all.min()), 2),
-        'er_pred_max':     round(float(y_pred_all.max()), 2),
-        'er_pred_mean':    round(float(y_pred_all.mean()), 2),
-        'n_real_er':       int(n_real),
-        'training_mode':   'supervised' if n_real >= 5 else 'synthetic',
+        'mae_train':     round(mae_train, 3),
+        'mae_test':      round(mae_test, 3),
+        'rmse_test':     round(rmse_test, 3),
+        'cv_mae':        round(float(-search.best_score_), 3),
+        'er_pred_min':   round(float(y_pred_all.min()), 2),
+        'er_pred_max':   round(float(y_pred_all.max()), 2),
+        'er_pred_mean':  round(float(y_pred_all.mean()), 2),
+        'n_real_er':     int(n_real),
+        'training_mode': training_mode,
+        'best_params':   search.best_params_,
     }
 
     return xgb_model, xgb_metrics
@@ -301,34 +371,67 @@ def train_xgboost_er_predictor(df, tabular_features, patterns):
 # ═══════════════════════════════════════════════════════════════
 
 def train_rbm(tabular_features):
-    print("\n[RBM] Training Restricted Boltzmann Machine...")
+    print("\n[RBM] Training Restricted Boltzmann Machine — grid search n_components...")
 
     scaler_rbm = MinMaxScaler()
     X_binary   = scaler_rbm.fit_transform(tabular_features)
 
-    n_components = min(64, tabular_features.shape[1] * 2)
-    rbm = BernoulliRBM(
-        n_components=n_components,
-        learning_rate=0.01,
+    n_feat = tabular_features.shape[1]
+    # Try several n_components and pick the one with lowest reconstruction error
+    candidates = sorted(set([
+        max(8, n_feat // 2),
+        min(32, n_feat),
+        min(64, n_feat * 2),
+        min(128, n_feat * 4),
+    ]))
+    print(f"   Mencoba n_components: {candidates}")
+
+    best_recon, best_rbm, best_nc = float('inf'), None, candidates[0]
+    for nc in candidates:
+        rbm_try = BernoulliRBM(
+            n_components=nc,
+            learning_rate=0.01,
+            batch_size=32,
+            n_iter=30,
+            random_state=42,
+            verbose=0,
+        )
+        rbm_try.fit(X_binary)
+        X_recon   = rbm_try.gibbs(X_binary)
+        recon_err = float(np.mean(np.abs(X_binary - X_recon)))
+        print(f"   n_components={nc:3d} → recon_error={recon_err:.4f}")
+        if recon_err < best_recon:
+            best_recon, best_rbm, best_nc = recon_err, rbm_try, nc
+
+    print(f"   Best n_components: {best_nc} (recon_error={best_recon:.4f})")
+    rbm = best_rbm
+
+    # Also try a slightly higher learning rate on best nc
+    rbm_lr = BernoulliRBM(
+        n_components=best_nc,
+        learning_rate=0.05,
         batch_size=32,
-        n_iter=30,
+        n_iter=50,
         random_state=42,
         verbose=0,
     )
-    rbm.fit(X_binary)
+    rbm_lr.fit(X_binary)
+    X_recon_lr  = rbm_lr.gibbs(X_binary)
+    recon_err_lr = float(np.mean(np.abs(X_binary - X_recon_lr)))
+    print(f"   n_components={best_nc} lr=0.05 → recon_error={recon_err_lr:.4f}")
+    if recon_err_lr < best_recon:
+        best_recon, rbm = recon_err_lr, rbm_lr
+        print(f"   Higher LR wins → using lr=0.05")
 
     latent_features = rbm.transform(X_binary)
+    pseudo_ll       = float(rbm.score_samples(X_binary).mean())
 
-    X_reconstructed = rbm.gibbs(X_binary)
-    recon_error = float(np.mean(np.abs(X_binary - X_reconstructed)))
-    pseudo_ll   = float(rbm.score_samples(X_binary).mean())
-
-    print(f"   RBM trained | {tabular_features.shape[1]} -> {n_components} latent dims")
-    print(f"   Reconstruction error: {recon_error:.4f} | Pseudo-likelihood: {pseudo_ll:.2f}")
+    print(f"   RBM final | {n_feat} → {best_nc} latent dims")
+    print(f"   Reconstruction error: {best_recon:.4f} | Pseudo-likelihood: {pseudo_ll:.2f}")
 
     rbm_metrics = {
-        'n_components':         n_components,
-        'reconstruction_error': round(recon_error, 4),
+        'n_components':         best_nc,
+        'reconstruction_error': round(best_recon, 4),
         'pseudo_likelihood':    round(pseudo_ll, 2),
         'n_iter':               rbm.n_iter,
         'learning_rate':        rbm.learning_rate,

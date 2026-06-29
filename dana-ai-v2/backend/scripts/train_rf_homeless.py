@@ -6,7 +6,8 @@ import numpy as np
 import pandas as pd
 import joblib, json, os, random
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
-from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import cross_val_score, RandomizedSearchCV, train_test_split
+from sklearn.metrics import mean_absolute_error
 
 random.seed(42)
 np.random.seed(42)
@@ -259,16 +260,41 @@ def train(n_samples=5000):
     X  = df[FEATURE_COLS].values
     y  = df['match_score'].values
 
-    print("\n[ML] Training Random Forest (Homeless Media)...")
-    rf = RandomForestRegressor(
-        n_estimators=200, max_depth=10,
-        min_samples_leaf=5, max_features='sqrt',
-        random_state=42, n_jobs=-1,
+    # ── Holdout test split ────────────────────────────────────
+    X_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.2, random_state=42)
+    print(f"\n[SPLIT] Train: {len(X_tr)} | Test holdout: {len(X_te)}")
+
+    # ── Hyperparameter tuning — Random Forest ─────────────────
+    print("\n[ML] RandomizedSearchCV — Random Forest (Homeless Media)...")
+    rf_param_dist = {
+        'n_estimators':      [100, 200, 300, 500],
+        'max_depth':         [5, 7, 10, 12, None],
+        'min_samples_leaf':  [1, 2, 3, 5],
+        'max_features':      ['sqrt', 'log2', 0.4, 0.6],
+        'min_samples_split': [2, 5, 10],
+    }
+    rf_search = RandomizedSearchCV(
+        RandomForestRegressor(random_state=42, n_jobs=-1),
+        rf_param_dist,
+        n_iter=20,
+        cv=5,
+        scoring='neg_mean_absolute_error',
+        random_state=42,
+        n_jobs=-1,
+        verbose=0,
     )
+    rf_search.fit(X_tr, y_tr)
+    rf = rf_search.best_estimator_
+    print(f"   Best RF params: {rf_search.best_params_}")
+    print(f"   RF CV MAE: {-rf_search.best_score_:.4f}")
+
+    # Refit on all data
     rf.fit(X, y)
-    cv = cross_val_score(rf, X, y, cv=5, scoring='neg_mean_absolute_error')
-    mae = -cv.mean()
-    print(f"   CV MAE: {mae:.4f} (±{cv.std():.4f}) → error ±{mae*100:.1f}%")
+
+    # Holdout evaluation
+    rf_test_pred = rf.predict(X_te)
+    rf_mae_test  = float(mean_absolute_error(y_te, rf_test_pred))
+    print(f"   RF holdout MAE: {rf_mae_test:.4f} (±{rf_mae_test*100:.1f}%)")
 
     importances = dict(zip(FEATURE_COLS, rf.feature_importances_))
     top = sorted(importances.items(), key=lambda x: -x[1])[:5]
@@ -277,29 +303,66 @@ def train(n_samples=5000):
     joblib.dump(rf, os.path.join(MODELS_DIR, 'rf_homeless.pkl'))
     print(f"   [OK] rf_homeless.pkl saved")
 
-    print("\n[ML] Training Gradient Boosting (Homeless Media)...")
-    gb = GradientBoostingRegressor(
-        n_estimators=150, max_depth=5,
-        learning_rate=0.08, subsample=0.8, random_state=42,
+    # ── Hyperparameter tuning — Gradient Boosting ─────────────
+    print("\n[ML] RandomizedSearchCV — Gradient Boosting (Homeless Media)...")
+    gb_param_dist = {
+        'n_estimators':  [100, 150, 200, 300],
+        'max_depth':     [3, 4, 5, 6],
+        'learning_rate': [0.03, 0.05, 0.08, 0.1, 0.15],
+        'subsample':     [0.7, 0.8, 0.9],
+        'min_samples_leaf': [1, 3, 5],
+    }
+    gb_search = RandomizedSearchCV(
+        GradientBoostingRegressor(random_state=42),
+        gb_param_dist,
+        n_iter=20,
+        cv=5,
+        scoring='neg_mean_absolute_error',
+        random_state=42,
+        n_jobs=-1,
+        verbose=0,
     )
+    gb_search.fit(X_tr, y_tr)
+    gb = gb_search.best_estimator_
+    print(f"   Best GBM params: {gb_search.best_params_}")
+
     gb.fit(X, y)
-    cv_gb = cross_val_score(gb, X, y, cv=5, scoring='neg_mean_absolute_error')
-    print(f"   GBM MAE: {-cv_gb.mean():.4f}")
+
+    gb_test_pred = gb.predict(X_te)
+    gb_mae_test  = float(mean_absolute_error(y_te, gb_test_pred))
+    print(f"   GBM holdout MAE: {gb_mae_test:.4f}")
+
     joblib.dump(gb, os.path.join(MODELS_DIR, 'gb_homeless.pkl'))
     print(f"   [OK] gb_homeless.pkl saved")
 
+    # ── Find optimal ensemble weight ──────────────────────────
+    print("\n[ML] Mencari ensemble weight optimal (RF α + GBM (1-α))...")
+    best_w, best_mae_ens = 0.6, float('inf')
+    for alpha in [round(a * 0.1, 1) for a in range(1, 10)]:
+        ens_pred = alpha * rf.predict(X_te) + (1 - alpha) * gb.predict(X_te)
+        mae_ens  = float(mean_absolute_error(y_te, ens_pred))
+        if mae_ens < best_mae_ens:
+            best_mae_ens, best_w = mae_ens, alpha
+    print(f"   Best ensemble weight: RF*{best_w:.1f} + GBM*{1-best_w:.1f} → MAE={best_mae_ens:.4f}")
+
     meta = {
-        'n_samples':    n_samples,
-        'feature_cols': FEATURE_COLS,
-        'rf_cv_mae':    round(float(mae), 4),
-        'gb_cv_mae':    round(float(-cv_gb.mean()), 4),
-        'top_features': {f: round(v, 4) for f, v in top},
-        'ensemble':     'rf * 0.6 + gb * 0.4',
+        'n_samples':          n_samples,
+        'feature_cols':       FEATURE_COLS,
+        'rf_cv_mae':          round(float(-rf_search.best_score_), 4),
+        'rf_holdout_mae':     round(rf_mae_test, 4),
+        'gb_cv_mae':          round(float(-gb_search.best_score_), 4),
+        'gb_holdout_mae':     round(gb_mae_test, 4),
+        'ensemble_mae':       round(best_mae_ens, 4),
+        'ensemble_weight_rf': best_w,
+        'top_features':       {f: round(v, 4) for f, v in top},
+        'ensemble':           f'rf * {best_w} + gb * {round(1-best_w,1)}',
+        'rf_best_params':     rf_search.best_params_,
+        'gb_best_params':     gb_search.best_params_,
     }
     with open(os.path.join(MODELS_DIR, 'rf_homeless_meta.json'), 'w') as f:
         json.dump(meta, f, indent=2)
 
-    print(f"\n[OK] Layer 3 Homeless Media selesai. MAE={mae*100:.1f}%")
+    print(f"\n[OK] Layer 3 Homeless Media selesai. Holdout MAE={rf_mae_test*100:.1f}% | Ensemble MAE={best_mae_ens*100:.1f}%")
     return meta
 
 

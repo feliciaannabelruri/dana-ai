@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-import joblib, os, json
+import joblib, os, json, threading
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import MinMaxScaler
 from kol_profiler import batch_profile_kols, enrich_goals_topics
@@ -677,6 +677,42 @@ def recommend(
 
     results.sort(key=lambda x: x['match_score'], reverse=True)
     top = results[:num_kol]
+
+    # Background scan: cek reputasi online untuk top KOL yang belum pernah di-scan
+    if _FLAGS_LOADED and os.environ.get("GROQ_API_KEY"):
+        try:
+            from kol_flags import scan_if_stale
+            def _bg_reputation_scan(kol_list):
+                from concurrent.futures import ThreadPoolExecutor, as_completed
+                def _scan_one(k):
+                    try:
+                        return k['username'], scan_if_stale(
+                            k['username'], k.get('category', '')
+                        )
+                    except Exception:
+                        return k['username'], None
+                with ThreadPoolExecutor(max_workers=min(len(kol_list), 5)) as ex:
+                    futures = {ex.submit(_scan_one, k): k for k in kol_list}
+                    updated = {}
+                    for fut in as_completed(futures, timeout=30):
+                        try:
+                            uname, bundle = fut.result()
+                            if bundle:
+                                updated[uname] = bundle
+                        except Exception:
+                            pass
+                return updated
+            # Run scans synchronously — time-bounded via ThreadPoolExecutor timeout
+            updated_bundles = _bg_reputation_scan(top)
+            for kol in top:
+                bundle = updated_bundles.get(kol['username'])
+                if bundle:
+                    kol['flags']           = bundle['active']
+                    kol['flag_severity']   = bundle['severity']
+                    kol['flag_penalty_pct']= round(bundle['penalty'] * 100, 1)
+                    kol['flag_summary']    = bundle['summary']
+        except Exception as e:
+            print(f"[WARN] Background reputation scan error: {e}")
 
     pattern_summary = None
     if patterns:
