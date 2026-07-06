@@ -142,7 +142,10 @@ def root():
 
 @app.get("/status")
 def status():
-    trained = os.path.exists(os.path.join(MODELS_DIR, 'st_model.pkl'))
+    trained = (
+        os.path.exists(os.path.join(MODELS_DIR, 'st_model_name.txt')) or
+        os.path.exists(os.path.join(MODELS_DIR, 'st_model.pkl'))
+    )
     homeless_loaded = os.path.exists(os.path.join(DATA_DIR, 'homeless_media.json'))
     has_patterns = os.path.exists(os.path.join(MODELS_DIR, 'campaign_patterns.json'))
 
@@ -554,7 +557,11 @@ def _resolve_tier_splits(req: CampaignRequest, num_kol: int, budget_kol: float) 
 
 @app.post("/recommend")
 def get_recommendations(req: CampaignRequest):
-    if not os.path.exists(os.path.join(MODELS_DIR, 'st_model.pkl')):
+    model_ready = (
+        os.path.exists(os.path.join(MODELS_DIR, 'st_model_name.txt')) or
+        os.path.exists(os.path.join(MODELS_DIR, 'st_model.pkl'))
+    )
+    if not model_ready:
         raise HTTPException(503, "Model belum dilatih. Hit /train dulu.")
 
     zero_budget = (req.budget <= 0)

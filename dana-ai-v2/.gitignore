@@ -11,9 +11,11 @@ backend/data/*.xlsx
 backend/data/*.xls
 backend/data/*.json
 backend/data/kol_clean.pkl
+backend/data/raw_reports/
 
 # Node
 frontend/node_modules/
+backend/tools/node_modules/
 
 # Environment
 .env
