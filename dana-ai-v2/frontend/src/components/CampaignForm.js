@@ -4,6 +4,8 @@ import MultiTopicSelector from './MultiTopicSelector';
 import ZeroBudgetBanner from './ZeroBudgetBanner';
 import BudgetSlider from './BudgetSlider';
 import TierSplit from './TierSplit';
+import GlobalKolBanner from './GlobalKolBanner';
+import CountryDropdown from './CountryDropdown';
 
 const C = {
   blue: '#1A6FE8', blueDark: '#1259C4', blueLight: '#EBF2FD',
@@ -193,6 +195,18 @@ const CampaignForm = ({ form, sf, allLocs, isMobile, hSuggest, hSubmit, canSub, 
       <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 18 }}>
         <SL>Lokasi Target</SL>
         <LocationDropdown options={allLocs} selected={form.selLocs} onChange={v => sf({ selLocs: v })} loading={false} />
+      </div>
+
+      {/* KOL Global */}
+      <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 18 }}>
+        <GlobalKolBanner active={form.kolGlobalActive} onToggle={() => sf({ kolGlobalActive: !form.kolGlobalActive })} />
+        {form.kolGlobalActive && (
+          <div style={{ marginTop: 12 }}>
+            <Field label="Negara Target">
+              <CountryDropdown selected={form.selCountries} onChange={v => sf({ selCountries: v })} />
+            </Field>
+          </div>
+        )}
       </div>
 
       {/* STEP 1: Jenis Rekomendasi */}
