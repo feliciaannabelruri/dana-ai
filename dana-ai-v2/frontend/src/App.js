@@ -5,10 +5,10 @@ import CampaignForm from './components/CampaignForm';
 import ResultPage from './components/ResultPage';
 import LoadingScreen from './components/LoadingScreen';
 import ShareView, { encodeShareData } from './components/ShareView';
-import { 
-  checkStatus, uploadKOL, uploadInsight, 
-  uploadHomelessMedia, trainModel, getRecommendations, getLocations, 
-  uploadKOLHomelessFree, uploadCommunity, suggestParams
+import {
+  checkStatus, uploadKOL, uploadInsight,
+  uploadHomelessMedia, trainModel, getRecommendations, getLocations,
+  uploadKOLHomelessFree, uploadCommunity, suggestParams, getExchangeRates
 } from './services/apiService';
 import { C, Ic } from './components/common/Atoms';
 
@@ -47,6 +47,9 @@ export default function App() {
   const [training, sTrn] = useState(false);
   const [locs, sLocs] = useState([]);
   const [locLoad, sLocLoad] = useState(false);
+  const [fxRates, sFxRates] = useState(null);
+  const [fxDate, sFxDate] = useState(null);
+  const [fxLoading, sFxLoading] = useState(false);
   const [updateMode, sUpdateMode] = useState(false);
   const [shareModal, sShareModal] = useState(false);
   const [shareUrl, sShareUrl] = useState('');
@@ -76,6 +79,15 @@ export default function App() {
     catch { sLocs([{ value: 'nasional', label: 'Nasional', group: 'nasional' }]); }
     sLocLoad(false);
   };
+
+  useEffect(() => {
+    if (!form.kolGlobalActive || fxRates || fxLoading) return;
+    sFxLoading(true);
+    getExchangeRates()
+      .then(d => { sFxRates(d.rates || {}); sFxDate(d.date || null); })
+      .catch(() => sFxRates({}))
+      .finally(() => sFxLoading(false));
+  }, [form.kolGlobalActive, fxRates, fxLoading]);
 
   useEffect(() => {
     if (page !== 'loading') return;
@@ -203,6 +215,7 @@ export default function App() {
               form={form} sf={sf} allLocs={locs} isMobile={isMobile}
               hSuggest={hSuggest} hSubmit={hSubmit} canSub={canSub} loading={false}
               meta={meta} hmCount={hmCount}
+              fxRates={fxRates} fxDate={fxDate} fxLoading={fxLoading}
             />
 
             <p style={{ textAlign: 'center', color: C.textMuted, fontSize: 11, marginTop: 24 }}>DANA AI v3 · Multi-Location · Multi-Topic · Tier Split · Groq LLM Profiling</p>

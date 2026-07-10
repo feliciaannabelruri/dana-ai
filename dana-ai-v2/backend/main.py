@@ -289,6 +289,52 @@ def get_locations():
     }
 
 
+# ── Live exchange rates (for KOL Global rate cards) ──────────────────────────
+# ECB reference rates via Frankfurter (frankfurter.app), no API key needed.
+# Refreshed on weekdays ~16:00 CET; we cache in-memory for a few hours so the
+# form doesn't refetch on every render, and fall back to the last-known rates
+# if the upstream call fails (rather than breaking the page).
+FX_CURRENCIES = ["AUD", "CNY", "SGD", "MYR", "JPY", "KRW", "USD"]
+FX_TTL_SECONDS = 6 * 3600
+_fx_cache = {"ts": 0, "rates": {}, "date": None}
+
+@app.get("/exchange-rates")
+async def exchange_rates():
+    """Rates are IDR per 1 unit of each currency, e.g. {"USD": 15700, ...}."""
+    import time
+    now = time.time()
+    if _fx_cache["rates"] and (now - _fx_cache["ts"] < FX_TTL_SECONDS):
+        return {"rates": _fx_cache["rates"], "date": _fx_cache["date"], "cached": True}
+
+    try:
+        async with httpx.AsyncClient(timeout=8) as client:
+            resp = await client.get(
+                "https://api.frankfurter.dev/v1/latest",
+                params={"base": "USD", "symbols": ",".join(FX_CURRENCIES + ["IDR"])},
+            )
+            resp.raise_for_status()
+            data = resp.json()
+
+        usd_rates = data["rates"]
+        usd_to_idr = usd_rates["IDR"]
+        rates_to_idr = {"USD": usd_to_idr}
+        for cur in FX_CURRENCIES:
+            if cur == "USD":
+                continue
+            usd_to_cur = usd_rates.get(cur)
+            if usd_to_cur:
+                rates_to_idr[cur] = usd_to_idr / usd_to_cur
+
+        _fx_cache["rates"] = rates_to_idr
+        _fx_cache["date"] = data.get("date")
+        _fx_cache["ts"] = now
+        return {"rates": rates_to_idr, "date": data.get("date"), "cached": False}
+    except Exception as e:
+        if _fx_cache["rates"]:
+            return {"rates": _fx_cache["rates"], "date": _fx_cache["date"], "cached": True, "stale": True}
+        raise HTTPException(status_code=502, detail=f"Gagal mengambil kurs: {e}")
+
+
 @app.post("/upload-kol")
 async def upload_kol(file: UploadFile = File(...)):
     if not file.filename.endswith(('.xlsx', '.xls')):

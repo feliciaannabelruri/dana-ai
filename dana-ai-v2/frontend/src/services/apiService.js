@@ -12,6 +12,12 @@ export async function getLocations() {
   return r.json();
 }
 
+export async function getExchangeRates() {
+  const r = await fetch(`${BASE}/exchange-rates`);
+  if (!r.ok) throw new Error('Gagal load kurs');
+  return r.json();
+}
+
 export async function uploadKOL(file) {
   const form = new FormData();
   form.append('file', file);

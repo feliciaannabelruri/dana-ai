@@ -134,7 +134,7 @@ const BudgetSplit = ({ form, sf, budget }) => {
   );
 };
 
-const CampaignForm = ({ form, sf, allLocs, isMobile, hSuggest, hSubmit, canSub, loading, meta, hmCount }) => {
+const CampaignForm = ({ form, sf, allLocs, isMobile, hSuggest, hSubmit, canSub, loading, meta, hmCount, fxRates, fxDate, fxLoading }) => {
   const Ic = {
     bolt: (s = 10) => <svg width={s} height={s} viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4.09 12.97H11L10 22L20.09 11.03H13Z" /></svg>,
   };
@@ -203,7 +203,7 @@ const CampaignForm = ({ form, sf, allLocs, isMobile, hSuggest, hSubmit, canSub, 
         {form.kolGlobalActive && (
           <div style={{ marginTop: 12 }}>
             <Field label="Negara Target">
-              <CountryDropdown selected={form.selCountries} onChange={v => sf({ selCountries: v })} />
+              <CountryDropdown selected={form.selCountries} onChange={v => sf({ selCountries: v })} rates={fxRates} ratesLoading={fxLoading} ratesDate={fxDate} />
             </Field>
           </div>
         )}

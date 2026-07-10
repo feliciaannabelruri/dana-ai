@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import PriceTag from './PriceTag';
 
 const C = {
   indigo: '#4F46E5',
@@ -17,15 +18,15 @@ const Ic = {
 };
 
 export const COUNTRY_OPTIONS = [
-  { value: 'au', label: 'Australia', flag: '🇦🇺' },
-  { value: 'cn', label: 'China',     flag: '🇨🇳' },
-  { value: 'sg', label: 'Singapore', flag: '🇸🇬' },
-  { value: 'my', label: 'Malaysia',  flag: '🇲🇾' },
-  { value: 'jp', label: 'Japan',     flag: '🇯🇵' },
-  { value: 'kr', label: 'Korea',     flag: '🇰🇷' },
+  { value: 'au', label: 'Australia', flag: '🇦🇺', currency: 'AUD' },
+  { value: 'cn', label: 'China',     flag: '🇨🇳', currency: 'CNY' },
+  { value: 'sg', label: 'Singapore', flag: '🇸🇬', currency: 'SGD' },
+  { value: 'my', label: 'Malaysia',  flag: '🇲🇾', currency: 'MYR' },
+  { value: 'jp', label: 'Japan',     flag: '🇯🇵', currency: 'JPY' },
+  { value: 'kr', label: 'Korea',     flag: '🇰🇷', currency: 'KRW' },
 ];
 
-const CountryDropdown = ({ selected = [], onChange }) => {
+const CountryDropdown = ({ selected = [], onChange, rates, ratesLoading, ratesDate }) => {
   const [open, setOpen] = useState(false);
   const ref = useRef();
 
@@ -64,6 +65,25 @@ const CountryDropdown = ({ selected = [], onChange }) => {
               </span>
             );
           })}
+        </div>
+      )}
+
+      {selArr.length > 0 && (
+        <div style={{ marginTop: 8, background: '#F9FAFB', border: `1px solid ${C.border}`, borderRadius: 8, padding: '8px 10px' }}>
+          <div style={{ fontSize: 10, fontWeight: 700, color: C.textMuted, marginBottom: 5, letterSpacing: '.3px' }}>KURS HARI INI</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            {selArr.map(val => {
+              const c = COUNTRY_OPTIONS.find(x => x.value === val);
+              if (!c) return null;
+              return (
+                <div key={val} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
+                  <span>{c.flag}</span>
+                  <span style={{ color: C.text, minWidth: 34, fontWeight: 600 }}>{c.currency}</span>
+                  <PriceTag amount={1} currency={c.currency} rates={rates} loading={ratesLoading} date={ratesDate} />
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
 
