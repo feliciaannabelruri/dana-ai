@@ -600,7 +600,6 @@ def _resolve_tier_splits(req: CampaignRequest, num_kol: int, budget_kol: float) 
 
     return runs
 
-
 @app.post("/recommend")
 def get_recommendations(req: CampaignRequest):
     model_ready = (

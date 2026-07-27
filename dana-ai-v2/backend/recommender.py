@@ -534,10 +534,9 @@ def recommend(
             WEIGHTS['llm_profile'] * s_llm
         )
 
-        # ── KOL Risk Flags: critical filters out, warning penalizes score ──────
         flag_bundle = get_flag_bundle(to_str(row['username']))
         if flag_bundle["filter_out"]:
-            continue  # critical flag -> exclude KOL sepenuhnya
+            continue 
         final = final * (1 - flag_bundle["penalty"])
 
         rate_card = {}
