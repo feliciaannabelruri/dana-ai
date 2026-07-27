@@ -10,7 +10,8 @@ const C = {
 
 const Header = ({ status, onRefresh }) => {
   const isErr = status?.error;
-  const isOk = !isErr && status?.status === 'ok';
+  const isLoading = status?.status === 'loading';
+  const isOk = !isErr && !isLoading;
 
   return (
     <div style={{
