@@ -589,6 +589,10 @@ export default function ResultPage({
   const community = result.community || [];
   const hasComm   = community.length > 0;
 
+  const contactFirstKol   = result.contact_first_kol || [];
+  const contactFirstMedia = hm?.contact_first_media || [];
+  const hasContactFirst   = contactFirstKol.length > 0 || contactFirstMedia.length > 0;
+
   const kolMin = result.estimated_cost_min  || 0;
   const kolMax = result.estimated_cost_max  || 0;
   const medMin = hm?.estimated_cost_media_min || 0;
@@ -816,6 +820,24 @@ export default function ResultPage({
                     </div>
                     <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(auto-fill,minmax(280px,1fr))',gap:12}}>
                       {community.map((c,i)=><FreePoolCard key={c.id||i} item={c} rank={i+1} accentColor='#10B981' accentBg='#D1FAE5' accentDark='#065F46' type='community'/>)}
+                    </div>
+                  </div>
+                )}
+
+                {/* Bisa Dikontak Dulu section — KOL/media dari pool berbayar yang belum ada rate card */}
+                {hasContactFirst&&(
+                  <div style={{marginTop:28}}>
+                    <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:8}}>
+                      <div style={{width:3,height:20,background:'#8B5CF6',borderRadius:2}}/>
+                      <h2 style={{margin:0,fontSize:isMobile?15:17,fontWeight:800,color:C.text,letterSpacing:'-0.3px'}}>Bisa Dikontak Dulu</h2>
+                      <Chip label={`${contactFirstKol.length + contactFirstMedia.length} Profil`} color='#5B21B6' bg='#EDE9FE'/>
+                    </div>
+                    <div style={{background:'#F5F3FF',border:'1px solid #DDD6FE',borderRadius:10,padding:'10px 14px',marginBottom:14,fontSize:12,color:'#5B21B6',lineHeight:1.5}}>
+                      Cocok berdasarkan profil dan lokasi, tapi belum ada rate card tercatat — hubungi langsung untuk nego harga.
+                    </div>
+                    <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(auto-fill,minmax(290px,1fr))',gap:12}}>
+                      {contactFirstKol.map((k,i)=><KOLCard key={`cf-kol-${k.id||i}`} kol={k} rank={i+1}/>)}
+                      {contactFirstMedia.map((m,i)=><HomelessMediaCard key={`cf-media-${m.id||i}`} media={m} rank={i+1}/>)}
                     </div>
                   </div>
                 )}

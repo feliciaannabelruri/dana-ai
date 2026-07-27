@@ -646,7 +646,11 @@ def get_recommendations(req: CampaignRequest):
                         seen_usernames.add(uname)
 
     all_kol_results.sort(key=lambda x: x["match_score"], reverse=True)
-    top_kol = all_kol_results[:req.num_kol]
+    priced_kol   = [k for k in all_kol_results if k.get("has_rate_card", True)]
+    no_price_kol = [k for k in all_kol_results if not k.get("has_rate_card", True)]
+
+    top_kol           = priced_kol[:req.num_kol]
+    contact_first_kol = no_price_kol[:req.num_kol]
 
     cost_min = sum(r.get("rate_min", 0) for r in top_kol)
     cost_max = sum(r.get("rate_max", 0) for r in top_kol)
@@ -667,6 +671,8 @@ def get_recommendations(req: CampaignRequest):
         "campaign_name":      req.campaign_name,
         "recommended_kol":    top_kol,
         "total_kol":          len(top_kol),
+        "contact_first_kol":       contact_first_kol,
+        "contact_first_kol_count": len(contact_first_kol),
         "budget_per_kol":     int(round(budget_kol / max(req.num_kol, 1))) if not zero_budget else 0,
         "estimated_cost_min": int(cost_min),
         "estimated_cost_max": int(cost_max),

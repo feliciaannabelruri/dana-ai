@@ -222,7 +222,7 @@ export default function App() {
           </>
         )}
 
-{page === 'result' && <ResultPage result={result} onBack={() => sPage('form')} onShare={hShare} />}
+{page === 'result' && <ResultPage result={result} onNew={() => sPage('form')} onShare={hShare} />}
       </div>
 
       {shareModal && (

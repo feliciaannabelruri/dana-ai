@@ -315,6 +315,7 @@ def recommend_homeless_media(topics="", goals="", campaign_description="",
             'location_norm': media_loc,
             'pic_name':      media.get('pic_name',''),
             'rate_card':     media.get('rate_card',{}),
+            'has_rate_card': rate_min > 0 or rate_max > 0,
             'rate_min':      rate_min,
             'rate_max':      rate_max,
             'contact_action':media.get('contact_action'),
@@ -328,11 +329,17 @@ def recommend_homeless_media(topics="", goals="", campaign_description="",
         })
 
     results.sort(key=lambda x: x['match_score'], reverse=True)
-    top = results[:num_media]
+    priced   = [r for r in results if r['has_rate_card']]
+    no_price = [r for r in results if not r['has_rate_card']]
+
+    top                = priced[:num_media]
+    contact_first_media = no_price[:num_media]
 
     return {
         'recommended_media':        top,
         'total_media':              len(top),
+        'contact_first_media':       contact_first_media,
+        'contact_first_media_count': len(contact_first_media),
         'relevant_categories':      relevant_cats,
         'estimated_cost_media_min': sum(r['rate_min'] for r in top),
         'estimated_cost_media_max': sum(r['rate_max'] for r in top),

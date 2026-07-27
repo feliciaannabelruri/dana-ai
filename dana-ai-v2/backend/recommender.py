@@ -631,6 +631,7 @@ def recommend(
             'category':       to_str(row['category']),
             'pic_name':       to_str(row['pic_name']),
             'rate_card':      rate_card,
+            'has_rate_card':  to_int(row['rate_min']) > 0 or to_int(row['rate_max']) > 0,
             'rate_min':       to_int(row['rate_min']),
             'rate_max':       to_int(row['rate_max']),
             'has_real_er':    bool(row['has_er_data']),
